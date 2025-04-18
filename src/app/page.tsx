@@ -5,6 +5,8 @@ import styles from "./page.module.css";
 export default function Home() {
   return (
     <div className={styles.container}>
+
+      {/*--------SIDEBAR ESQUERDA--------------------------*/}
       <aside className={styles.sidebar}>
         {/* <div className={styles.logo}>Laudos Periciais Odonto-Legal</div> */}
         <div className="logo">
@@ -21,35 +23,36 @@ export default function Home() {
             <a>Cadastro</a>
             <a>Profissionais</a>
             <a>Casos</a>
+            <a>Evidências</a>
           </nav>
-
-         
         </div>
-        
-
-
         <div className={styles.config}>⚙️ Configurações</div>
-
       </aside>
 
-
+      {/*--------SIDEBAR ESQUERDA--------------------------*/}
 
       <main className={styles.main}>
+
+        {/*--------------HEADER-----------------------*/}
         <header className={styles.header}>
           <div className={styles.logoApp}>
             Gest<span className={styles.highlight}>Odo</span>
           </div>
+
           <input
             type="search"
             placeholder="Pesquisar casos ou pacientes"
-            className={styles.search}
-          />
+            className={styles.pesquisa}/>
+
           <div className={styles.user}>👤 Julia</div>
         </header>
+        {/*--------------HEADER-----------------------*/}
 
         <section className={styles.content}>
           <h1>Painel Inicial</h1>
 
+
+          {/*--------BUSCA POR DATA-------------*/}
           <div className={styles.searchSection}>
             <label>
               Data inicial <input type="date" />
@@ -59,13 +62,19 @@ export default function Home() {
             </label>
             <button className={styles.botaoPesquisar}>Pesquisar</button>
           </div>
+          {/*--------BUSCA POR DATA-------------*/}
 
+          {/*-------------ADICIONAR PACIENTES---------------*/}
           <div className={styles.conteudo}>
             <button className={styles.botaoPesquisar}>➕ Adicionar paciente</button>
             <button className={styles.botaoPesquisar}>📄 Registrar caso</button>
           </div>
+          {/*-------------ADICIONAR PACIENTES---------------*/}
 
           <div className={styles.section}>
+
+            {/*-------------TABELA DE CASOS---------------*/}
+            {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
             <h2>Casos</h2>
             <table>
               <thead>
@@ -101,7 +110,8 @@ export default function Home() {
                       Em andamento
                     </span>
                   </td>
-                  <td>✏️ ❌</td>
+                  <td className={styles.acoes}>✏️</td>
+                  <td className={styles.acoes}>❌</td>
                 </tr>
                 <tr>
                   <td>#021</td>
@@ -118,12 +128,17 @@ export default function Home() {
                   <td>
                     <span className={styles.statusArquivado}>Arquivado</span>
                   </td>
-                  <td>✏️ ❌</td>
+                  <td className={styles.acoes}>✏️</td>
+                  <td className={styles.acoes}>❌</td>
                 </tr>
               </tbody>
             </table>
           </div>
+          {/*-------------TABELA DE CASOS---------------*/}
+          {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
 
+          {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
+          {/*-------------TABELA DE PACIENTES---------------*/}
           <div className={styles.section}>
             <h2>Pacientes</h2>
             <table>
@@ -152,7 +167,8 @@ export default function Home() {
                   <td>
                     <button className={styles.botaoExame}>Solicitar Exame</button>
                   </td>
-                  <td>✏️ ❌</td>
+                  <td className={styles.acoes}>✏️</td>
+                  <td className={styles.acoes}>❌</td>
                 </tr>
                 <tr>
                   <td>#021</td>
@@ -165,10 +181,15 @@ export default function Home() {
                   <td>
                     <button className={styles.botaoExame}>Solicitar Exame</button>
                   </td>
-                  <td>✏️ ❌</td>
+                  <td className={styles.acoes}>✏️</td>
+                  <td className={styles.acoes}>❌</td>
                 </tr>
               </tbody>
             </table>
+            {/*-------------TABELA DE PACIENTES---------------*/}
+            {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
+
+
           </div>
         </section>
       </main>

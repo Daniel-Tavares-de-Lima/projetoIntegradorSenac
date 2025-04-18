@@ -36,7 +36,7 @@ export default function Home() {
         {/*--------------HEADER-----------------------*/}
         <header className={styles.header}>
           <div className={styles.logoApp}>
-            Gest<span className={styles.highlight}>Odo</span>
+            Gest<span>Odo</span>
           </div>
 
           <input
@@ -44,6 +44,7 @@ export default function Home() {
             placeholder="Pesquisar casos ou pacientes"
             className={styles.pesquisa}/>
 
+          {/*-----O usuário também tem que vim do backend----*/}
           <div className={styles.user}>👤 Julia</div>
         </header>
         {/*--------------HEADER-----------------------*/}
@@ -133,13 +134,13 @@ export default function Home() {
                 </tr>
               </tbody>
             </table>
-          </div>
+          
           {/*-------------TABELA DE CASOS---------------*/}
           {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
 
           {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
           {/*-------------TABELA DE PACIENTES---------------*/}
-          <div className={styles.section}>
+          
             <h2>Pacientes</h2>
             <table>
               <thead>
@@ -188,7 +189,6 @@ export default function Home() {
             </table>
             {/*-------------TABELA DE PACIENTES---------------*/}
             {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
-
 
           </div>
         </section>

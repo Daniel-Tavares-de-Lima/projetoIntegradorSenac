@@ -39,10 +39,7 @@ export default function Home() {
             Gest<span>Odo</span>
           </div>
 
-          <input
-            type="search"
-            placeholder="Pesquisar casos ou pacientes"
-            className={styles.pesquisa}/>
+          <input type="search" placeholder="Pesquisar casos ou pacientes" className={styles.pesquisa}/>
 
           {/*-----O usuário também tem que vim do backend----*/}
           <div className={styles.user}>👤 Julia</div>
@@ -66,6 +63,11 @@ export default function Home() {
           {/*--------BUSCA POR DATA-------------*/}
 
           {/*-------------ADICIONAR PACIENTES---------------*/}
+
+          <h2>Mais recentes</h2>
+          <input type="search" placeholder="Pesquisar casos ou pacientes" className={styles.pesquisa}/>
+          
+
           <div className={styles.conteudo}>
             <button className={styles.botaoPesquisar}>➕ Adicionar paciente</button>
             <button className={styles.botaoPesquisar}>📄 Registrar caso</button>

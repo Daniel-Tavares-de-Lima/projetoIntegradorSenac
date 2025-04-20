@@ -20,11 +20,11 @@ export default function Home() {
 
 
           <nav className={styles.navi}>
-            <Link href={""} className={styles.link}>Pacientes</Link>
-            <Link href={""} className={styles.link}>Cadastros</Link>
-            <Link href={""} className={styles.link}>Profissionais</Link>
+            <Link href={`/pacientes`} className={styles.link}>Pacientes</Link>
+            <Link href={`/cadastros`} className={styles.link}>Cadastros</Link>
+            <Link href={`profissionais`} className={styles.link}>Profissionais</Link>
             <Link href={`/casos`} className={styles.link}>Casos</Link>
-            <Link href={""} className={styles.link}>Evidências</Link>
+            <Link href={`evidencias`} className={styles.link}>Evidências</Link>
           </nav>
         </div>
         <div className={styles.config}>⚙️ Configurações</div>

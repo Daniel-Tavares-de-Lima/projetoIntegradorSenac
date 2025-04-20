@@ -21,11 +21,11 @@ export default function Casos() {
 
 
           <nav className={casosStyles.navi}>
-            <Link href={""} className={casosStyles.link}>Pacientes</Link>
-            <Link href={""} className={casosStyles.link}>Cadastros</Link>
-            <Link href={""} className={casosStyles.link}>Profissionais</Link>
-            <Link href={""} className={casosStyles.link}>Casos</Link>
-            <Link href={""} className={casosStyles.link}>Evidências</Link>
+            <Link href={`/pacientes`} className={casosStyles.link}>Pacientes</Link>
+            <Link href={`/cadastros`} className={casosStyles.link}>Cadastros</Link>
+            <Link href={`/profissionais`} className={casosStyles.link}>Profissionais</Link>
+            <Link href={`/casos`} className={casosStyles.link}>Casos</Link>
+            <Link href={`/evidencias`} className={casosStyles.link}>Evidências</Link>
           </nav>
         </div>
         <div className={casosStyles.config}>⚙️ Configurações</div>

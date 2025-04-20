@@ -1,5 +1,6 @@
 // import Image from "next/image";
 import styles from "./page.module.css";
+import Link from "next/link";
 // import {useState} from "react";
 
 export default function Home() {
@@ -19,11 +20,11 @@ export default function Home() {
 
 
           <nav className={styles.navi}>
-            <a>Pacientes</a>
-            <a>Cadastro</a>
-            <a>Profissionais</a>
-            <a>Casos</a>
-            <a>Evidências</a>
+            <Link href={""} className={styles.link}>Pacientes</Link>
+            <Link href={""} className={styles.link}>Cadastros</Link>
+            <Link href={""} className={styles.link}>Profissionais</Link>
+            <Link href={`/casos`} className={styles.link}>Casos</Link>
+            <Link href={""} className={styles.link}>Evidências</Link>
           </nav>
         </div>
         <div className={styles.config}>⚙️ Configurações</div>

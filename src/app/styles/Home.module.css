@@ -49,23 +49,42 @@
     
   }
   
+  .navi .icone{
+  
+    height: 70px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .navi .icone .iconeInterno{
+    font-size: 23px;
+  }
+  
   .navi .link{
     margin: 20px 0;
-    font-size: 18px;
+    font-size: 20px;
     cursor: pointer;
-    padding: 8px;
+    padding: 20px 20px;
     transition: all 0.5s;
     color: #fff;
     text-decoration: none;
+    margin-left: 5px;
   }
   
-  .navi .link:hover{
+  .navi .icone:hover{
     background-color: #f4f4f4;
     color: #2d4a78;
     border-radius: 5px;
     transform: scale(1.02);
     transition: all 0.5s;
     text-decoration: none;
+    cursor: pointer;
+  }
+
+
+  .navi .icone .link:hover{
+    color: #2d4a78;
+    transition: all 0.5s;
   }
   
   .sidebar .config{

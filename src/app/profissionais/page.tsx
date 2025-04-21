@@ -1,11 +1,40 @@
+"use client";
+
 import Image from "next/image";
 // import styles from "./page.module.css";
 import casosStyles from "../styles/Home.module.css";
 import profissionaisStyles from "../styles/Profissionais.module.css";
 import Link from "next/link";
+{/*-----Icones Side bar-----*/}
+import { FaRegUser } from "react-icons/fa6";
+import { LuFileUser } from "react-icons/lu";
+import { SiElectronbuilder } from "react-icons/si";
+import { BiSolidUserBadge } from "react-icons/bi";
+import { TbFileSearch } from "react-icons/tb";
+{/*-----Icones Side bar-----*/}
+import { useState } from "react";
+import {validarSenhas} from "./script";
+
+
 // import {useState} from "react";
 
 export default function Profissionais() {
+
+    const[senha,setSenha] = useState("");
+    const[confirmarSenha,setConfirmarSenha] = useState("");
+
+    const handleSalvar = () => {
+        const resultado = validarSenhas(senha, confirmarSenha);
+        
+        if (!resultado.valido) {
+          alert("⚠️ " + resultado.mensagem);
+          return;
+        }
+    
+        alert("✅ " + resultado.mensagem);
+        // Aqui você segue com a lógica de salvar no backend
+      };
+    
   return (
     <div className={casosStyles.container}>
 
@@ -26,12 +55,37 @@ export default function Profissionais() {
 
 
           <nav className={casosStyles.navi}>
-            <Link href={`/pacientes`} className={casosStyles.link}>Pacientes</Link>
-            <Link href={`/cadastro`} className={casosStyles.link}>Cadastros</Link>
-            <Link href={`/profissionais`} className={casosStyles.link}>Profissionais</Link>
-            <Link href={`/casos`} className={casosStyles.link}>Casos</Link>
-            <Link href={`evidencias`} className={casosStyles.link}>Evidências</Link>
+            <div className={casosStyles.icone}>
+              <FaRegUser className={casosStyles.iconeInterno}/>
+              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={35} height={35}></Image> */}
+              <Link href={`/pacientes`} className={casosStyles.link}>Pacientes</Link>
+            </div>
+
+            <div className={casosStyles.icone}>
+              <LuFileUser className={casosStyles.iconeInterno}/>
+              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
+              <Link href={`/cadastros`} className={casosStyles.link}>Cadastros</Link>
+            </div>
+
+            <div className={casosStyles.icone}>
+              <SiElectronbuilder className={casosStyles.iconeInterno}/>
+              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
+              <Link href={`profissionais`} className={casosStyles.link}>Profissionais</Link>
+            </div>
+            
+            <div className={casosStyles.icone}>
+            <BiSolidUserBadge className={casosStyles.iconeInterno}/>
+              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
+              <Link href={`/casos`} className={casosStyles.link}>Casos</Link>
+            </div>
+
+            <div className={casosStyles.icone}>
+            <TbFileSearch className={casosStyles.iconeInterno}/>
+              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
+              <Link href={`evidencias`} className={casosStyles.link}>Evidências</Link>
+            </div>
           </nav>
+
         </div>
         <div className={casosStyles.config}>⚙️ Configurações</div>
       </aside>
@@ -49,7 +103,7 @@ export default function Profissionais() {
           <input type="search" placeholder="Pesquisar casos ou pacientes" className={casosStyles.pesquisa}/>
 
           {/*-----O usuário também tem que vim do backend----*/}
-          <div className={casosStyles.user}>👤 Julia</div>
+          <div className={casosStyles.user}> <FaRegUser/> Julia</div>
         </header>
         {/*--------------HEADER-----------------------*/}
 
@@ -93,11 +147,16 @@ export default function Profissionais() {
                 {/*---------EXEMPLOS----------*/}
                 <div className={casosStyles.organizacao}>
                   <label>Senha: <br />
-                    <input type="password" required placeholder="Digite a senha"/>
+                    <input type="password" placeholder="Digite a senha" value={senha} onChange={(e) => setSenha(e.target.value)} required/>
                   </label>
                 </div>
 
                 {/*---------EXEMPLOS----------*/}
+                <div className={casosStyles.organizacao}>
+                  <label>Repita a Senha: <br />
+                    <input type="password" placeholder="Digite a senha" value={confirmarSenha} onChange={(e) => setConfirmarSenha(e.target.value)} required/>
+                  </label>
+                </div>
 
               </div>
 
@@ -131,7 +190,7 @@ export default function Profissionais() {
                   </label>
                 </div>
 
-                <button>Salvar</button>
+                <button onClick={handleSalvar}>Salvar</button>
               </div>
             </div>
           

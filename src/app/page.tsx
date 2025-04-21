@@ -7,6 +7,7 @@ import { LuFileUser } from "react-icons/lu";
 import { SiElectronbuilder } from "react-icons/si";
 import { BiSolidUserBadge } from "react-icons/bi";
 import { TbFileSearch } from "react-icons/tb";
+{/*-----Icones Side bar-----*/}
 // import {useState} from "react";
 
 export default function Home() {
@@ -59,8 +60,6 @@ export default function Home() {
               {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
               <Link href={`evidencias`} className={styles.link}>Evidências</Link>
             </div>
-            
-            
           </nav>
         </div>
         <div className={styles.config}>⚙️ Configurações</div>

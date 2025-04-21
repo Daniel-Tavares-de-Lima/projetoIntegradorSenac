@@ -2,6 +2,13 @@ import Image from "next/image";
 // import styles from "./page.module.css";
 import casosStyles from "../styles/Home.module.css";
 import Link from "next/link";
+{/*-----Icones Side bar-----*/}
+import { FaRegUser } from "react-icons/fa6";
+import { LuFileUser } from "react-icons/lu";
+import { SiElectronbuilder } from "react-icons/si";
+import { BiSolidUserBadge } from "react-icons/bi";
+import { TbFileSearch } from "react-icons/tb";
+{/*-----Icones Side bar-----*/}
 // import {useState} from "react";
 
 export default function Casos() {
@@ -25,11 +32,35 @@ export default function Casos() {
 
 
           <nav className={casosStyles.navi}>
-            <Link href={`/pacientes`} className={casosStyles.link}>Pacientes</Link>
-            <Link href={`/cadastros`} className={casosStyles.link}>Cadastros</Link>
-            <Link href={`/profissionais`} className={casosStyles.link}>Profissionais</Link>
-            <Link href={`/casos`} className={casosStyles.link}>Casos</Link>
-            <Link href={`/evidencias`} className={casosStyles.link}>Evidências</Link>
+            <div className={casosStyles.icone}>
+              <FaRegUser className={casosStyles.iconeInterno}/>
+              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={35} height={35}></Image> */}
+              <Link href={`/pacientes`} className={casosStyles.link}>Pacientes</Link>
+            </div>
+
+            <div className={casosStyles.icone}>
+              <LuFileUser className={casosStyles.iconeInterno}/>
+              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
+              <Link href={`/cadastros`} className={casosStyles.link}>Cadastros</Link>
+            </div>
+
+            <div className={casosStyles.icone}>
+              <SiElectronbuilder className={casosStyles.iconeInterno}/>
+              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
+              <Link href={`profissionais`} className={casosStyles.link}>Profissionais</Link>
+            </div>
+            
+            <div className={casosStyles.icone}>
+            <BiSolidUserBadge className={casosStyles.iconeInterno}/>
+              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
+              <Link href={`/casos`} className={casosStyles.link}>Casos</Link>
+            </div>
+
+            <div className={casosStyles.icone}>
+            <TbFileSearch className={casosStyles.iconeInterno}/>
+              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
+              <Link href={`evidencias`} className={casosStyles.link}>Evidências</Link>
+            </div>
           </nav>
         </div>
         <div className={casosStyles.config}>⚙️ Configurações</div>

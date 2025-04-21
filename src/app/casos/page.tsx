@@ -200,7 +200,7 @@ export default function Casos() {
           {/*-------------TABELA DE CASOS---------------*/}
           {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
           
-            <h2>Todos os Casos</h2>
+            <h2>Todos os Casos - Exemplos</h2>
             <table>
     <thead>
       <tr>

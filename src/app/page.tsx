@@ -114,7 +114,7 @@ export default function Home() {
 
             {/*-------------TABELA DE CASOS---------------*/}
             {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
-            <h2>Casos</h2>
+            <h2>Casos - Exemplos</h2>
             <table>
               <thead>
                 <tr>
@@ -179,7 +179,7 @@ export default function Home() {
           {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
           {/*-------------TABELA DE PACIENTES---------------*/}
           
-            <h2>Pacientes</h2>
+            <h2>Pacientes - Exemplos</h2>
             <table>
               <thead>
                 <tr>

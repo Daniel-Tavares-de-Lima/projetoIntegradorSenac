@@ -197,7 +197,7 @@ export default function Profissionais() {
           
           {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
           
-            <h2>Todos os profissionais</h2>
+            <h2>Todos os profissionais - Exemplos</h2>
             <table>
                 <thead>
                     <tr>

@@ -1,6 +1,12 @@
-// import Image from "next/image";
+import Image from "next/image";
 import styles from "./page.module.css";
 import Link from "next/link";
+{/*-----Icones Side bar-----*/}
+import { FaRegUser } from "react-icons/fa6";
+import { LuFileUser } from "react-icons/lu";
+import { SiElectronbuilder } from "react-icons/si";
+import { BiSolidUserBadge } from "react-icons/bi";
+import { TbFileSearch } from "react-icons/tb";
 // import {useState} from "react";
 
 export default function Home() {
@@ -10,21 +16,51 @@ export default function Home() {
       {/*--------SIDEBAR ESQUERDA--------------------------*/}
       <aside className={styles.sidebar}>
         {/* <div className={styles.logo}>Laudos Periciais Odonto-Legal</div> */}
-        <div className="logo">
-          <div className="imagem">  
+        <div>
+          <div>  
           </div>
 
-          <div className="titulo">
-            <h1>Laudos Periciais Odonto-Legal</h1>
+          <div className={styles.logo}>
+
+            <Image src={`/imagens/Logo - Laudo.png`} alt="Logo - Laudo" width={60} height={60} ></Image>
+            <h1>
+              <Link href={`http://localhost:3000`} className={styles.titulo}>Laudos Periciais Odonto-Legal</Link>
+            </h1>
           </div>
 
 
           <nav className={styles.navi}>
-            <Link href={`/pacientes`} className={styles.link}>Pacientes</Link>
-            <Link href={`/cadastros`} className={styles.link}>Cadastros</Link>
-            <Link href={`profissionais`} className={styles.link}>Profissionais</Link>
-            <Link href={`/casos`} className={styles.link}>Casos</Link>
-            <Link href={`evidencias`} className={styles.link}>Evidências</Link>
+            <div className={styles.icone}>
+              <FaRegUser className={styles.iconeInterno}/>
+              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={35} height={35}></Image> */}
+              <Link href={`/pacientes`} className={styles.link}>Pacientes</Link>
+            </div>
+
+            <div className={styles.icone}>
+              <LuFileUser className={styles.iconeInterno}/>
+              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
+              <Link href={`/cadastros`} className={styles.link}>Cadastros</Link>
+            </div>
+
+            <div className={styles.icone}>
+              <SiElectronbuilder className={styles.iconeInterno}/>
+              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
+              <Link href={`profissionais`} className={styles.link}>Profissionais</Link>
+            </div>
+            
+            <div className={styles.icone}>
+            <BiSolidUserBadge className={styles.iconeInterno}/>
+              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
+              <Link href={`/casos`} className={styles.link}>Casos</Link>
+            </div>
+
+            <div className={styles.icone}>
+            <TbFileSearch className={styles.iconeInterno}/>
+              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
+              <Link href={`evidencias`} className={styles.link}>Evidências</Link>
+            </div>
+            
+            
           </nav>
         </div>
         <div className={styles.config}>⚙️ Configurações</div>

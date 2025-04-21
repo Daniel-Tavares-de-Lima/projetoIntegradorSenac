@@ -1,4 +1,4 @@
-// import Image from "next/image";
+import Image from "next/image";
 // import styles from "./page.module.css";
 import casosStyles from "../styles/Home.module.css";
 import Link from "next/link";
@@ -11,12 +11,16 @@ export default function Casos() {
       {/*--------SIDEBAR ESQUERDA--------------------------*/}
       <aside className={casosStyles.sidebar}>
         {/* <div className={casosStyles.logo}>Laudos Periciais Odonto-Legal</div> */}
-        <div className="logo">
-          <div className="imagem">  
+        <div>
+          <div>  
           </div>
 
-          <div className="titulo">
-            <h1>Laudos Periciais Odonto-Legal</h1>
+          <div className={casosStyles.logo}>
+
+            <Image src={`/imagens/Logo - Laudo.png`} alt="Logo - Laudo" width={60} height={60} ></Image>
+            <h1>
+              <Link href={`http://localhost:3000`} className={casosStyles.titulo}>Laudos Periciais Odonto-Legal</Link>
+            </h1>
           </div>
 
 

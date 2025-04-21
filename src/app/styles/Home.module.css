@@ -19,7 +19,7 @@
   
   /*---------SIDEBAR---------*/
   .sidebar {
-    width: 250px;
+    width: 350px;
     background-color: #2d4a78; /* cor da barra lateral */
     padding: 20px;
     color: #fff;
@@ -31,6 +31,16 @@
   .sidebar h1 {
     font-size: 26px;
     margin-bottom: 20px;
+  }
+
+  .sidebar .titulo{
+    margin-left: 5px;
+  }
+  .sidebar .logo{
+    display: flex;
+    align-items: center;
+    padding: 5px;
+  
   }
   
   .navi{
@@ -66,7 +76,10 @@
     transition: all 0.5s;
   }
   
-  
+  .sidebar .titulo{
+    color: #fff;
+    text-decoration: none;
+  }
   .sidebar .config:hover{
     background-color: #f4f4f4;
     color: #2d4a78;

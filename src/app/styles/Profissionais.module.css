@@ -42,20 +42,23 @@
 }
 
 .acessoADM p{
-  width: 150px;
-  height: 20px;
-  background-color: #0071ac;
-  border-radius: 10px;
-  color: #fff;
+  display: inline-block;
+    padding: 10px 30px;
+    background-color: #E68B35;
+    color: white;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
 
 }
 
 
 .acessoPERITO p{
-  width: 150px;
-  height: 20px;
-  background-color: #a19a25;
-  border-radius: 10px;
-  color: #fff;
-
+    display: inline-block;
+    padding: 10px 30px;
+    background-color: #2D4A78;
+    color: white;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
 }

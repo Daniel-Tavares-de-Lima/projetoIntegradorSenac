@@ -1,0 +1,73 @@
+/* Estilos específicos para a página de evidências */
+.btnPesquisar {
+    background-color: #31a248;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    margin: 15px 0;
+  }
+  
+  .btnPesquisar:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+  
+  .btnSalvar {
+    background-color: #31a248;
+    color: white;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+  }
+  
+  .btnSalvar:hover {
+    opacity: 0.9;
+  }
+  
+  .headerCadastro {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .btnVoltar {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    color: #2d4a78;
+    cursor: pointer;
+    font-size: 16px;
+    gap: 8px;
+  }
+  
+  .btnVoltar:hover {
+    text-decoration: underline;
+  }
+  
+  .nivelAdministrador {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #E68B35;
+    color: white;
+    border-radius: 5px;
+    font-size: 12px;
+  }
+  
+  .nivelPerito {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #2D4A78;
+    color: white;
+    border-radius: 5px;
+    font-size: 12px;
+  }

@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import styles from "./page.module.css";
 import Link from "next/link";
@@ -9,8 +10,21 @@ import { BiSolidUserBadge } from "react-icons/bi";
 import { TbFileSearch } from "react-icons/tb";
 {/*-----Icones Side bar-----*/}
 // import {useState} from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+
+  const [userName, setUserName] = useState("");
+
+
+  useEffect(() => {
+    const storedName = localStorage.getItem("userName");
+    if (storedName) {
+      setUserName(storedName);
+    }
+  }, []);
+
+
   return (
     <div className={styles.container}>
 
@@ -78,7 +92,10 @@ export default function Home() {
           <input type="search" placeholder="Pesquisar casos ou pacientes" className={styles.pesquisa}/>
 
           {/*-----O usuário também tem que vim do backend----*/}
-          <div className={styles.user}>👤 Julia</div>
+          <div className={styles.user}>
+
+            <FaRegUser /> {userName || "Usuário"}
+          </div>
         </header>
         {/*--------------HEADER-----------------------*/}
 

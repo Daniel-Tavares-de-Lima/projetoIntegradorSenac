@@ -2,9 +2,10 @@
 
 const API_URL = 'https://pi3p.onrender.com';
 
-export async function apiRequest(endpoint, method = 'GET', body = null, requiresAuth = false) {
+export async function apiRequest(endpoint, method = 'POST', body = null, requiresAuth = false) {
   const headers = {
     'Content-Type': 'application/json',
+    Authorization:`Bearer ${token}`
   };
 
   if (requiresAuth) {
@@ -29,7 +30,7 @@ export async function apiRequest(endpoint, method = 'GET', body = null, requires
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || 'Erro na requisição.');
+    throw new Error(data.message || 'Erro ao conectar.');
   }
 
   return data;

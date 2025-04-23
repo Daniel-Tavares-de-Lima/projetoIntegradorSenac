@@ -17,26 +17,57 @@ import { TbFileSearch } from "react-icons/tb";
   /*-----Icones Side bar-----*/
 }
 import { useState } from "react";
-import { validarSenhas } from "../services/validacaoServices";
+// import { validarSenhas } from "../services/validacaoServices";
+import { createUser } from "../services/saveServices";
 
 // import {useState} from "react";
 
+
 export default function Profissionais() {
-  const [senha, setSenha] = useState("");
+    // const name [name, setName] = useState("");
+  const [password, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [name,setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("ADMIN");
 
-  const handleSalvar = () => {
-    const resultado = validarSenhas(senha, confirmarSenha);
+//   const handleSalvar = () => {
+//     const resultado = validarSenhas(password);
 
-    if (!resultado.valido) {
-      alert("⚠️ " + resultado.mensagem);
+//     if (!resultado.valido) {
+//       alert("⚠️ " + resultado.mensagem);
+//       return;
+//     }
+
+//     alert("✅ " + resultado.mensagem);
+//     // Aqui você segue com a lógica de salvar no backend
+//   };
+
+
+const createUsers = async () => {
+    if (!name || !email || !password || !role) {
+      alert("⚠️ Preencha todos os campos obrigatórios");
+
+      console.log(name);
+      console.log(email);
+      console.log(password);
+      console.log(role);
       return;
     }
 
-    alert("✅ " + resultado.mensagem);
-    // Aqui você segue com a lógica de salvar no backend
-  };
+  
+    try {
+      const usuario = await createUser(name, email, password, role); // <- await
+  
+      alert("✅ Usuário salvo com sucesso!");
+      console.log(usuario);
+    } catch (error) {
+      alert(`❌ Erro: ${error.message}`);
+    }
+  }
 
+  
+  
   return (
     <div className={casosStyles.container}>
       {/*--------SIDEBAR ESQUERDA--------------------------*/}
@@ -162,6 +193,8 @@ export default function Profissionais() {
                       type="text"
                       placeholder="Digite o nome completo"
                       required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
                     />
                   </label>
                 </div>
@@ -171,7 +204,13 @@ export default function Profissionais() {
                   <label>
                     {" "}
                     E-mail* <br />
-                    <input type="email" placeholder="Digite o email" required />
+                    <input type="email" 
+                    value={email}
+                    placeholder="Digite o email" required 
+                    onChange={(e) => setEmail(e.target.value)}
+                    
+                    />
+                    
                   </label>
                 </div>
 
@@ -181,8 +220,8 @@ export default function Profissionais() {
                     Senha: <br />
                     <input
                       type="password"
-                      placeholder="Digite a senha"
-                      value={senha}
+                      placeholder="Digite a password"
+                      value={password}
                       onChange={(e) => setSenha(e.target.value)}
                       required
                     />
@@ -206,7 +245,7 @@ export default function Profissionais() {
 
               <div className={casosStyles.cadastroDireita}>
                 {/*---------EXEMPLOS----------*/}
-                <div className={casosStyles.organizacao}>
+                {/* <div className={casosStyles.organizacao}>
                   <label>
                     {" "}
                     Matricula* <br />
@@ -216,29 +255,29 @@ export default function Profissionais() {
                       required
                     />
                   </label>
-                </div>
+                </div> */}
 
                 {/*---------EXEMPLOS----------*/}
                 <div className={casosStyles.organizacao}>
                   <label>
                     Perfil de acesso: <br />
-                    <select>
-                      <option value="">Admin</option>
-                      <option value="">Perito</option>
-                      <option value="">Assistente</option>
+                    <select value={role} onChange={(e) => setRole(e.target.value)}>
+                      <option value="ADMIN">ADMIN</option>
+                      <option value="PERITO">PERITO</option>
+                      <option value="ASSISTENTE">ASSISTENTE</option>
                     </select>
                   </label>
                 </div>
 
                 {/*---------EXEMPLOS----------*/}
-                <div className={casosStyles.organizacao}>
+                {/* <div className={casosStyles.organizacao}>
                   <label>
                     Data de Nascimento:
                     <input type="date" required />
                   </label>
-                </div>
+                </div> */}
 
-                <button onClick={handleSalvar}>Salvar</button>
+                <button onClick={createUsers}>Salvar</button>
               </div>
             </div>
 

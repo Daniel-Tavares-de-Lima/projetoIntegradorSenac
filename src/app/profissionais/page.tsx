@@ -16,15 +16,21 @@ import { TbFileSearch } from "react-icons/tb";
 {
   /*-----Icones Side bar-----*/
 }
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // import { validarSenhas } from "../services/validacaoServices";
 import { createUser } from "../services/saveServices";
 
 // import {useState} from "react";
 
+interface User {
+  id: string;
+  name: string;
+  role: string;
+}
 
 export default function Profissionais() {
     // const name [name, setName] = useState("");
+  const [usuarios, setUsuarios] = useState<User[]>([]);
   const [password, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [name,setName] = useState("");
@@ -43,31 +49,60 @@ export default function Profissionais() {
 //     // Aqui você segue com a lógica de salvar no backend
 //   };
 
-
-const createUsers = async () => {
-    if (!name || !email || !password || !role) {
-      alert("⚠️ Preencha todos os campos obrigatórios");
-
-      console.log(name);
-      console.log(email);
-      console.log(password);
-      console.log(role);
-      return;
-    }
-
+const fetchUsuarios = async () => {
+  const token = localStorage.getItem('token')
   
-    try {
-      const usuario = await createUser(name, email, password, role); // <- await
-  
-      alert("✅ Usuário salvo com sucesso!");
-      console.log(usuario);
-    } catch (error) {
-      alert(`❌ Erro: ${error.message}`);
-    }
+  if (!token) {
+    alert("Usuário não autenticado. Faça login novamente.")
+    return;
   }
 
-  
-  
+  try {
+    const response = await fetch("https://pi3p.onrender.com/users", {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Erro ao buscar usuários')
+    }
+
+    setUsuarios(data)
+  } catch (error) {
+    console.error(error.message);
+    alert("Erro ao buscar usuários");
+  }
+};
+
+useEffect(() => {
+  fetchUsuarios()
+}, [])
+
+
+const createUsers = async () => {
+  if (!name || !email || !password || !role) {
+    alert("⚠️ Preencha todos os campos obrigatórios");
+    return;
+  }
+
+  try {
+    const usuario = await createUser(name, email, password, role); // <- await
+
+    alert("✅ Usuário salvo com sucesso!");
+    console.log(usuario);
+    fetchUsuarios();
+  } catch (error) {
+    alert(`❌ Erro: ${error.message}`);
+  }
+}
+
+
+
   return (
     <div className={casosStyles.container}>
       {/*--------SIDEBAR ESQUERDA--------------------------*/}
@@ -283,69 +318,29 @@ const createUsers = async () => {
 
             {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
 
-            <h2>Todos os profissionais - Exemplos</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Matricula</th>
-                  <th>Nome</th>
-                  <th>Data de Nascimento</th>
-                  <th>Nivel de acesso</th>
-                  {/* <th>Solicitante da Perícia</th>
-                        <th>Responsável</th>
-                        <th>Data do Exame</th>
-                        <th>Últimos Exames</th>
-                        <th>Solicitar Exames</th>
-                        <th>Status</th> */}
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>012345</td>
-                  <td>Julia Gomes Santana</td>
-                  <td>12/03/25</td>
-                  <td>
-                    <div className={profissionaisStyles.acessoADM}>
-                      <p>Administrador</p>
-                    </div>
-                  </td>
+            <h2>Todos os profissionais</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Nível de Acesso</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {usuarios.map((usuario) => (
+                <tr key={usuario.id}> {/* Supondo que cada usuário tem um id único */}
+                  <td>{usuario.name}</td>
+                  <td>{usuario.role}</td>
                   <td className={casosStyles.acoes}>
-                    <button className={casosStyles.acaoBotao} title="Confirmar">
-                      ✅
-                    </button>
-                    <button className={casosStyles.acaoBotao} title="Editar">
-                      ✏️
-                    </button>
-                    <button className={casosStyles.acaoBotao} title="Excluir">
-                      ❌
-                    </button>
+                    <button className={casosStyles.acaoBotao} title="Confirmar">✅</button>
+                    <button className={casosStyles.acaoBotao} title="Editar">✏️</button>
+                    <button className={casosStyles.acaoBotao} title="Excluir">❌</button>
                   </td>
                 </tr>
-                <tr>
-                  <td>543210</td>
-                  <td>Marcelo Rodrigues Oliveira</td>
-                  <td>05/03/25</td>
-                  <td>
-                    <div className={profissionaisStyles.acessoPERITO}>
-                      <p>Perito</p>
-                    </div>
-                  </td>
-
-                  <td className={casosStyles.acoes}>
-                    <button className={casosStyles.acaoBotao} title="Confirmar">
-                      ✅
-                    </button>
-                    <button className={casosStyles.acaoBotao} title="Editar">
-                      ✏️
-                    </button>
-                    <button className={casosStyles.acaoBotao} title="Excluir">
-                      ❌
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+              ))}
+            </tbody>
+          </table>
             {/*-------------TABELA DE PACIENTES---------------*/}
             {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
           </div>

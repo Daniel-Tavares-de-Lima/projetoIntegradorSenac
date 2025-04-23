@@ -7,7 +7,7 @@ export async function createUser(name, email, password, role) {
       if (!token) {
         throw new Error("Usuário não autenticado. Faça login novamente.");
       }
-  
+
       const response = await fetch("https://pi3p.onrender.com/users", {
         method: "POST",
         headers: {
@@ -18,7 +18,7 @@ export async function createUser(name, email, password, role) {
       });
   
       const data = await response.json();
-  
+      
       if (!response.ok) {
         throw new Error(data.message || "Erro ao criar usuário");
       }

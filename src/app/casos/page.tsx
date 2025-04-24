@@ -4,7 +4,7 @@ import Image from "next/image";
 // import styles from "./page.module.css";
 import casosStyles from "../styles/Home.module.css";
 import Link from "next/link";
-import {createCase} from "../services/casosService";
+import {createCase, updateCase, deleteCase} from "../services/casosService";
 {
   /*-----Icones Side bar-----*/
 }
@@ -29,7 +29,7 @@ interface Caso {
   classification: string;
   statusCase: string;
   managerId: string;
-  manager?: { name: string };
+  solicitante?: string;
   dateOpened: string;
 }
 
@@ -39,12 +39,10 @@ interface User {
   role: string;
 }
 
+
 export default function Casos() {
   const [casos, setCasos] = useState<Caso[]>([]);
   const [usuarios, setUsuarios] = useState<User[]>([]);
-  // const [users, setUsers] = useState<User[]>([]);
-
-
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -53,98 +51,79 @@ export default function Casos() {
     statusCase: "ANDAMENTO",
     solicitante: "",
   });
-  // const [name,setName] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [editCaseId, setEditCaseId] = useState<string | null>(null); // Estado para caso em edição
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null); // Papel do usuário logado
 
-  // Buscar casos
   const fetchCasos = async () => {
     try {
       const response = await fetch("https://pi3p.onrender.com/cases", {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
-      })  //.then(res => res.json());
-      
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+      });
       const data = await response.json();
-
-
-      if(Array.isArray(data)){
-        console.log("Casos retornados:", data);
-
-        setCasos(data);
-      }else {
-        console.error("Resposta inesperada da API de casos:", data);
-        setError("Erro ao carregar casos. Formato inválido.");
-
+      if (!response.ok) {
+        throw new Error(data.message || "Erro ao buscar casos");
       }
-      
+      const casosArray = Array.isArray(data) ? data : data.cases || [];
+      setCasos(casosArray);
     } catch (err) {
       setError(err.message);
+      setCasos([]);
     }
   };
 
-  // Buscar usuários
-  // const fetchUsers = async () => {
-  //   try {
-  //     const response = await fetch("https://pi3p.onrender.com/users", {
-  //       method: 'GET',
-  //       headers: {
-  //         'Authorization': `Bearer ${localStorage.getItem('token')}`,
-  //         'Content-Type': 'application/json'
-  //       }
-  //     });  //.then(res => res.json());
-      
-  //     const data = await response.json();
-
-  //     if(Array.isArray(data)){
-  //       console.log("Usuários retornados:", data);
-
-  //       setUsers(data);
-  //     }else{
-  //       console.error("Resposta inesperada da API de usuários:", data);
-  //       setError("Erro ao carregar usuários. Formato inválido.");
-  //     }
-  //   } catch (err) {
-  //     setError(err.message);
-  //   }
-  // };
-
-
   const fetchUsuarios = async () => {
-    const token = localStorage.getItem('token')
-    
+    const token = localStorage.getItem("token");
     if (!token) {
-      alert("Usuário não autenticado. Faça login novamente.")
+      alert("Usuário não autenticado. Faça login novamente.");
       return;
     }
-  
     try {
       const response = await fetch("https://pi3p.onrender.com/users", {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
-  
       const data = await response.json();
-  
       if (!response.ok) {
-        throw new Error(data.message || 'Erro ao buscar usuários')
+        throw new Error(data.message || "Erro ao buscar usuários");
       }
-  
-      setUsuarios(data)
+      setUsuarios(data);
     } catch (error) {
-      console.error(error.message);
-      alert("Erro ao buscar usuários");
+      setError(error.message);
+    }
+  };
+
+  const fetchCurrentUser = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    try {
+      const response = await fetch("https://pi3p.onrender.com/users/me", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setCurrentUserRole(data.role);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar usuário logado:", error);
     }
   };
 
   useEffect(() => {
     fetchCasos();
     fetchUsuarios();
+    fetchCurrentUser();
   }, []);
 
   const handleInputChange = (
@@ -154,20 +133,39 @@ export default function Casos() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const saveCase = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.description || !formData.classification || !formData.peritoResponsavel) {
       setError("⚠️ Preencha todos os campos obrigatórios");
       return;
     }
     try {
-      const novoCaso = await createCase(
-        formData.title,
-        formData.description,
-        formData.classification,
-        formData.peritoResponsavel
-      );
-      setCasos((prev) => [...prev, novoCaso]);
+      if (editCaseId) {
+        // Modo de edição
+        await updateCase(
+          editCaseId,
+          formData.title,
+          formData.description,
+          formData.classification,
+          formData.peritoResponsavel,
+          formData.statusCase,
+          formData.solicitante
+        );
+        alert("✅ Caso atualizado com sucesso!");
+        setEditCaseId(null);
+      } else {
+        // Modo de criação
+        const novoCaso = await createCase(
+          formData.title,
+          formData.description,
+          formData.classification,
+          formData.peritoResponsavel,
+          formData.solicitante
+        );
+        setCasos((prev) => [...prev, novoCaso]);
+        alert("✅ Caso salvo com sucesso!");
+      }
+      // Limpar formulário
       setFormData({
         title: "",
         description: "",
@@ -177,11 +175,40 @@ export default function Casos() {
         solicitante: "",
       });
       setError(null);
-      alert("✅ Caso salvo com sucesso!");
+      fetchCasos(); // Atualizar lista
     } catch (err) {
       setError(err.message);
       alert(`❌ Erro: ${err.message}`);
     }
+  };
+
+  const handleEdit = (caso: Caso) => {
+    setEditCaseId(caso.id);
+    setFormData({
+      title: caso.title,
+      description: caso.description,
+      classification: caso.classification,
+      peritoResponsavel: caso.managerId,
+      statusCase: caso.statusCase,
+      solicitante: caso.solicitante || "",
+    });
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Tem certeza que deseja desativar este caso?")) return;
+    try {
+      await deleteCase(id);
+      alert("✅ Caso desativado com sucesso!");
+      fetchCasos();
+    } catch (error) {
+      setError(`❌ Erro: ${error.message}`);
+    }
+  };
+
+  // Mapear managerId para o nome do perito
+  const getManagerName = (managerId: string) => {
+    const user = usuarios.find((u) => u.id === managerId);
+    return user ? user.name : "-";
   };
 
   return (
@@ -257,8 +284,8 @@ export default function Casos() {
           </div>
 
           <div className={casosStyles.section}>
-            <h2>Cadastrar Casos</h2>
-            <form onSubmit={handleSubmit} className={casosStyles.cadastroCasos}>
+            <h2>{editCaseId ? "Editar Caso" : "Cadastrar Caso"}</h2>
+            <form onSubmit={saveCase} className={casosStyles.cadastroCasos}>
               <div className={casosStyles.cadastroEsquerda}>
                 <div className={casosStyles.organizacao}>
                   <label>
@@ -327,13 +354,12 @@ export default function Casos() {
                     >
                       <option value="">Selecione</option>
                       {usuarios
-                        .filter(user => user.role === "PERITO")
-                        .map(user => (
+                        .filter((user) => user.role === "PERITO")
+                        .map((user) => (
                           <option key={user.id} value={user.id}>
                             {user.name}
                           </option>
                         ))}
-                        
                     </select>
                   </label>
                 </div>
@@ -353,8 +379,27 @@ export default function Casos() {
                   </label>
                 </div>
                 <button type="submit" className={casosStyles.botaoSalvar}>
-                  Salvar
+                  {editCaseId ? "Salvar Alterações" : "Salvar"}
                 </button>
+                {editCaseId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditCaseId(null);
+                      setFormData({
+                        title: "",
+                        description: "",
+                        classification: "",
+                        peritoResponsavel: "",
+                        statusCase: "ANDAMENTO",
+                        solicitante: "",
+                      });
+                      setError(null);
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                )}
               </div>
             </form>
 
@@ -363,48 +408,83 @@ export default function Casos() {
               <thead>
                 <tr>
                   <th>Código</th>
-                  <th>Titulo</th>
+                  <th>Título</th>
                   <th>Descrição</th>
                   <th>Tipo</th>
                   <th>Data do Fato</th>
-                  {/* <th>Local</th> */}
                   <th>Solicitante da Perícia</th>
                   <th>Responsável</th>
-                  {/* <th>Data do Exame</th> */}
-                  {/* <th>Últimos Exames</th> */}
-                  {/* <th>Solicitar Exames</th> */}
                   <th>Status</th>
                   <th>Solicitar Exames</th>
                   <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
-                {casos.map((caso) => (
-                  <tr key={caso.id}>
-                    <td>{caso.id.slice(0, 4)}</td>
-                    <td>{caso.title}</td>
-                    <td>{caso.description}</td>
-                    <td>{caso.classification}</td>
-                    <td>{new Date(caso.dateOpened).toLocaleString()}</td>
-                    <td>{formData.solicitante || '-'}</td>
-                    <td>{caso.manager?.name || '-'}</td>
-                    <td>
-                      <span className={casosStyles[`status${caso.statusCase}`]}>
-                        {caso.statusCase}
-                      </span>
-                    </td>
-                
-                    <td>
-                      <button className={casosStyles.botaoExame}>Solicitar Exame</button>
-                    </td>
-                    
-                    <td className={casosStyles.acoes}>
-                      <button className={casosStyles.acaoBotao} title="Confirmar">✅</button>
-                      <button className={casosStyles.acaoBotao} title="Editar">✏️</button>
-                      <button className={casosStyles.acaoBotao} title="Excluir">❌</button>
-                    </td>
+                {casos.length > 0 ? (
+                  casos.map((caso) => (
+                    <tr key={caso.id}>
+                      <td>{caso.id.slice(0, 4)}</td>
+                      <td>{caso.title}</td>
+                      <td>{caso.description}</td>
+                      <td>{caso.classification}</td>
+                      <td>{new Date(caso.dateOpened).toLocaleString()}</td>
+                      <td>{caso.solicitante || '-'}</td>
+                      <td>{getManagerName(caso.managerId)}</td>
+                      <td>
+                        <span className={casosStyles[`status${caso.statusCase}`]}>
+                          {caso.statusCase}
+                        </span>
+                      </td>
+                      <td>
+                        <button className={casosStyles.botaoExame}>Solicitar Exame</button>
+                      </td>
+                      <td className={casosStyles.acoes}>
+                        {currentUserRole === "ADMIN" || currentUserRole === "PERITO" ? (
+                          <>
+                            <button
+                              className={casosStyles.acaoBotao}
+                              title="Editar"
+                              onClick={() => handleEdit(caso)}
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              className={casosStyles.acaoBotao}
+                              title="Excluir"
+                              onClick={() => handleDelete(caso.id)}
+                            >
+                              ❌
+                            </button>
+                          </>
+                        ) : (
+                          <span>
+
+<>
+                            <button
+                              className={casosStyles.acaoBotao}
+                              title="Editar"
+                              onClick={() => handleEdit(caso)}
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              className={casosStyles.acaoBotao}
+                              title="Excluir"
+                              onClick={() => handleDelete(caso.id)}
+                            >
+                              ❌
+                            </button>
+                          </>
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={10}>Nenhum caso disponível</td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

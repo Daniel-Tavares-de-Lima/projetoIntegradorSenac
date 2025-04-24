@@ -11,99 +11,85 @@ import { TbFileSearch } from "react-icons/tb";
 {/*-----Icones Side bar-----*/}
 // import {useState} from "react";
 import { useEffect, useState } from "react";
+import { apiRequest } from "../app/services/apiServices";
 
 export default function Home() {
-
   const [userName, setUserName] = useState("");
 
-
   useEffect(() => {
-    const storedName = localStorage.getItem("userName");
-    if (storedName) {
-      setUserName(storedName);
-    }
-  }, []);
+    const fetchUserData = async () => {
+      try {
+        // Verifica se o nome já está no localStorage
+        const storedName = localStorage.getItem("userName");
+        if (storedName) {
+          setUserName(storedName);
+        } else {
+          // Faz uma requisição para obter os dados do usuário logado
+          const data = await apiRequest("/auth/me", "GET", null, true);
+          if (data.name) {
+            setUserName(data.name);
+            localStorage.setItem("userName", data.name); // Salva no localStorage
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao carregar dados do usuário:", error.message);
+        setUserName("Usuário"); // Fallback em caso de erro
+      }
+    };
 
+    fetchUserData();
+  }, []);
 
   return (
     <div className={styles.container}>
-
-      {/*--------SIDEBAR ESQUERDA--------------------------*/}
       <aside className={styles.sidebar}>
-        {/* <div className={styles.logo}>Laudos Periciais Odonto-Legal</div> */}
-        <div>
-          <div>  
-          </div>
-
-          <div className={styles.logo}>
-
-            <Image src={`/imagens/Logo - Laudo.png`} alt="Logo - Laudo" width={60} height={60} ></Image>
-            <h1>
-              <Link href={`http://localhost:3000`} className={styles.titulo}>Laudos Periciais Odonto-Legal</Link>
-            </h1>
-          </div>
-
-
-          <nav className={styles.navi}>
-            <div className={styles.icone}>
-              <FaRegUser className={styles.iconeInterno}/>
-              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={35} height={35}></Image> */}
-              <Link href={`/pacientes`} className={styles.link}>Pacientes</Link>
-            </div>
-
-            <div className={styles.icone}>
-              <LuFileUser className={styles.iconeInterno}/>
-              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
-              <Link href={`/cadastros`} className={styles.link}>Cadastros</Link>
-            </div>
-
-            <div className={styles.icone}>
-              <SiElectronbuilder className={styles.iconeInterno}/>
-              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
-              <Link href={`profissionais`} className={styles.link}>Profissionais</Link>
-            </div>
-            
-            <div className={styles.icone}>
-            <BiSolidUserBadge className={styles.iconeInterno}/>
-              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
-              <Link href={`/casos`} className={styles.link}>Casos</Link>
-            </div>
-
-            <div className={styles.icone}>
-            <TbFileSearch className={styles.iconeInterno}/>
-              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
-              <Link href={`evidencias`} className={styles.link}>Evidências</Link>
-            </div>
-          </nav>
+        <div className={styles.logo}>
+          <Image src={`/imagens/Logo - Laudo.png`} alt="Logo - Laudo" width={60} height={60} />
+          <h1>
+            <Link href={`http://localhost:3000`} className={styles.titulo}>
+              Laudos Periciais Odonto-Legal
+            </Link>
+          </h1>
         </div>
+
+        <nav className={styles.navi}>
+          <div className={styles.icone}>
+            <FaRegUser className={styles.iconeInterno} />
+            <Link href={`/pacientes`} className={styles.link}>Pacientes</Link>
+          </div>
+          <div className={styles.icone}>
+            <LuFileUser className={styles.iconeInterno} />
+            <Link href={`/cadastros`} className={styles.link}>Cadastros</Link>
+          </div>
+          <div className={styles.icone}>
+            <SiElectronbuilder className={styles.iconeInterno} />
+            <Link href={`/profissionais`} className={styles.link}>Profissionais</Link>
+          </div>
+          <div className={styles.icone}>
+            <BiSolidUserBadge className={styles.iconeInterno} />
+            <Link href={`/casos`} className={styles.link}>Casos</Link>
+          </div>
+          <div className={styles.icone}>
+            <TbFileSearch className={styles.iconeInterno} />
+            <Link href={`/evidencias`} className={styles.link}>Evidências</Link>
+          </div>
+        </nav>
         <div className={styles.config}>⚙️ Configurações</div>
       </aside>
 
-      {/*--------SIDEBAR ESQUERDA--------------------------*/}
-
       <main className={styles.main}>
-
-        {/*--------------HEADER-----------------------*/}
         <header className={styles.header}>
           <div className={styles.logoApp}>
             Gest<span>Odo</span>
           </div>
-
-          <input type="search" placeholder="Pesquisar casos ou pacientes" className={styles.pesquisa}/>
-
-          {/*-----O usuário também tem que vim do backend----*/}
+          <input type="search" placeholder="Pesquisar casos ou pacientes" className={styles.pesquisa} />
           <div className={styles.user}>
-
             <FaRegUser /> {userName || "Usuário"}
           </div>
         </header>
-        {/*--------------HEADER-----------------------*/}
 
         <section className={styles.content}>
           <h1>Painel Inicial</h1>
-
-
-          {/*--------BUSCA POR DATA-------------*/}
           <div className={styles.searchSection}>
             <label>
               Data inicial <input type="date" />
@@ -112,25 +98,18 @@ export default function Home() {
               Data final <input type="date" />
             </label>
             <button className={styles.botaoPesquisar}>Pesquisar</button>
-          </div>
-          {/*--------BUSCA POR DATA-------------*/}
 
-          {/*-------------ADICIONAR PACIENTES---------------*/}
+
+          </div>
 
           <h2>Mais recentes</h2>
-          <input type="search" placeholder="Pesquisar casos ou pacientes" className={styles.pesquisa}/>
-          
-
+          <input type="search" placeholder="Pesquisar casos ou pacientes" className={styles.pesquisa} />
           <div className={styles.conteudo}>
             <button className={styles.botaoPesquisar}>➕ Adicionar paciente</button>
             <button className={styles.botaoPesquisar}>📄 Registrar caso</button>
           </div>
-          {/*-------------ADICIONAR PACIENTES---------------*/}
 
           <div className={styles.section}>
-
-            {/*-------------TABELA DE CASOS---------------*/}
-            {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
             <h2>Casos - Exemplos</h2>
             <table>
               <thead>
@@ -162,9 +141,7 @@ export default function Home() {
                     <button className={styles.botaoExame}>Solicitar Exame</button>
                   </td>
                   <td>
-                    <span className={styles.statusEmAndamento}>
-                      Em andamento
-                    </span>
+                    <span className={styles.statusEmAndamento}>Em andamento</span>
                   </td>
                   <td className={styles.acoes}>✏️</td>
                   <td className={styles.acoes}>❌</td>
@@ -189,13 +166,7 @@ export default function Home() {
                 </tr>
               </tbody>
             </table>
-          
-          {/*-------------TABELA DE CASOS---------------*/}
-          {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
 
-          {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
-          {/*-------------TABELA DE PACIENTES---------------*/}
-          
             <h2>Pacientes - Exemplos</h2>
             <table>
               <thead>
@@ -242,9 +213,6 @@ export default function Home() {
                 </tr>
               </tbody>
             </table>
-            {/*-------------TABELA DE PACIENTES---------------*/}
-            {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
-
           </div>
         </section>
       </main>

@@ -4,22 +4,73 @@ import casosStyles from "../styles/Home.module.css";
 import evidenciasStyles from "../styles/Evidencias.module.css";
 import Link from "next/link";
 import Image from "next/image";
-{
-  /*-----Icones Side bar-----*/
-}
 import { FaRegUser } from "react-icons/fa6";
 import { LuFileUser } from "react-icons/lu";
 import { SiElectronbuilder } from "react-icons/si";
 import { BiSolidUserBadge } from "react-icons/bi";
 import { TbFileSearch } from "react-icons/tb";
-{
-  /*-----Icones Side bar-----*/
-}
+import { useState, useRef } from "react";
+import jsPDF from "jspdf";
+import React from "react";
+
+
 
 export default function Evidencias() {
+    const [file, setFile] = useState<File | null>(null);
+    const [evidencias, setEvidencias] = useState<any[]>([]); // Armazena evidências cadastradas
+    const fileInputRef = useRef<HTMLInputElement>(null);
+  
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) {
+        setFile(e.target.files[0]);
+      }
+    };
+  
+    const handleUpload = () => {
+      if (!file) {
+        alert("Selecione um arquivo primeiro.");
+        return;
+      }
+  
+      // Simula envio para a API para cadastro da evidência
+      const newEvidence = {
+        id: Math.random().toString(36).substr(2, 9), // Simula um ID único
+        type: file.type.startsWith("image") ? "IMAGE" : "TEXT", // Define tipo da evidência
+        dateCollection: new Date(),
+        status: "ATIVADO",
+        collectedBy: "Usuário Teste", // Substituir com usuário autenticado
+        case: "Caso Teste", // Substituir com caso real
+        imageEvidence: file.type.startsWith("image") ? { imageURL: URL.createObjectURL(file) } : null,
+        textEvidence: file.type.startsWith("text") ? { content: "Conteúdo do texto" } : null
+      };
+  
+      setEvidencias([...evidencias, newEvidence]); // Adiciona a nova evidência à lista
+      alert("Upload realizado com sucesso!");
+    };
+  
+    const handleGeneratePDF = () => {
+      const doc = new jsPDF();
+      doc.text("Relatório de Evidências", 10, 10);
+      doc.text("Data: " + new Date().toLocaleString(), 10, 20);
+  
+      // Adiciona detalhes das evidências no PDF
+      evidencias.forEach((evidence, index) => {
+        doc.text(`Evidência ${index + 1}:`, 10, 30 + (index * 10));
+        doc.text(`Tipo: ${evidence.type}`, 10, 40 + (index * 10));
+        doc.text(`Data de Coleta: ${evidence.dateCollection.toLocaleString()}`, 10, 50 + (index * 10));
+        doc.text(`Status: ${evidence.status}`, 10, 60 + (index * 10));
+  
+        if (evidence.type === "IMAGE" && evidence.imageEvidence) {
+          doc.addImage(evidence.imageEvidence.imageURL, "JPEG", 10, 70 + (index * 10), 50, 50); // Adiciona imagem ao PDF
+        }
+      });
+  
+      doc.save("relatorio_evidencias.pdf");
+    };
+  
+
   return (
     <div className={casosStyles.container}>
-      {/*--------SIDEBAR ESQUERDA--------------------------*/}
       <aside className={casosStyles.sidebar}>
         <div>
           <div />
@@ -31,73 +82,34 @@ export default function Evidencias() {
               height={60}
             />
             <h1>
-              <Link
-                href={`http://localhost:3000`}
-                className={casosStyles.titulo}
-              >
+              <Link href={`http://localhost:3000`} className={casosStyles.titulo}>
                 Laudos Periciais Odonto-Legal
               </Link>
             </h1>
           </div>
-
           <nav className={casosStyles.navi}>
-            <div className={casosStyles.icone}>
-              <FaRegUser className={casosStyles.iconeInterno} />
-              <Link href={`/pacientes`} className={casosStyles.link}>
-                Pacientes
-              </Link>
-            </div>
-            <div className={casosStyles.icone}>
-              <LuFileUser className={casosStyles.iconeInterno} />
-              <Link href={`/cadastros`} className={casosStyles.link}>
-                Cadastros
-              </Link>
-            </div>
-            <div className={casosStyles.icone}>
-              <SiElectronbuilder className={casosStyles.iconeInterno} />
-              <Link href={`profissionais`} className={casosStyles.link}>
-                Profissionais
-              </Link>
-            </div>
-            <div className={casosStyles.icone}>
-              <BiSolidUserBadge className={casosStyles.iconeInterno} />
-              <Link href={`/casos`} className={casosStyles.link}>
-                Casos
-              </Link>
-            </div>
-            <div className={casosStyles.icone}>
-              <TbFileSearch className={casosStyles.iconeInterno} />
-              <Link href={`evidencias`} className={casosStyles.link}>
-                Evidências
-              </Link>
-            </div>
+            <div className={casosStyles.icone}><FaRegUser className={casosStyles.iconeInterno} /><Link href={`/pacientes`} className={casosStyles.link}>Pacientes</Link></div>
+            <div className={casosStyles.icone}><LuFileUser className={casosStyles.iconeInterno} /><Link href={`/cadastros`} className={casosStyles.link}>Cadastros</Link></div>
+            <div className={casosStyles.icone}><SiElectronbuilder className={casosStyles.iconeInterno} /><Link href={`profissionais`} className={casosStyles.link}>Profissionais</Link></div>
+            <div className={casosStyles.icone}><BiSolidUserBadge className={casosStyles.iconeInterno} /><Link href={`/casos`} className={casosStyles.link}>Casos</Link></div>
+            <div className={casosStyles.icone}><TbFileSearch className={casosStyles.iconeInterno} /><Link href={`evidencias`} className={casosStyles.link}>Evidências</Link></div>
           </nav>
         </div>
         <div className={casosStyles.config}>⚙️ Configurações</div>
       </aside>
 
-      {/*--------CONTEÚDO PRINCIPAL--------------------------*/}
       <main className={casosStyles.main}>
         <header className={casosStyles.header}>
-          <div className={casosStyles.logoApp}>
-            Gest<span>Odo</span>
-          </div>
-
-          <input
-            type="search"
-            placeholder="Pesquisar casos ou pacientes"
-            className={casosStyles.pesquisa}
-          />
-
-          <div className={casosStyles.user}>
-            <FaRegUser /> Julia
-          </div>
+          <div className={casosStyles.logoApp}>Gest<span>Odo</span></div>
+          <input type="search" placeholder="Pesquisar casos ou pacientes" className={casosStyles.pesquisa} />
+          <div className={casosStyles.user}><FaRegUser /> Julia</div>
         </header>
 
         <section className={casosStyles.content}>
           <h1>Evidências</h1>
 
-          {/*-------------PESQUISAR EVIDÊNCIAS---------------*/}
+
+            {/*-------------PESQUISAR EVIDÊNCIAS---------------*/}
           <h2>Pesquisar</h2>
           <input
             type="search"
@@ -116,32 +128,29 @@ export default function Evidencias() {
             <div className={casosStyles.cadastroCasos}>
               <div className={casosStyles.cadastroEsquerda}>
                 <div className={casosStyles.organizacao}>
+                <label>
+                Tipo de Evidência: <br />
+                <select required>
+                  <option value="IMAGE">Imagem</option>
+                  <option value="TEXT">Texto</option>
+                </select>
+              </label>
+                </div>
+
+                <div className={casosStyles.organizacao}>
+                <label>
+                Data de Coleta: <br />
+                <input type="date" required />
+              </label>
+                </div>
+
+                <div className={casosStyles.organizacao}>
                   <label>
                     {" "}
-                    Nome: <br />
+                    Coletado por: <br />
                     <input
                       type="text"
-                      placeholder="Digite o nome completo"
-                      required
-                    />
-                  </label>
-                </div>
-
-                <div className={casosStyles.organizacao}>
-                  <label>
-                    {" "}
-                    Email: <br />
-                    <input type="email" placeholder="Digite o email" required />
-                  </label>
-                </div>
-
-                <div className={casosStyles.organizacao}>
-                  <label>
-                    {" "}
-                    Senha: <br />
-                    <input
-                      type="password"
-                      placeholder="Digite a senha"
+                      placeholder="Nome do coletor"
                       required
                     />
                   </label>
@@ -150,25 +159,29 @@ export default function Evidencias() {
 
               <div className={casosStyles.cadastroDireita}>
                 <div className={casosStyles.organizacao}>
-                  <label>
-                    {" "}
-                    Data de Nascimento: <br />
-                    <input type="date" required />
-                  </label>
+                <label>
+                Caso: <br />
+                <input type="text" placeholder="Caso associado" required />
+              </label>
                 </div>
 
                 <div className={casosStyles.organizacao}>
-                  <label>
-                    Sexo: <br />
-                    <select required>
-                      <option value="">Selecione</option>
-                      <option value="feminino">Feminino</option>
-                      <option value="masculino">Masculino</option>
-                    </select>
-                  </label>
+                 {/* Upload de Arquivo */}
+          <h3>Upload de Evidência</h3>
+          <div className={casosStyles.section}>
+            <input
+              type="file"
+              onChange={handleFileChange}
+              ref={fileInputRef}
+              className={evidenciasStyles.uploadInput}
+            />
+            <button onClick={handleUpload} className={evidenciasStyles.btnSalvar}>
+               Enviar Evidência
+            </button>
+          </div>
                 </div>
 
-                <div className={casosStyles.organizacao}>
+                {/* <div className={casosStyles.organizacao}>
                   <label>
                     Nível de Acesso: <br />
                     <select required>
@@ -177,72 +190,54 @@ export default function Evidencias() {
                       <option value="administrador">Administrador</option>
                     </select>
                   </label>
-                </div>
+                </div> */}
 
-                <button className={evidenciasStyles.btnSalvar}>Salvar</button>
+                {/* <button className={evidenciasStyles.btnSalvar}>Salvar</button> */}
               </div>
             </div>
           </div>
 
-          {/*-------------TODOS OS USUÁRIOS---------------*/}
-          <h2>Todos os usuários</h2>
+          {/* Exibir evidências cadastradas */}
+          <h2>Evidências Cadastradas</h2>
           <div className={casosStyles.section}>
             <table>
               <thead>
                 <tr>
-                  <th>Matrícula</th>
-                  <th>Nome</th>
-                  <th>Sexo</th>
-                  <th>Data de Nascimento</th>
-                  <th>Nível de Acesso</th>
+                  <th>Tipo</th>
+                  <th>Data de Coleta</th>
+                  <th>Status</th>
+                  <th>Coletado Por</th>
                   <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>
-                    <input type="checkbox" id="check-012358" />
-                    <label htmlFor="check-012358">012358</label>
-                  </td>
-                  <td>Julia Gomes Santana</td>
-                  <td>Feminino</td>
-                  <td>12/02/1990</td>
-                  <td>
-                    <span className={evidenciasStyles.nivelAdministrador}>
-                      Administrador
-                    </span>
-                  </td>
-                  <td className={casosStyles.acoes}>
-                    <button className={casosStyles.acaoBotao} title="Editar">
-                      ✏️
-                    </button>
-                    <button className={casosStyles.acaoBotao} title="Excluir">
-                      ❌
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <input type="checkbox" id="check-015489" />
-                    <label htmlFor="check-015489">015489</label>
-                  </td>
-                  <td>Marcelo Rodrigues Oliveira</td>
-                  <td>Masculino</td>
-                  <td>30/08/1997</td>
-                  <td>
-                    <span className={evidenciasStyles.nivelPerito}>Perito</span>
-                  </td>
-                  <td className={casosStyles.acoes}>
-                    <button className={casosStyles.acaoBotao} title="Editar">
-                      ✏️
-                    </button>
-                    <button className={casosStyles.acaoBotao} title="Excluir">
-                      ❌
-                    </button>
-                  </td>
-                </tr>
+                {evidencias.map((evidence, index) => (
+                  <tr key={evidence.id}>
+                    <td>{evidence.type}</td>
+                    <td>{new Date(evidence.dateCollection).toLocaleDateString()}</td>
+                    <td>{evidence.status}</td>
+                    <td>{evidence.collectedBy}</td>
+                    <td>
+                      <button className={casosStyles.acaoBotao} title="Visualizar">
+                        👁️
+                      </button>
+                      <button className={casosStyles.acaoBotao} title="Excluir">
+                        ❌
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
+          </div>
+        
+
+          {/* Geração de PDF */}
+          <h2>Gerar PDF</h2>
+          <div className={casosStyles.section}>
+            <button onClick={handleGeneratePDF} className={evidenciasStyles.btnSalvar}>
+              🧾 Gerar PDF
+            </button>
           </div>
         </section>
       </main>

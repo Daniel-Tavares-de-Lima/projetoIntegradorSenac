@@ -1,375 +1,415 @@
-// "use client";
+"use client";
 
-// import Image from "next/image";
-// // import styles from "./page.module.css";
-// import casosStyles from "../styles/Home.module.css";
-// import Link from "next/link";
-// {
-//   /*-----Icones Side bar-----*/
-// }
-// import { FaRegUser } from "react-icons/fa6";
-// import { LuFileUser } from "react-icons/lu";
-// import { SiElectronbuilder } from "react-icons/si";
-// import { BiSolidUserBadge } from "react-icons/bi";
-// import { TbFileSearch } from "react-icons/tb";
-// {
-//   /*-----Icones Side bar-----*/
-// }
-// // import {useState} from "react";
+import Image from "next/image";
+// import styles from "./page.module.css";
+import casosStyles from "../styles/Home.module.css";
+import Link from "next/link";
+import {createCase} from "../services/casosService";
+{
+  /*-----Icones Side bar-----*/
+}
+import { FaRegUser } from "react-icons/fa6";
+import { LuFileUser } from "react-icons/lu";
+import { SiElectronbuilder } from "react-icons/si";
+import { BiSolidUserBadge } from "react-icons/bi";
+import { TbFileSearch } from "react-icons/tb";
+{
+  /*-----Icones Side bar-----*/
+}
+// import {useState} from "react";
 // import { apiRequest } from "../services/apiServices";
-// import { useState } from "react";
+import { useState, useEffect } from "react";
 
 
-// // Interface para tipar os casos
-// interface Caso {
-//   _id: string;
-//   codigo?: string;
-//   titulo: string;
-//   descricao: string;
-//   tipo: string;
-//   peritoResponsavel: string;
-//   solicitante: string;
-//   status: string;
-//   dataExame?: string;
-//   ultimosExames?: string;
-// }
 
-// export default function Casos() {
+interface Caso {
+  id: string;
+  title: string;
+  description: string;
+  classification: string;
+  statusCase: string;
+  managerId: string;
+  manager?: { name: string };
+  dateOpened: string;
+}
 
-//   // Estado para os casos
-//   const [casos, setCasos] = useState<Caso[]>([]);
+interface User {
+  id: string;
+  name: string;
+  role: string;
+}
 
-//   // Estado para os campos do formulário
-//   const [formData, setFormData] = useState({
-//     titulo: "",
-//     descricao: "",
-//     tipo: "",
-//     peritoResponsavel: "",
-//     status: "Em andamento",
-//     solicitante: "", // Campo adicionado para Solicitante da Perícia
-//   });
+export default function Casos() {
+  const [casos, setCasos] = useState<Caso[]>([]);
+  const [usuarios, setUsuarios] = useState<User[]>([]);
+  // const [users, setUsers] = useState<User[]>([]);
 
-//   // Estado para mensagens de erro
-//   const [error, setError] = useState<string | null>(null);
 
-//   // Função para buscar casos do backend
-//   const fetchCasos = async () => {
-//     try {
-//       const data = await apiRequest("/casos", "GET", null, true);
-//       setCasos(data);
-//     } catch (err) {
-//       setError(err.message);
-//     }
-//   };
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    classification: "",
+    peritoResponsavel: "",
+    statusCase: "ANDAMENTO",
+    solicitante: "",
+  });
+  // const [name,setName] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-//   // Carregar casos ao montar o componente
-//   useEffect(() => {
-//     fetchCasos();
-//   }, []);
+  // Buscar casos
+  const fetchCasos = async () => {
+    try {
+      const response = await fetch("https://pi3p.onrender.com/cases", {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      })  //.then(res => res.json());
+      
+      const data = await response.json();
 
+
+      if(Array.isArray(data)){
+        console.log("Casos retornados:", data);
+
+        setCasos(data);
+      }else {
+        console.error("Resposta inesperada da API de casos:", data);
+        setError("Erro ao carregar casos. Formato inválido.");
+
+      }
+      
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  // Buscar usuários
+  // const fetchUsers = async () => {
+  //   try {
+  //     const response = await fetch("https://pi3p.onrender.com/users", {
+  //       method: 'GET',
+  //       headers: {
+  //         'Authorization': `Bearer ${localStorage.getItem('token')}`,
+  //         'Content-Type': 'application/json'
+  //       }
+  //     });  //.then(res => res.json());
+      
+  //     const data = await response.json();
+
+  //     if(Array.isArray(data)){
+  //       console.log("Usuários retornados:", data);
+
+  //       setUsers(data);
+  //     }else{
+  //       console.error("Resposta inesperada da API de usuários:", data);
+  //       setError("Erro ao carregar usuários. Formato inválido.");
+  //     }
+  //   } catch (err) {
+  //     setError(err.message);
+  //   }
+  // };
+
+
+  const fetchUsuarios = async () => {
+    const token = localStorage.getItem('token')
+    
+    if (!token) {
+      alert("Usuário não autenticado. Faça login novamente.")
+      return;
+    }
   
-//   // Função para lidar com mudanças no formulário
-//   const handleInputChange = (
-//     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-//   ) => {
-//     const { name, value } = e.target;
-//     setFormData((prev) => ({ ...prev, [name]: value }));
-//   };
+    try {
+      const response = await fetch("https://pi3p.onrender.com/users", {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro ao buscar usuários')
+      }
+  
+      setUsuarios(data)
+    } catch (error) {
+      console.error(error.message);
+      alert("Erro ao buscar usuários");
+    }
+  };
 
+  useEffect(() => {
+    fetchCasos();
+    fetchUsuarios();
+  }, []);
 
-//   // Função para enviar o formulário
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-//     try {
-//       const novoCaso = await apiRequest("/casos", "POST", formData, true);
-//       setCasos((prev) => [...prev, novoCaso]);
-//       setFormData({
-//         titulo: "",
-//         descricao: "",
-//         tipo: "",
-//         peritoResponsavel: "",
-//         status: "Em andamento",
-//         solicitante: "",
-//       });
-//       setError(null);
-//     } catch (err: any) {
-//       setError(err.message);
-//     }
-//   };
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.title || !formData.description || !formData.classification || !formData.peritoResponsavel) {
+      setError("⚠️ Preencha todos os campos obrigatórios");
+      return;
+    }
+    try {
+      const novoCaso = await createCase(
+        formData.title,
+        formData.description,
+        formData.classification,
+        formData.peritoResponsavel
+      );
+      setCasos((prev) => [...prev, novoCaso]);
+      setFormData({
+        title: "",
+        description: "",
+        classification: "",
+        peritoResponsavel: "",
+        statusCase: "ANDAMENTO",
+        solicitante: "",
+      });
+      setError(null);
+      alert("✅ Caso salvo com sucesso!");
+    } catch (err) {
+      setError(err.message);
+      alert(`❌ Erro: ${err.message}`);
+    }
+  };
 
-//   return (
-//     <div className={casosStyles.container}>
-//       {/*--------SIDEBAR ESQUERDA--------------------------*/}
-//       <aside className={casosStyles.sidebar}>
-//         <div>
-//           <div className={casosStyles.logo}>
-//             <Image
-//               src={`/imagens/Logo - Laudo.png`}
-//               alt="Logo - Laudo"
-//               width={60}
-//               height={60}
-//             />
-//             <h1>
-//               <Link
-//                 href={`http://localhost:3000`}
-//                 className={casosStyles.titulo}
-//               >
-//                 Laudos Periciais Odonto-Legal
-//               </Link>
-//             </h1>
-//           </div>
+  return (
+    <div className={casosStyles.container}>
+      <aside className={casosStyles.sidebar}>
+        <div>
+          <div className={casosStyles.logo}>
+            <Image
+              src={`/imagens/Logo - Laudo.png`}
+              alt="Logo - Laudo"
+              width={60}
+              height={60}
+            />
+            <h1>
+              <Link href={`http://localhost:3000`} className={casosStyles.titulo}>
+                Laudos Periciais Odonto-Legal
+              </Link>
+            </h1>
+          </div>
+          <nav className={casosStyles.navi}>
+            <div className={casosStyles.icone}>
+              <FaRegUser className={casosStyles.iconeInterno} />
+              <Link href={`/pacientes`} className={casosStyles.link}>Pacientes</Link>
+            </div>
+            <div className={casosStyles.icone}>
+              <LuFileUser className={casosStyles.iconeInterno} />
+              <Link href={`/cadastros`} className={casosStyles.link}>Cadastros</Link>
+            </div>
+            <div className={casosStyles.icone}>
+              <SiElectronbuilder className={casosStyles.iconeInterno} />
+              <Link href={`/profissionais`} className={casosStyles.link}>Profissionais</Link>
+            </div>
+            <div className={casosStyles.icone}>
+              <BiSolidUserBadge className={casosStyles.iconeInterno} />
+              <Link href={`/casos`} className={casosStyles.link}>Casos</Link>
+            </div>
+            <div className={casosStyles.icone}>
+              <TbFileSearch className={casosStyles.iconeInterno} />
+              <Link href={`/evidencias`} className={casosStyles.link}>Evidências</Link>
+            </div>
+          </nav>
+        </div>
+        <div className={casosStyles.config}>⚙️ Configurações</div>
+      </aside>
 
-//           <nav className={casosStyles.navi}>
-//             <div className={casosStyles.icone}>
-//               <FaRegUser className={casosStyles.iconeInterno} />
-//               <Link href={`/pacientes`} className={casosStyles.link}>
-//                 Pacientes
-//               </Link>
-//             </div>
-//             <div className={casosStyles.icone}>
-//               <LuFileUser className={casosStyles.iconeInterno} />
-//               <Link href={`/cadastros`} className={casosStyles.link}>
-//                 Cadastros
-//               </Link>
-//             </div>
-//             <div className={casosStyles.icone}>
-//               <SiElectronbuilder className={casosStyles.iconeInterno} />
-//               <Link href={`profissionais`} className={casosStyles.link}>
-//                 Profissionais
-//               </Link>
-//             </div>
-//             <div className={casosStyles.icone}>
-//               <BiSolidUserBadge className={casosStyles.iconeInterno} />
-//               <Link href={`/casos`} className={casosStyles.link}>
-//                 Casos
-//               </Link>
-//             </div>
-//             <div className={casosStyles.icone}>
-//               <TbFileSearch className={casosStyles.iconeInterno} />
-//               <Link href={`evidencias`} className={casosStyles.link}>
-//                 Evidências
-//               </Link>
-//             </div>
-//           </nav>
-//         </div>
-//         <div className={casosStyles.config}>⚙️ Configurações</div>
-//       </aside>
+      <main className={casosStyles.main}>
+        <header className={casosStyles.header}>
+          <div className={casosStyles.logoApp}>
+            Gest<span>Odo</span>
+          </div>
+          <input
+            type="search"
+            placeholder="Pesquisar casos ou pacientes"
+            className={casosStyles.pesquisa}
+          />
+          <div className={casosStyles.user}>
+            <FaRegUser /> Julia
+          </div>
+        </header>
 
-//       <main className={casosStyles.main}>
-//         <header className={casosStyles.header}>
-//           <div className={casosStyles.logoApp}>
-//             Gest<span>Odo</span>
-//           </div>
-//           <input
-//             type="search"
-//             placeholder="Pesquisar casos ou pacientes"
-//             className={casosStyles.pesquisa}
-//           />
-//           <div className={casosStyles.user}>
-//             {" "}
-//             <FaRegUser /> Julia
-//           </div>
-//         </header>
+        <section className={casosStyles.content}>
+          <h1>Casos</h1>
+          {error && <p className={casosStyles.error}>{error}</p>}
 
-//         <section className={casosStyles.content}>
-//           <h1>Casos</h1>
+          <h2>Pesquisar</h2>
+          <input
+            type="search"
+            placeholder="Pesquisar casos ou pacientes"
+            className={casosStyles.pesquisa}
+          />
+          <div className={casosStyles.conteudo}>
+            <button className={casosStyles.botaoPesquisar}>🔍 Pesquisar</button>
+          </div>
 
+          <div className={casosStyles.section}>
+            <h2>Cadastrar Casos</h2>
+            <form onSubmit={handleSubmit} className={casosStyles.cadastroCasos}>
+              <div className={casosStyles.cadastroEsquerda}>
+                <div className={casosStyles.organizacao}>
+                  <label>
+                    Título do Caso* <br />
+                    <input
+                      type="text"
+                      name="title"
+                      placeholder="Digite o título do caso"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </label>
+                </div>
+                <div className={casosStyles.organizacao}>
+                  <label>
+                    Descrição* <br />
+                    <textarea
+                      name="description"
+                      placeholder="Descreva os detalhes do caso"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </label>
+                </div>
+                <div className={casosStyles.organizacao}>
+                  <label>
+                    Solicitante da Perícia <br />
+                    <input
+                      type="text"
+                      name="solicitante"
+                      placeholder="Nome do solicitante"
+                      value={formData.solicitante}
+                      onChange={handleInputChange}
+                    />
+                  </label>
+                </div>
+              </div>
 
-//           {error && <p className={casosStyles.error}>{error}</p>}
+              <div className={casosStyles.cadastroDireita}>
+                <div className={casosStyles.organizacao}>
+                  <label>
+                    Tipo de Caso* <br />
+                    <select
+                      name="classification"
+                      value={formData.classification}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value="">Selecione</option>
+                      <option value="CRIMINAL">Exame Criminal</option>
+                      <option value="ACIDENTE">Acidente</option>
+                      <option value="IDENTIFICACAO">Identificação</option>
+                    </select>
+                  </label>
+                </div>
+                <div className={casosStyles.organizacao}>
+                  <label>
+                    Perito Responsável* <br />
+                    <select
+                      name="peritoResponsavel"
+                      value={formData.peritoResponsavel}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value="">Selecione</option>
+                      {usuarios
+                        .filter(user => user.role === "PERITO")
+                        .map(user => (
+                          <option key={user.id} value={user.id}>
+                            {user.name}
+                          </option>
+                        ))}
+                        
+                    </select>
+                  </label>
+                </div>
+                <div className={casosStyles.organizacao}>
+                  <label>
+                    Status* <br />
+                    <select
+                      name="statusCase"
+                      value={formData.statusCase}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value="ANDAMENTO">Em andamento</option>
+                      <option value="FINALIZADO">Finalizado</option>
+                      <option value="ARQUIVADO">Arquivado</option>
+                    </select>
+                  </label>
+                </div>
+                <button type="submit" className={casosStyles.botaoSalvar}>
+                  Salvar
+                </button>
+              </div>
+            </form>
 
-
-
-//           <h2>Pesquisar</h2>
-//           <input
-//             type="search"
-//             placeholder="Pesquisar casos ou pacientes"
-//             className={casosStyles.pesquisa}
-//           />
-//           <div className={casosStyles.conteudo}>
-//             <button className={casosStyles.botaoPesquisar}>🔍 Pesquisar</button>
-//           </div>
-
-//           <div className={casosStyles.section}>
-//             <h2>Cadastrar Casos</h2>
-//             <form onSubmit={handleSubmit} className={casosStyles.cadastroCasos}>
-//               <div className={casosStyles.cadastroEsquerda}>
-//                 <div className={casosStyles.organizacao}>
-//                   <label>
-//                     Título do Caso* <br />
-//                     <input
-//                       type="text"
-//                       name="titulo"
-//                       placeholder="Digite o título do caso"
-//                       value={formData.titulo}
-//                       onChange={handleInputChange}
-//                       required
-//                     />
-//                   </label>
-//                 </div>
-//                 <div className={casosStyles.organizacao}>
-//                   <label>
-//                     Descrição* <br />
-//                     <textarea
-//                       name="descricao"
-//                       placeholder="Descreva os detalhes do caso"
-//                       value={formData.descricao}
-//                       onChange={handleInputChange}
-//                       required
-//                     />
-//                   </label>
-//                 </div>
-//               </div>
-
-//               <div className={casosStyles.cadastroDireita}>
-//                 <div className={casosStyles.organizacao}>
-//                   <label>
-//                     Tipo de Caso: <br />
-//                     <select
-//                       name="tipo"
-//                       value={formData.tipo}
-//                       onChange={handleInputChange}
-//                     >
-//                       <option value="">Selecione</option>
-//                       <option value="Acidente">Acidente</option>
-//                       <option value="Identificação">Identificação</option>
-//                       <option value="Exame Criminal">Exame Criminal</option>
-//                     </select>
-//                   </label>
-//                 </div>
-//                 <div className={casosStyles.organizacao}>
-//                   <label>
-//                     Perito Responsável: <br />
-//                     <input
-//                       type="text"
-//                       name="peritoResponsavel"
-//                       placeholder="Nome do perito"
-//                       value={formData.peritoResponsavel}
-//                       onChange={handleInputChange}
-                      
-//                     />
-//                   </label>
-//                 </div>
-//                 <div className={casosStyles.organizacao}>
-//                   <label>
-//                     Status <br />
-//                     <select
-//                       name="status"
-//                       value={formData.solicitante}
-//                       onChange={handleInputChange}
-                      
-//                     >
-//                       <option value="Em andamento">Em andamento</option>
-//                       <option value="Finalizado">Finalizado</option>
-//                       <option value="Arquivado">Arquivado</option>
-//                     </select>
-//                   </label>
-//                 </div>
-//                 <button type="submit" className={casosStyles.botaoSalvar}>
-//                   Salvar
-//                 </button>
-//               </div>
-//             </form>
-
-//             <h2>Todos os Casos</h2>
-//             <table>
-//               <thead>
-//                 <tr>
-//                   <th>Código</th>
-//                   <th>Tipo</th>
-//                   <th>Data do Fato</th>
-//                   <th>Local</th>
-//                   <th>Solicitante da Perícia</th>
-//                   <th>Responsável</th>
-//                   <th>Data do Exame</th>
-//                   <th>Últimos Exames</th>
-//                   <th>Solicitar Exames</th>
-//                   <th>Status</th>
-//                   <th>Ações</th>
-//                 </tr>
-//               </thead>
-//               <tbody>
-//                 {casos.map((caso: Caso) => (
-//                   <tr key={caso._id}> </tr>
-//                   <tr key={caso.tipo}></tr>
-//                 ) )}
-//                 <tr>
-//                   <td>#022</td>
-//                   <td>Acidente</td>
-//                   <td>12/03/25 - 12:43</td>
-//                   <td>📍 Recife-PE</td>
-//                   <td>Carlos Andrade</td>
-//                   <td>Julia Maria</td>
-//                   <td>14/02/23 - 12:03hrs</td>
-//                   <td>
-//                     02/22 11:25 AM Exame odontol...{" "}
-//                     <a href="#" className={casosStyles.verTudo}>
-//                       Ver Tudo
-//                     </a>
-//                   </td>
-//                   <td>
-//                     <button className={casosStyles.botaoExame}>
-//                       Solicitar Exame
-//                     </button>
-//                   </td>
-//                   <td>
-//                     <span className={casosStyles.statusEmAndamento}>
-//                       Em andamento
-//                     </span>
-//                   </td>
-//                   <td className={casosStyles.acoes}>
-//                     <button className={casosStyles.acaoBotao} title="Confirmar">
-//                       ✅
-//                     </button>
-//                     <button className={casosStyles.acaoBotao} title="Editar">
-//                       ✏️
-//                     </button>
-//                     <button className={casosStyles.acaoBotao} title="Excluir">
-//                       ❌
-//                     </button>
-//                   </td>
-//                 </tr>
-//                 <tr>
-//                   <td>#021</td>
-//                   <td>Acidente</td>
-//                   <td>05/03/25 - 10:33</td>
-//                   <td>📍 Jaboatão-PE</td>
-//                   <td>Marcos Silva</td>
-//                   <td>Julia Maria</td>
-//                   <td>17/12/22 - 19:14hrs</td>
-//                   <td>
-//                     11/23 09:12 AM Análise de arcada...{" "}
-//                     <a href="#" className={casosStyles.verTudo}>
-//                       Ver Tudo
-//                     </a>
-//                   </td>
-//                   <td>
-//                     <button className={casosStyles.botaoExame}>
-//                       Solicitar Exame
-//                     </button>
-//                   </td>
-//                   <td>
-//                     <span className={casosStyles.statusArquivado}>
-//                       Arquivado
-//                     </span>
-//                   </td>
-//                   <td className={casosStyles.acoes}>
-//                     <button className={casosStyles.acaoBotao} title="Confirmar">
-//                       ✅
-//                     </button>
-//                     <button className={casosStyles.acaoBotao} title="Editar">
-//                       ✏️
-//                     </button>
-//                     <button className={casosStyles.acaoBotao} title="Excluir">
-//                       ❌
-//                     </button>
-//                   </td>
-//                 </tr>
-//               </tbody>
-//             </table>
-//           </div>
-//         </section>
-//       </main>
-//     </div>
-//   );
-// }
+            <h2>Todos os Casos</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Titulo</th>
+                  <th>Descrição</th>
+                  <th>Tipo</th>
+                  <th>Data do Fato</th>
+                  {/* <th>Local</th> */}
+                  <th>Solicitante da Perícia</th>
+                  <th>Responsável</th>
+                  {/* <th>Data do Exame</th> */}
+                  {/* <th>Últimos Exames</th> */}
+                  {/* <th>Solicitar Exames</th> */}
+                  <th>Status</th>
+                  <th>Solicitar Exames</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {casos.map((caso) => (
+                  <tr key={caso.id}>
+                    <td>{caso.id.slice(0, 4)}</td>
+                    <td>{caso.title}</td>
+                    <td>{caso.description}</td>
+                    <td>{caso.classification}</td>
+                    <td>{new Date(caso.dateOpened).toLocaleString()}</td>
+                    <td>{formData.solicitante || '-'}</td>
+                    <td>{caso.manager?.name || '-'}</td>
+                    <td>
+                      <span className={casosStyles[`status${caso.statusCase}`]}>
+                        {caso.statusCase}
+                      </span>
+                    </td>
+                
+                    <td>
+                      <button className={casosStyles.botaoExame}>Solicitar Exame</button>
+                    </td>
+                    
+                    <td className={casosStyles.acoes}>
+                      <button className={casosStyles.acaoBotao} title="Confirmar">✅</button>
+                      <button className={casosStyles.acaoBotao} title="Editar">✏️</button>
+                      <button className={casosStyles.acaoBotao} title="Excluir">❌</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}

@@ -5,7 +5,7 @@ import Image from "next/image";
 import pacientesStyles from "../styles/Pacientes.module.css";
 import evidenciasStyles from "../styles/Evidencias.module.css";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 {
   /*-----Icones Side bar-----*/
 }
@@ -14,12 +14,95 @@ import { LuFileUser } from "react-icons/lu";
 import { SiElectronbuilder } from "react-icons/si";
 import { BiSolidUserBadge } from "react-icons/bi";
 import { TbFileSearch } from "react-icons/tb";
+
 {
   /*-----Icones Side bar-----*/
 }
 
+import { createPatient, updatePatient, deletePatient, fetchPatients, fetchCases } from "../services/patientServices";
+
+interface Patient {
+  id: string;
+  name: string;
+  sex: string;
+  birthDate?: string;
+  identified: "YES" | "NO";
+  caseId: string;
+  status: "ATIVADO" | "DESATIVADO";
+}
+
+interface Case {
+  id: string;
+  title: string;
+  description: string;
+  classification: string;
+  statusCase: string;
+  managerId: string;
+  solicitante?: string;
+  dateOpened: string;
+}
+
+
 export default function Pacientes() {
   const [mostrarCadastro, setMostrarCadastro] = useState(false);
+  const [pacientes, setPacientes] = useState<Patient[]>([]);
+  const [casos, setCasos] = useState<Case[]>([]);
+  const [formData, setFormData] = useState({
+    name: "",
+    sex: "",
+    birthDate: "",
+    caseId: "",
+    identified: "YES",
+  });
+  const [editPatientId, setEditPatientId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+
+  const fetchPacientes = async () => {
+    try {
+      const data = await fetchPatients();
+      setPacientes(Array.isArray(data) ? data : []);
+    } catch (error) {
+      setError(error.message);
+      setPacientes([]);
+    }
+  };
+
+  const fetchCasos = async () => {
+    try {
+      const data = await fetchCases();
+      setCasos(Array.isArray(data) ? data : []);
+    } catch (error) {
+      setError(error.message);
+      setCasos([]);
+    }
+  };
+
+  const fetchCurrentUser = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    try {
+      const response = await fetch("https://pi3p.onrender.com/users/me", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setCurrentUserRole(data.role);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar usuário logado:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPacientes();
+    fetchCasos();
+    fetchCurrentUser();
+  }, []);
 
   const handleAdicionarPaciente = () => {
     setMostrarCadastro(true);
@@ -27,16 +110,107 @@ export default function Pacientes() {
 
   const handleVoltar = () => {
     setMostrarCadastro(false);
+    setEditPatientId(null);
+    setFormData({
+      name: "",
+      sex: "",
+      birthDate: "",
+      caseId: "",
+      identified: "YES",
+    });
+    setError(null);
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const savePatient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.sex || !formData.caseId || !formData.identified) {
+      setError("⚠️ Preencha todos os campos obrigatórios");
+      return;
+    }
+    if (formData.identified === "YES" && (!formData.name || !formData.birthDate)) {
+      setError("⚠️ Nome e data de nascimento são obrigatórios para pacientes identificados");
+      return;
+    }
+
+    try {
+      if (editPatientId) {
+        // Modo de edição
+        await updatePatient(
+          editPatientId,
+          formData.identified === "YES" ? formData.name : "Anônimo",
+          formData.sex,
+          formData.identified === "YES" ? formData.birthDate : null,
+          formData.caseId,
+          formData.identified
+        );
+        alert("✅ Paciente atualizado com sucesso!");
+        setEditPatientId(null);
+      } else {
+        // Modo de criação
+        await createPatient(
+          formData.identified === "YES" ? formData.name : "Anônimo",
+          formData.sex,
+          formData.identified === "YES" ? formData.birthDate : null,
+          formData.caseId,
+          formData.identified
+        );
+        alert("✅ Paciente salvo com sucesso!");
+      }
+      // Limpar formulário
+      setFormData({
+        name: "",
+        sex: "",
+        birthDate: "",
+        caseId: "",
+        identified: "YES",
+      });
+      setError(null);
+      setMostrarCadastro(false);
+      fetchPacientes(); // Atualizar lista
+    } catch (error) {
+      setError(`❌ Erro: ${error.message}`);
+    }
+  };
+
+  const handleEdit = (paciente: Patient) => {
+    setEditPatientId(paciente.id);
+    setFormData({
+      name: paciente.name !== "Anônimo" ? paciente.name : "",
+      sex: paciente.sex,
+      birthDate: paciente.birthDate || "",
+      caseId: paciente.caseId,
+      identified: paciente.identified,
+    });
+    setMostrarCadastro(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Tem certeza que deseja desativar este paciente?")) return;
+    try {
+      await deletePatient(id);
+      alert("✅ Paciente desativado com sucesso!");
+      fetchPacientes();
+    } catch (error) {
+      setError(`❌ Erro: ${error.message}`);
+    }
+  };
+
+  const getCaseSolicitante = (caseId: string) => {
+    const caso = casos.find((c) => c.id === caseId);
+    return caso ? caso.solicitante || "-" : "-";
   };
 
   return (
     <div className={casosStyles.container}>
-      {/*--------SIDEBAR ESQUERDA--------------------------*/}
       <aside className={casosStyles.sidebar}>
-        {/* <div className={casosStyles.logo}>Laudos Periciais Odonto-Legal</div> */}
-        <div className="logo">
-          <div className="imagem"></div>
-
+        <div>
           <div className={casosStyles.logo}>
             <Image
               src={`/imagens/Logo - Laudo.png`}
@@ -45,83 +219,58 @@ export default function Pacientes() {
               height={60}
             />
             <h1>
-              <Link
-                href={`http://localhost:3000`}
-                className={casosStyles.titulo}
-              >
+              <Link href={`http://localhost:3000`} className={casosStyles.titulo}>
                 Laudos Periciais Odonto-Legal
               </Link>
             </h1>
           </div>
-
           <nav className={casosStyles.navi}>
             <div className={casosStyles.icone}>
               <FaRegUser className={casosStyles.iconeInterno} />
-              <Link href={`/pacientes`} className={casosStyles.link}>
-                Pacientes
-              </Link>
+              <Link href={`/pacientes`} className={casosStyles.link}>Pacientes</Link>
             </div>
             <div className={casosStyles.icone}>
               <LuFileUser className={casosStyles.iconeInterno} />
-              <Link href={`/cadastros`} className={casosStyles.link}>
-                Cadastros
-              </Link>
+              <Link href={`/cadastros`} className={casosStyles.link}>Cadastros</Link>
             </div>
             <div className={casosStyles.icone}>
               <SiElectronbuilder className={casosStyles.iconeInterno} />
-              <Link href={`profissionais`} className={casosStyles.link}>
-                Profissionais
-              </Link>
+              <Link href={`/profissionais`} className={casosStyles.link}>Profissionais</Link>
             </div>
             <div className={casosStyles.icone}>
               <BiSolidUserBadge className={casosStyles.iconeInterno} />
-              <Link href={`/casos`} className={casosStyles.link}>
-                Casos
-              </Link>
+              <Link href={`/casos`} className={casosStyles.link}>Casos</Link>
             </div>
             <div className={casosStyles.icone}>
               <TbFileSearch className={casosStyles.iconeInterno} />
-              <Link href={`evidencias`} className={casosStyles.link}>
-                Evidências
-              </Link>
+              <Link href={`/evidencias`} className={casosStyles.link}>Evidências</Link>
             </div>
           </nav>
         </div>
         <div className={casosStyles.config}>⚙️ Configurações</div>
       </aside>
 
-      {/*--------SIDEBAR ESQUERDA--------------------------*/}
-
       <main className={casosStyles.main}>
-        {/*--------------HEADER-----------------------*/}
         <header className={casosStyles.header}>
           <div className={casosStyles.logoApp}>
             Gest<span>Odo</span>
           </div>
-
           <input
             type="search"
             placeholder="Pesquisar casos ou pacientes"
             className={casosStyles.pesquisa}
           />
-
-          {/*-----O usuário também tem que vim do backend----*/}
           <div className={casosStyles.user}>
-            {" "}
             <FaRegUser /> Julia
           </div>
         </header>
-        {/*--------------HEADER-----------------------*/}
 
         <section className={casosStyles.content}>
+          {error && <p className={casosStyles.error}>{error}</p>}
           {!mostrarCadastro ? (
-            // Painel inicial
             <>
               <h1>Painel Inicial</h1>
-
-              {/*-------------PESQUISAR POR PACIENTES---------------*/}
               <h2>Pesquisar</h2>
-
               <div className={pacientesStyles.filtroData}>
                 <div className={pacientesStyles.dataField}>
                   <label>Data inicial</label>
@@ -131,7 +280,6 @@ export default function Pacientes() {
                     className={pacientesStyles.dataInput}
                   />
                 </div>
-
                 <div className={pacientesStyles.dataField}>
                   <label>Data final</label>
                   <input
@@ -141,27 +289,18 @@ export default function Pacientes() {
                   />
                 </div>
               </div>
-
               <input
                 type="search"
                 placeholder="Pesquisar casos, pacientes ou evidência"
                 className={casosStyles.pesquisa}
               />
-
               <div className={casosStyles.conteudo}>
-                <button className={casosStyles.botaoPesquisar}>
-                  🔍 Pesquisar
-                </button>
+                <button className={casosStyles.botaoPesquisar}>🔍 Pesquisar</button>
               </div>
 
-              {/*-------------LISTA DE MAIS RECENTES---------------*/}
               <h2>Mais recentes</h2>
-
               <div className={pacientesStyles.botoesAcao}>
-                <button
-                  className={pacientesStyles.btnAdicionar}
-                  onClick={handleAdicionarPaciente}
-                >
+                <button className={pacientesStyles.btnAdicionar} onClick={handleAdicionarPaciente}>
                   <span>+</span> Adicionar paciente
                 </button>
                 <Link href="/casos">
@@ -171,7 +310,91 @@ export default function Pacientes() {
                 </Link>
               </div>
 
-              {/*-------------TABELA DE CASOS---------------*/}
+              <h3>Pacientes</h3>
+              <div className={casosStyles.section}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Código</th>
+                      <th>Nome</th>
+                      <th>Sexo</th>
+                      <th>Data de Nascimento</th>
+                      <th>Solicitante da perícia</th>
+                      <th>Data do Exame</th>
+                      <th>Últimos Exames</th>
+                      <th>Solicitar Exames</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pacientes.length > 0 ? (
+                      pacientes.map((paciente) => (
+                        <tr key={paciente.id}>
+                          <td>{paciente.id.slice(0, 4)}</td>
+                          <td>{paciente.name}</td>
+                          <td>{paciente.sex}</td>
+                          <td>{paciente.birthDate ? new Date(paciente.birthDate).toLocaleDateString() : "-"}</td>
+                          <td>{getCaseSolicitante(paciente.caseId)}</td>
+                          <td>-</td> {/* Data do exame não disponível */}
+                          <td>-</td> {/* Últimos exames não disponível */}
+                          <td>
+                            <button className={casosStyles.botaoExame}>Solicitar Exame</button>
+                          </td>
+                          <td className={casosStyles.acoes}>
+                            {currentUserRole === "ADMIN" || currentUserRole === "PERITO" ? (
+                              <>
+                                <button
+                                  className={casosStyles.acaoBotao}
+                                  title="Editar"
+                                  onClick={() => handleEdit(paciente)}
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  className={casosStyles.acaoBotao}
+                                  title="Excluir"
+                                  onClick={() => handleDelete(paciente.id)}
+                                >
+                                  ❌
+                                </button>
+                              </>
+                            ) : (
+                              <span>
+                                 <>
+                                <button
+                                  className={casosStyles.acaoBotao}
+                                  title="Editar"
+                                  onClick={() => handleEdit(paciente)}
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  className={casosStyles.acaoBotao}
+                                  title="Excluir"
+                                  onClick={() => handleDelete(paciente.id)}
+                                >
+                                  ❌
+                                </button>
+                              </>
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={9}>Nenhum paciente disponível</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+                <div className={pacientesStyles.verMais}>
+                  <button>
+                    Ver Mais <span>▼</span>
+                  </button>
+                </div>
+              </div>
+
               <h3>Casos</h3>
               <div className={casosStyles.section}>
                 <table>
@@ -191,282 +414,133 @@ export default function Pacientes() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>#022</td>
-                      <td>Acidente</td>
-                      <td>12/03/25 - 12:43</td>
-                      <td>📍 Recife-PE</td>
-                      <td>Carlos Andrade</td>
-                      <td>Julia Maria</td>
-                      <td>14/02/23 - 12:03hrs</td>
-                      <td>
-                        02/22 11:25 AM Exame odontol...{" "}
-                        <a href="#" className={casosStyles.verTudo}>
-                          Ver Tudo
-                        </a>
-                      </td>
-                      <td>
-                        <button className={casosStyles.botaoExame}>
-                          Solicitar Exame
-                        </button>
-                      </td>
-                      <td>
-                        <span className={pacientesStyles.statusEmAndamento}>
-                          Em andamento
-                        </span>
-                      </td>
-                      <td className={casosStyles.acoes}>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Confirmar"
-                        >
-                          ✅
-                        </button>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Editar"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Excluir"
-                        >
-                          ❌
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>#021</td>
-                      <td>Acidente</td>
-                      <td>05/03/25 - 10:33</td>
-                      <td>📍 Jaboatão - PE</td>
-                      <td>Marcos Silva</td>
-                      <td>Julia Maria</td>
-                      <td>17/12/22 - 19:14hrs</td>
-                      <td>
-                        11/23 09:12 AM Análise de arcada...{" "}
-                        <a href="#" className={casosStyles.verTudo}>
-                          Ver Tudo
-                        </a>
-                      </td>
-                      <td>
-                        <button className={casosStyles.botaoExame}>
-                          Solicitar Exame
-                        </button>
-                      </td>
-                      <td>
-                        <span className={pacientesStyles.statusArquivado}>
-                          Arquivado
-                        </span>
-                      </td>
-                      <td className={casosStyles.acoes}>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Confirmar"
-                        >
-                          ✅
-                        </button>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Editar"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Excluir"
-                        >
-                          ❌
-                        </button>
-                      </td>
-                    </tr>
+                    {casos.length > 0 ? (
+                      casos.map((caso) => (
+                        <tr key={caso.id}>
+                          <td>{caso.id.slice(0, 4)}</td>
+                          <td>{caso.classification}</td>
+                          <td>{new Date(caso.dateOpened).toLocaleString()}</td>
+                          <td>-</td> {/* Local não disponível */}
+                          <td>{caso.solicitante || "-"}</td>
+                          <td>-</td> {/* Responsável não disponível */}
+                          <td>-</td> {/* Data do exame não disponível */}
+                          <td>-</td> {/* Últimos exames não disponível */}
+                          <td>
+                            <button className={casosStyles.botaoExame}>Solicitar Exame</button>
+                          </td>
+                          <td>
+                            <span className={pacientesStyles[`status${caso.statusCase}`]}>
+                              {caso.statusCase}
+                            </span>
+                          </td>
+                          <td className={casosStyles.acoes}>
+                            <button className={casosStyles.acaoBotao} title="Editar">✏️</button>
+                            <button className={casosStyles.acaoBotao} title="Excluir">❌</button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={11}>Nenhum caso disponível</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
                 <div className={pacientesStyles.verMais}>
-                  <button>
+                  {/* <button>
                     Ver Mais <span>▼</span>
-                  </button>
-                </div>
-              </div>
-
-              {/*-------------TABELA DE PACIENTES---------------*/}
-              <h3>Pacientes</h3>
-              <div className={casosStyles.section}>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Código</th>
-                      <th>Nome</th>
-                      <th>Sexo</th>
-                      <th>Data de Nascimento</th>
-                      <th>Solicitante da perícia</th>
-                      <th>Data do Exame</th>
-                      <th>Últimos Exames</th>
-                      <th>Solicitar Exames</th>
-                      <th>Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>#022</td>
-                      <td>Ana Maria da Silva</td>
-                      <td>Feminino</td>
-                      <td>12/02/2001</td>
-                      <td>Carlos Andrade</td>
-                      <td>14/02/23 - 12:03hrs</td>
-                      <td>
-                        02/22 11:25 AM Exame odontol...{" "}
-                        <a href="#" className={casosStyles.verTudo}>
-                          Ver Tudo
-                        </a>
-                      </td>
-                      <td>
-                        <button className={casosStyles.botaoExame}>
-                          Solicitar Exame
-                        </button>
-                      </td>
-                      <td className={casosStyles.acoes}>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Confirmar"
-                        >
-                          ✅
-                        </button>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Editar"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Excluir"
-                        >
-                          ❌
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>#021</td>
-                      <td>José Gomes Carvalho</td>
-                      <td>Masculino</td>
-                      <td>30/08/1997</td>
-                      <td>Marcos Silva</td>
-                      <td>10/01/22 - 11:43hrs</td>
-                      <td>
-                        11/23 09:12 AM Análise de arcada...{" "}
-                        <a href="#" className={casosStyles.verTudo}>
-                          Ver Tudo
-                        </a>
-                      </td>
-                      <td>
-                        <button className={casosStyles.botaoExame}>
-                          Solicitar Exame
-                        </button>
-                      </td>
-                      <td className={casosStyles.acoes}>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Confirmar"
-                        >
-                          ✅
-                        </button>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Editar"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Excluir"
-                        >
-                          ❌
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                <div className={pacientesStyles.verMais}>
-                  <button>
-                    Ver Mais <span>▼</span>
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </>
           ) : (
-            // Página de cadastro de pacientes atualizada
             <>
               <div className={pacientesStyles.headerCadastro}>
-                <button
-                  className={pacientesStyles.btnVoltar}
-                  onClick={handleVoltar}
-                >
+                <button className={pacientesStyles.btnVoltar} onClick={handleVoltar}>
                   <span>←</span> Voltar
                 </button>
-                <h1>Cadastrar Paciente</h1>
+                <h1>{editPatientId ? "Editar Paciente" : "Cadastrar Paciente"}</h1>
               </div>
-
               <div className={casosStyles.section}>
-                <form
-                  className={casosStyles.cadastroCasos}
-                  onSubmit={(e) => e.preventDefault()}
-                >
+                <form className={casosStyles.cadastroCasos} onSubmit={savePatient}>
                   <div className={casosStyles.cadastroEsquerda}>
                     <div className={casosStyles.organizacao}>
                       <label>
-                        {" "}
                         Nome: <br />
                         <input
                           type="text"
+                          name="name"
                           placeholder="Digite o nome completo"
-                          required
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          required={formData.identified === "YES"}
+                          disabled={formData.identified === "NO"}
                         />
                       </label>
                     </div>
-
                     <div className={casosStyles.organizacao}>
                       <label>
-                        {" "}
                         Data de Nascimento: <br />
-                        <input type="date" />
+                        <input
+                          type="date"
+                          name="birthDate"
+                          value={formData.birthDate}
+                          onChange={handleInputChange}
+                          required={formData.identified === "YES"}
+                          disabled={formData.identified === "NO"}
+                        />
                       </label>
                     </div>
                   </div>
-
                   <div className={casosStyles.cadastroDireita}>
                     <div className={casosStyles.organizacao}>
                       <label>
                         Sexo: <br />
-                        <select required>
+                        <select name="sex" value={formData.sex} onChange={handleInputChange} required>
                           <option value="">Selecione</option>
-                          <option value="feminino">Feminino</option>
-                          <option value="masculino">Masculino</option>
-                          <option value="outro">Outro</option>
+                          <option value="FEMININO">Feminino</option>
+                          <option value="MASCULINO">Masculino</option>
+                          <option value="OUTRO">Outro</option>
                         </select>
                       </label>
                     </div>
-
                     <div className={casosStyles.organizacao}>
                       <label>
                         Identificado: <br />
-                        <select required>
-                          <option value="">Selecione</option>
-                          <option value="sim">Sim</option>
-                          <option value="nao">Não</option>
+                        <select name="identified" value={formData.identified} onChange={handleInputChange} required>
+                          <option value="YES">Sim</option>
+                          <option value="NO">Não</option>
                         </select>
                       </label>
                     </div>
-
-                    <button className={evidenciasStyles.btnSalvar}>
-                      Salvar
+                    <div className={casosStyles.organizacao}>
+                      <label>
+                        Caso: <br />
+                        <select name="caseId" value={formData.caseId} onChange={handleInputChange} required>
+                          <option value="">Selecione</option>
+                          {casos.map((caso) => (
+                            <option key={caso.id} value={caso.id}>
+                              {caso.title}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                    <button type="submit" className={evidenciasStyles.btnSalvar}>
+                      {editPatientId ? "Salvar Alterações" : "Salvar"}
                     </button>
+                    {editPatientId && (
+                      <button
+                        type="button"
+                        className={evidenciasStyles.btnSalvar}
+                        onClick={handleVoltar}
+                      >
+                        Cancelar
+                      </button>
+                    )}
                   </div>
                 </form>
               </div>
-
-              {/* Tabela de pacientes existentes */}
               <h3>Todos os Pacientes</h3>
               <div className={casosStyles.section}>
                 <table>
@@ -481,87 +555,60 @@ export default function Pacientes() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>#022</td>
-                      <td>Ana Maria da Silva</td>
-                      <td>Feminino</td>
-                      <td>12/02/2001</td>
-                      <td>Sim</td>
-                      <td className={casosStyles.acoes}>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Confirmar"
-                        >
-                          ✅
-                        </button>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Editar"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Excluir"
-                        >
-                          ❌
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>#021</td>
-                      <td>José Gomes Carvalho</td>
-                      <td>Masculino</td>
-                      <td>30/08/1997</td>
-                      <td>Sim</td>
-                      <td className={casosStyles.acoes}>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Confirmar"
-                        >
-                          ✅
-                        </button>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Editar"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Excluir"
-                        >
-                          ❌
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>#020</td>
-                      <td>Desconhecido</td>
-                      <td>Masculino</td>
-                      <td>--/--/----</td>
-                      <td>Não</td>
-                      <td className={casosStyles.acoes}>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Confirmar"
-                        >
-                          ✅
-                        </button>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Editar"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          className={casosStyles.acaoBotao}
-                          title="Excluir"
-                        >
-                          ❌
-                        </button>
-                      </td>
-                    </tr>
+                    {pacientes.length > 0 ? (
+                      pacientes.map((paciente) => (
+                        <tr key={paciente.id}>
+                          <td>{paciente.id.slice(0, 4)}</td>
+                          <td>{paciente.name}</td>
+                          <td>{paciente.sex}</td>
+                          <td>{paciente.birthDate ? new Date(paciente.birthDate).toLocaleDateString() : "-"}</td>
+                          <td>{paciente.identified === "YES" ? "Sim" : "Não"}</td>
+                          <td className={casosStyles.acoes}>
+                            {currentUserRole === "ADMIN" || currentUserRole === "PERITO" ? (
+                              <>
+                                <button
+                                  className={casosStyles.acaoBotao}
+                                  title="Editar"
+                                  onClick={() => handleEdit(paciente)}
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  className={casosStyles.acaoBotao}
+                                  title="Excluir"
+                                  onClick={() => handleDelete(paciente.id)}
+                                >
+                                  ❌
+                                </button>
+                              </>
+                            ) : (
+                              <span>
+                                 <>
+                                <button
+                                  className={casosStyles.acaoBotao}
+                                  title="Editar"
+                                  onClick={() => handleEdit(paciente)}
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  className={casosStyles.acaoBotao}
+                                  title="Excluir"
+                                  onClick={() => handleDelete(paciente.id)}
+                                >
+                                  ❌
+                                </button>
+                              </>
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={6}>Nenhum paciente disponível</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
                 <div className={pacientesStyles.verMais}>

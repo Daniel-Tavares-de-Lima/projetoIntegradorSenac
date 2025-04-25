@@ -11,34 +11,91 @@ import { TbFileSearch } from "react-icons/tb";
 {/*-----Icones Side bar-----*/}
 // import {useState} from "react";
 import { useEffect, useState } from "react";
-import { apiRequest } from "../app/services/apiServices";
+import { fetchPatients, fetchCases } from "../app/services/homeServices";
+
+
+
+interface Patient {
+  id: string;
+  name: string;
+  sex: string;
+  birthDate?: string;
+  caseId: string;
+  identified: "YES" | "NO";
+}
+
+interface Case {
+  id: string;
+  title: string;
+  classification: string;
+  dateOpened: string;
+  solicitante?: string;
+  managerId: string;
+  statusCase: string;
+}
+
+
+
 
 export default function Home() {
   const [userName, setUserName] = useState("");
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [cases, setCases] = useState<Case[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Verifica se o nome já está no localStorage
         const storedName = localStorage.getItem("userName");
         if (storedName) {
           setUserName(storedName);
         } else {
-          // Faz uma requisição para obter os dados do usuário logado
-          const data = await apiRequest("/auth/me", "GET", null, true);
-          if (data.name) {
+          const response = await fetch("https://pi3p.onrender.com/auth/me", {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+              "Content-Type": "application/json",
+            },
+          });
+          const data = await response.json();
+          console.log("Resposta do GET /auth/me:", data); // Log para depuração
+          if (response.ok && data.name) {
             setUserName(data.name);
-            localStorage.setItem("userName", data.name); // Salva no localStorage
+            localStorage.setItem("userName", data.name);
+          } else {
+            throw new Error(data.message || "Erro ao buscar usuário");
           }
         }
       } catch (error) {
         console.error("Erro ao carregar dados do usuário:", error.message);
-        setUserName("Usuário"); // Fallback em caso de erro
+        setUserName("Usuário");
+      }
+    };
+
+    const fetchData = async () => {
+      try {
+        const [patientsData, casesData] = await Promise.all([
+          fetchPatients(),
+          fetchCases(),
+        ]);
+        setPatients(patientsData);
+        setCases(casesData);
+        setError(null);
+      } catch (error) {
+        setError(`⚠️ ${error.message}`);
+        setPatients([]);
+        setCases([]);
       }
     };
 
     fetchUserData();
+    fetchData();
   }, []);
+
+  const getCaseSolicitante = (caseId: string) => {
+    const caso = cases.find((c) => c.id === caseId);
+    return caso ? caso.solicitante || "-" : "-";
+  };
 
   return (
     <div className={styles.container}>
@@ -90,6 +147,7 @@ export default function Home() {
 
         <section className={styles.content}>
           <h1>Painel Inicial</h1>
+          {error && <p className={styles.error}>{error}</p>}
           <div className={styles.searchSection}>
             <label>
               Data inicial <input type="date" />
@@ -98,19 +156,21 @@ export default function Home() {
               Data final <input type="date" />
             </label>
             <button className={styles.botaoPesquisar}>Pesquisar</button>
-
-
           </div>
 
           <h2>Mais recentes</h2>
           <input type="search" placeholder="Pesquisar casos ou pacientes" className={styles.pesquisa} />
           <div className={styles.conteudo}>
-            <button className={styles.botaoPesquisar}>➕ Adicionar paciente</button>
-            <button className={styles.botaoPesquisar}>📄 Registrar caso</button>
+            <button className={styles.botaoPesquisar}>
+              <Link href={`/pacientes`} className={styles.link}>Add pacientes</Link>
+            </button>
+            <button className={styles.botaoPesquisar}>
+              <Link href={`/casos`} className={styles.link}>Add Casos</Link>
+            </button>
           </div>
 
           <div className={styles.section}>
-            <h2>Casos - Exemplos</h2>
+            <h2>Casos</h2>
             <table>
               <thead>
                 <tr>
@@ -124,50 +184,44 @@ export default function Home() {
                   <th>Últimos Exames</th>
                   <th>Solicitar</th>
                   <th>Status</th>
-                  <th>Ações</th>
+                  {/* <th>Ações</th> */}
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>#022</td>
-                  <td>Acidente</td>
-                  <td>12/03/25 - 12:43</td>
-                  <td>📍 Recife-PE</td>
-                  <td>Carlos Andrade</td>
-                  <td>Julia Maria</td>
-                  <td>14/02/23 - 12:03hrs</td>
-                  <td>Exame odontolega...</td>
-                  <td>
-                    <button className={styles.botaoExame}>Solicitar Exame</button>
-                  </td>
-                  <td>
-                    <span className={styles.statusEmAndamento}>Em andamento</span>
-                  </td>
-                  <td className={styles.acoes}>✏️</td>
-                  <td className={styles.acoes}>❌</td>
-                </tr>
-                <tr>
-                  <td>#021</td>
-                  <td>Acidente</td>
-                  <td>05/03/25 - 10:33</td>
-                  <td>📍 Jaboatão-PE</td>
-                  <td>Marcos Silva</td>
-                  <td>Julia Maria</td>
-                  <td>17/12/22 - 19:14hrs</td>
-                  <td>Análise de arcada de...</td>
-                  <td>
-                    <button className={styles.botaoExame}>Solicitar Exame</button>
-                  </td>
-                  <td>
-                    <span className={styles.statusArquivado}>Arquivado</span>
-                  </td>
-                  <td className={styles.acoes}>✏️</td>
-                  <td className={styles.acoes}>❌</td>
-                </tr>
+                {cases.length > 0 ? (
+                  cases.map((caso) => (
+                    <tr key={caso.id}>
+                      <td>{caso.id.slice(0, 4)}</td>
+                      <td>{caso.classification || "-"}</td>
+                      <td>{caso.dateOpened ? new Date(caso.dateOpened).toLocaleString() : "-"}</td>
+                      <td>-</td> {/* Local não disponível */}
+                      <td>{caso.solicitante || "-"}</td>
+                      <td>{caso.managerId || "-"}</td> {/* Usando managerId como responsável */}
+                      <td>-</td> {/* Data do exame não disponível */}
+                      <td>-</td> {/* Últimos exames não disponível */}
+                      <td>
+                        <button className={styles.botaoExame}>Solicitar Exame</button>
+                      </td>
+                      <td>
+                        <span className={styles[`status${caso.statusCase}`] || styles.statusDefault}>
+                          {caso.statusCase || "-"}
+                        </span>
+                      </td>
+                      {/* <td className={styles.acoes}>
+                        <span>✏️</span>
+                        <span>❌</span>
+                      </td> */}
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={11}>Nenhum caso disponível</td>
+                  </tr>
+                )}
               </tbody>
             </table>
 
-            <h2>Pacientes - Exemplos</h2>
+            <h2>Pacientes</h2>
             <table>
               <thead>
                 <tr>
@@ -179,38 +233,34 @@ export default function Home() {
                   <th>Data do Exame</th>
                   <th>Últimos Exames</th>
                   <th>Solicitar</th>
-                  <th>Ações</th>
+                  {/* <th>Ações</th> */}
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>#022</td>
-                  <td>Ana Maria da Silva</td>
-                  <td>Feminino</td>
-                  <td>12/02/2001</td>
-                  <td>Carlos Andrade</td>
-                  <td>14/02/23 - 12:03hrs</td>
-                  <td>Exame odontolega...</td>
-                  <td>
-                    <button className={styles.botaoExame}>Solicitar Exame</button>
-                  </td>
-                  <td className={styles.acoes}>✏️</td>
-                  <td className={styles.acoes}>❌</td>
-                </tr>
-                <tr>
-                  <td>#021</td>
-                  <td>José Gomes Carvalho</td>
-                  <td>Masculino</td>
-                  <td>30/08/1997</td>
-                  <td>Marcos Silva</td>
-                  <td>10/01/22 - 11:43hrs</td>
-                  <td>Análise de arcada de...</td>
-                  <td>
-                    <button className={styles.botaoExame}>Solicitar Exame</button>
-                  </td>
-                  <td className={styles.acoes}>✏️</td>
-                  <td className={styles.acoes}>❌</td>
-                </tr>
+                {patients.length > 0 ? (
+                  patients.map((patient) => (
+                    <tr key={patient.id}>
+                      <td>{patient.id.slice(0, 4)}</td>
+                      <td>{patient.name || "-"}</td>
+                      <td>{patient.sex || "-"}</td>
+                      <td>{patient.birthDate ? new Date(patient.birthDate).toLocaleDateString() : "-"}</td>
+                      <td>{getCaseSolicitante(patient.caseId)}</td>
+                      <td>-</td> {/* Data do exame não disponível */}
+                      <td>-</td> {/* Últimos exames não disponível */}
+                      <td>
+                        <button className={styles.botaoExame}>Solicitar Exame</button>
+                      </td>
+                      {/* <td className={styles.acoes}>
+                        <span>✏️</span>
+                        <span>❌</span>
+                      </td> */}
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={9}>Nenhum paciente disponível</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

@@ -31,20 +31,22 @@ interface User {
 
 export default function Profissionais() {
   const [usuarios, setUsuarios] = useState<User[]>([]);
+  const [filteredUsuarios, setFilteredUsuarios] = useState<User[]>([]); // Lista filtrada
+  const [searchTerm, setSearchTerm] = useState(""); // Termo de pesquisa
   const [password, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("ADMIN");
-  const [editUserId, setEditUserId] = useState<string | null>(null); // Estado para usuário em edição
+  const [editUserId, setEditUserId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null); // Papel do usuário logado
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
   // Buscar usuários
   const fetchUsuarios = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Usuário não autenticado. Faça login novamente.");
+      setError("⚠️ Usuário não autenticado. Faça login novamente.");
       return;
     }
     try {
@@ -60,18 +62,19 @@ export default function Profissionais() {
         throw new Error(data.message || "Erro ao buscar usuários");
       }
       setUsuarios(data);
+      setFilteredUsuarios(data); // Inicializar lista filtrada
     } catch (error) {
       console.error(error.message);
-      setError(error.message);
+      setError(`⚠️ ${error.message}`);
     }
   };
 
-  // Buscar informações do usuário logado (para verificar se é ADMIN)
+  // Buscar informações do usuário logado
   const fetchCurrentUser = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
     try {
-      const response = await fetch("https://pi3p.onrender.com/users/me", { // Assumindo que existe um endpoint /users/me
+      const response = await fetch("https://pi3p.onrender.com/users/me", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -85,6 +88,22 @@ export default function Profissionais() {
     } catch (error) {
       console.error("Erro ao buscar usuário logado:", error);
     }
+  };
+
+  // Função de pesquisa
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    if (!term.trim()) {
+      setFilteredUsuarios(usuarios); // Mostrar todos se o termo estiver vazio
+      return;
+    }
+    const lowerTerm = term.toLowerCase();
+    const filtered = usuarios.filter(
+      (user) =>
+        user.name.toLowerCase().includes(lowerTerm) ||
+        user.email.toLowerCase().includes(lowerTerm)
+    );
+    setFilteredUsuarios(filtered);
   };
 
   useEffect(() => {
@@ -105,12 +124,10 @@ export default function Profissionais() {
 
     try {
       if (editUserId) {
-        // Modo de edição
         await updateUser(editUserId, name, email, password || undefined, role);
         alert("✅ Usuário atualizado com sucesso!");
         setEditUserId(null);
       } else {
-        // Modo de criação
         if (!password) {
           setError("⚠️ A senha é obrigatória para novos usuários");
           return;
@@ -118,7 +135,6 @@ export default function Profissionais() {
         await createUser(name, email, password, role);
         alert("✅ Usuário salvo com sucesso!");
       }
-      // Limpar formulário
       setName("");
       setEmail("");
       setSenha("");
@@ -203,8 +219,10 @@ export default function Profissionais() {
           </div>
           <input
             type="search"
-            placeholder="Pesquisar casos ou pacientes"
+            placeholder="Pesquisar por usuário"
             className={casosStyles.pesquisa}
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
           />
           <div className={casosStyles.user}>
             <FaRegUser /> Julia
@@ -220,9 +238,16 @@ export default function Profissionais() {
             type="search"
             placeholder="Pesquisar por usuário"
             className={casosStyles.pesquisa}
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
           />
           <div className={casosStyles.conteudo}>
-            <button className={casosStyles.botaoPesquisar}>🔍 Pesquisar</button>
+            <button
+              className={casosStyles.botaoPesquisar}
+              onClick={() => handleSearch(searchTerm)}
+            >
+              🔍 Pesquisar
+            </button>
           </div>
 
           <div className={casosStyles.section}>
@@ -318,51 +343,57 @@ export default function Profissionais() {
                 </tr>
               </thead>
               <tbody>
-                {usuarios.map((usuario) => (
-                  <tr key={usuario.id}>
-                    <td>{usuario.name}</td>
-                    <td>{usuario.role}</td>
-                    <td className={casosStyles.acoes}>
-                      {currentUserRole === "ADMIN" ? (
-                        <>
-                          <button
-                            className={casosStyles.acaoBotao}
-                            title="Editar"
-                            onClick={() => handleEdit(usuario)}
-                          >
-                            ✏️
-                          </button>
-                          <button
-                            className={casosStyles.acaoBotao}
-                            title="Excluir"
-                            onClick={() => handleDelete(usuario.id)}
-                          >
-                            ❌
-                          </button>
-                        </>
-                      ) : (
-                        <span>
-                           <>
-                          <button
-                            className={casosStyles.acaoBotao}
-                            title="Editar"
-                            onClick={() => handleEdit(usuario)}
-                          >
-                            ✏️
-                          </button>
-                          <button
-                            className={casosStyles.acaoBotao}
-                            title="Excluir"
-                            onClick={() => handleDelete(usuario.id)}
-                          >
-                            ❌
-                          </button>
-                        </>
-                        </span>
-                      )}
-                    </td>
+                {filteredUsuarios.length > 0 ? (
+                  filteredUsuarios.map((usuario) => (
+                    <tr key={usuario.id}>
+                      <td>{usuario.name}</td>
+                      <td>{usuario.role}</td>
+                      <td className={casosStyles.acoes}>
+                        {currentUserRole === "ADMIN" ? (
+                          <>
+                            <button
+                              className={casosStyles.acaoBotao}
+                              title="Editar"
+                              onClick={() => handleEdit(usuario)}
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              className={casosStyles.acaoBotao}
+                              title="Excluir"
+                              onClick={() => handleDelete(usuario.id)}
+                            >
+                              ❌
+                            </button>
+                          </>
+                        ) : (
+                          <span>
+                            <>
+                              <button
+                                className={casosStyles.acaoBotao}
+                                title="Editar"
+                                onClick={() => handleEdit(usuario)}
+                              >
+                                ✏️
+                              </button>
+                              <button
+                                className={casosStyles.acaoBotao}
+                                title="Excluir"
+                                onClick={() => handleDelete(usuario.id)}
+                              >
+                                ❌
+                              </button>
+                            </>
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={3}>Nenhum usuário encontrado</td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

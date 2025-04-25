@@ -46,7 +46,10 @@ interface Case {
 export default function Pacientes() {
   const [mostrarCadastro, setMostrarCadastro] = useState(false);
   const [pacientes, setPacientes] = useState<Patient[]>([]);
+  const [filteredPacientes, setFilteredPacientes] = useState<Patient[]>([]); // Lista filtrada
+  const [searchTerm, setSearchTerm] = useState(""); // Termo de pesquisa
   const [casos, setCasos] = useState<Case[]>([]);
+  const [userName, setUserName] = useState(""); // Nome do usuário logado
   const [formData, setFormData] = useState({
     name: "",
     sex: "",
@@ -58,13 +61,48 @@ export default function Pacientes() {
   const [error, setError] = useState<string | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
+  // Buscar nome do usuário logado
+  const fetchUserData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+      const storedName = localStorage.getItem("userName");
+      if (storedName) {
+        setUserName(storedName);
+        return;
+      }
+      const response = await fetch("https://pi3p.onrender.com/users/me", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Erro ao buscar usuário");
+      }
+      const name = data.name || data.username || data.fullName || "Usuário";
+      setUserName(name);
+      localStorage.setItem("userName", name);
+    } catch (error) {
+      console.error("Erro ao buscar usuário:", error.message);
+      setUserName("Usuário");
+    }
+  };
+
   const fetchPacientes = async () => {
     try {
       const data = await fetchPatients();
-      setPacientes(Array.isArray(data) ? data : []);
+      const pacientesArray = Array.isArray(data) ? data : [];
+      setPacientes(pacientesArray);
+      setFilteredPacientes(pacientesArray); // Inicializar lista filtrada
     } catch (error) {
       setError(error.message);
       setPacientes([]);
+      setFilteredPacientes([]);
     }
   };
 
@@ -98,7 +136,26 @@ export default function Pacientes() {
     }
   };
 
+  // Função de pesquisa
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    if (!term.trim()) {
+      setFilteredPacientes(pacientes); // Mostrar todos se o termo estiver vazio
+      return;
+    }
+    const lowerTerm = term.toLowerCase();
+    const filtered = pacientes.filter((paciente) => {
+      const solicitante = getCaseSolicitante(paciente.caseId);
+      return (
+        paciente.name.toLowerCase().includes(lowerTerm) ||
+        (solicitante !== "-" && solicitante.toLowerCase().includes(lowerTerm))
+      );
+    });
+    setFilteredPacientes(filtered);
+  };
+
   useEffect(() => {
+    fetchUserData();
     fetchPacientes();
     fetchCasos();
     fetchCurrentUser();
@@ -141,7 +198,6 @@ export default function Pacientes() {
 
     try {
       if (editPatientId) {
-        // Modo de edição
         await updatePatient(
           editPatientId,
           formData.identified === "YES" ? formData.name : "Anônimo",
@@ -153,7 +209,6 @@ export default function Pacientes() {
         alert("✅ Paciente atualizado com sucesso!");
         setEditPatientId(null);
       } else {
-        // Modo de criação
         await createPatient(
           formData.identified === "YES" ? formData.name : "Anônimo",
           formData.sex,
@@ -163,7 +218,6 @@ export default function Pacientes() {
         );
         alert("✅ Paciente salvo com sucesso!");
       }
-      // Limpar formulário
       setFormData({
         name: "",
         sex: "",
@@ -173,7 +227,7 @@ export default function Pacientes() {
       });
       setError(null);
       setMostrarCadastro(false);
-      fetchPacientes(); // Atualizar lista
+      fetchPacientes();
     } catch (error) {
       setError(`❌ Erro: ${error.message}`);
     }
@@ -257,11 +311,13 @@ export default function Pacientes() {
           </div>
           <input
             type="search"
-            placeholder="Pesquisar casos ou pacientes"
+            placeholder="Pesquisar por paciente"
             className={casosStyles.pesquisa}
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
           />
           <div className={casosStyles.user}>
-            <FaRegUser /> Julia
+            <FaRegUser /> {userName}
           </div>
         </header>
 
@@ -291,11 +347,18 @@ export default function Pacientes() {
               </div>
               <input
                 type="search"
-                placeholder="Pesquisar casos, pacientes ou evidência"
+                placeholder="Pesquisar por paciente"
                 className={casosStyles.pesquisa}
+                value={searchTerm}
+                onChange={(e) => handleSearch(e.target.value)}
               />
               <div className={casosStyles.conteudo}>
-                <button className={casosStyles.botaoPesquisar}>🔍 Pesquisar</button>
+                <button
+                  className={casosStyles.botaoPesquisar}
+                  onClick={() => handleSearch(searchTerm)}
+                >
+                  🔍 Pesquisar
+                </button>
               </div>
 
               <h2>Mais recentes</h2>
@@ -327,16 +390,16 @@ export default function Pacientes() {
                     </tr>
                   </thead>
                   <tbody>
-                    {pacientes.length > 0 ? (
-                      pacientes.map((paciente) => (
+                    {filteredPacientes.length > 0 ? (
+                      filteredPacientes.map((paciente) => (
                         <tr key={paciente.id}>
                           <td>{paciente.id.slice(0, 4)}</td>
                           <td>{paciente.name}</td>
                           <td>{paciente.sex}</td>
                           <td>{paciente.birthDate ? new Date(paciente.birthDate).toLocaleDateString() : "-"}</td>
                           <td>{getCaseSolicitante(paciente.caseId)}</td>
-                          <td>-</td> {/* Data do exame não disponível */}
-                          <td>-</td> {/* Últimos exames não disponível */}
+                          <td>-</td>
+                          <td>-</td>
                           <td>
                             <button className={casosStyles.botaoExame}>Solicitar Exame</button>
                           </td>
@@ -360,22 +423,22 @@ export default function Pacientes() {
                               </>
                             ) : (
                               <span>
-                                 <>
-                                <button
-                                  className={casosStyles.acaoBotao}
-                                  title="Editar"
-                                  onClick={() => handleEdit(paciente)}
-                                >
-                                  ✏️
-                                </button>
-                                <button
-                                  className={casosStyles.acaoBotao}
-                                  title="Excluir"
-                                  onClick={() => handleDelete(paciente.id)}
-                                >
-                                  ❌
-                                </button>
-                              </>
+                                <>
+                                  <button
+                                    className={casosStyles.acaoBotao}
+                                    title="Editar"
+                                    onClick={() => handleEdit(paciente)}
+                                  >
+                                    ✏️
+                                  </button>
+                                  <button
+                                    className={casosStyles.acaoBotao}
+                                    title="Excluir"
+                                    onClick={() => handleDelete(paciente.id)}
+                                  >
+                                    ❌
+                                  </button>
+                                </>
                               </span>
                             )}
                           </td>
@@ -383,7 +446,7 @@ export default function Pacientes() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={9}>Nenhum paciente disponível</td>
+                        <td colSpan={9}>Nenhum paciente encontrado</td>
                       </tr>
                     )}
                   </tbody>
@@ -420,11 +483,10 @@ export default function Pacientes() {
                           <td>{caso.id.slice(0, 4)}</td>
                           <td>{caso.classification}</td>
                           <td>{new Date(caso.dateOpened).toLocaleString()}</td>
-                          <td>-</td> {/* Local não disponível */}
+                          <td>-</td>
                           <td>{caso.solicitante || "-"}</td>
-                          <td>-</td> {/* Responsável não disponível */}
-                          <td>-</td> {/* Data do exame não disponível */}
-                          <td>-</td> {/* Últimos exames não disponível */}
+                          <td>-</td>
+                          <td>-</td>
                           <td>
                             <button className={casosStyles.botaoExame}>Solicitar Exame</button>
                           </td>
@@ -555,8 +617,8 @@ export default function Pacientes() {
                     </tr>
                   </thead>
                   <tbody>
-                    {pacientes.length > 0 ? (
-                      pacientes.map((paciente) => (
+                    {filteredPacientes.length > 0 ? (
+                      filteredPacientes.map((paciente) => (
                         <tr key={paciente.id}>
                           <td>{paciente.id.slice(0, 4)}</td>
                           <td>{paciente.name}</td>
@@ -583,22 +645,22 @@ export default function Pacientes() {
                               </>
                             ) : (
                               <span>
-                                 <>
-                                <button
-                                  className={casosStyles.acaoBotao}
-                                  title="Editar"
-                                  onClick={() => handleEdit(paciente)}
-                                >
-                                  ✏️
-                                </button>
-                                <button
-                                  className={casosStyles.acaoBotao}
-                                  title="Excluir"
-                                  onClick={() => handleDelete(paciente.id)}
-                                >
-                                  ❌
-                                </button>
-                              </>
+                                <>
+                                  <button
+                                    className={casosStyles.acaoBotao}
+                                    title="Editar"
+                                    onClick={() => handleEdit(paciente)}
+                                  >
+                                    ✏️
+                                  </button>
+                                  <button
+                                    className={casosStyles.acaoBotao}
+                                    title="Excluir"
+                                    onClick={() => handleDelete(paciente.id)}
+                                  >
+                                    ❌
+                                  </button>
+                                </>
                               </span>
                             )}
                           </td>
@@ -606,7 +668,7 @@ export default function Pacientes() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={6}>Nenhum paciente disponível</td>
+                        <td colSpan={6}>Nenhum paciente encontrado</td>
                       </tr>
                     )}
                   </tbody>

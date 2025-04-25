@@ -39,10 +39,12 @@ interface User {
   role: string;
 }
 
-
 export default function Casos() {
   const [casos, setCasos] = useState<Caso[]>([]);
+  const [filteredCasos, setFilteredCasos] = useState<Caso[]>([]); // Lista filtrada
+  const [searchTerm, setSearchTerm] = useState(""); // Termo de pesquisa
   const [usuarios, setUsuarios] = useState<User[]>([]);
+  const [userName, setUserName] = useState(""); // Nome do usuário logado
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -52,8 +54,40 @@ export default function Casos() {
     solicitante: "",
   });
   const [error, setError] = useState<string | null>(null);
-  const [editCaseId, setEditCaseId] = useState<string | null>(null); // Estado para caso em edição
-  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null); // Papel do usuário logado
+  const [editCaseId, setEditCaseId] = useState<string | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+
+  // Buscar nome do usuário logado
+  const fetchUserData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+      const storedName = localStorage.getItem("userName");
+      if (storedName) {
+        setUserName(storedName);
+        return;
+      }
+      const response = await fetch("https://pi3p.onrender.com/users/me", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Erro ao buscar usuário");
+      }
+      const name = data.name || data.username || data.fullName || "Usuário";
+      setUserName(name);
+      localStorage.setItem("userName", name);
+    } catch (error) {
+      console.error("Erro ao buscar usuário:", error.message);
+      setUserName("Usuário");
+    }
+  };
 
   const fetchCasos = async () => {
     try {
@@ -70,16 +104,18 @@ export default function Casos() {
       }
       const casosArray = Array.isArray(data) ? data : data.cases || [];
       setCasos(casosArray);
+      setFilteredCasos(casosArray); // Inicializar lista filtrada
     } catch (err) {
       setError(err.message);
       setCasos([]);
+      setFilteredCasos([]);
     }
   };
 
   const fetchUsuarios = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Usuário não autenticado. Faça login novamente.");
+      setError("⚠️ Usuário não autenticado. Faça login novamente.");
       return;
     }
     try {
@@ -120,7 +156,25 @@ export default function Casos() {
     }
   };
 
+  // Função de pesquisa
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    if (!term.trim()) {
+      setFilteredCasos(casos); // Mostrar todos se o termo estiver vazio
+      return;
+    }
+    const lowerTerm = term.toLowerCase();
+    const filtered = casos.filter(
+      (caso) =>
+        caso.title.toLowerCase().includes(lowerTerm) ||
+        caso.description.toLowerCase().includes(lowerTerm) ||
+        (caso.solicitante && caso.solicitante.toLowerCase().includes(lowerTerm))
+    );
+    setFilteredCasos(filtered);
+  };
+
   useEffect(() => {
+    fetchUserData();
     fetchCasos();
     fetchUsuarios();
     fetchCurrentUser();
@@ -141,7 +195,6 @@ export default function Casos() {
     }
     try {
       if (editCaseId) {
-        // Modo de edição
         await updateCase(
           editCaseId,
           formData.title,
@@ -154,7 +207,6 @@ export default function Casos() {
         alert("✅ Caso atualizado com sucesso!");
         setEditCaseId(null);
       } else {
-        // Modo de criação
         const novoCaso = await createCase(
           formData.title,
           formData.description,
@@ -165,7 +217,6 @@ export default function Casos() {
         setCasos((prev) => [...prev, novoCaso]);
         alert("✅ Caso salvo com sucesso!");
       }
-      // Limpar formulário
       setFormData({
         title: "",
         description: "",
@@ -175,7 +226,7 @@ export default function Casos() {
         solicitante: "",
       });
       setError(null);
-      fetchCasos(); // Atualizar lista
+      fetchCasos();
     } catch (err) {
       setError(err.message);
       alert(`❌ Erro: ${err.message}`);
@@ -205,7 +256,6 @@ export default function Casos() {
     }
   };
 
-  // Mapear managerId para o nome do perito
   const getManagerName = (managerId: string) => {
     const user = usuarios.find((u) => u.id === managerId);
     return user ? user.name : "-";
@@ -261,11 +311,13 @@ export default function Casos() {
           </div>
           <input
             type="search"
-            placeholder="Pesquisar casos ou pacientes"
+            placeholder="Pesquisar por caso"
             className={casosStyles.pesquisa}
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
           />
           <div className={casosStyles.user}>
-            <FaRegUser /> Julia
+            <FaRegUser /> {userName}
           </div>
         </header>
 
@@ -276,11 +328,18 @@ export default function Casos() {
           <h2>Pesquisar</h2>
           <input
             type="search"
-            placeholder="Pesquisar casos ou pacientes"
+            placeholder="Pesquisar por caso"
             className={casosStyles.pesquisa}
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
           />
           <div className={casosStyles.conteudo}>
-            <button className={casosStyles.botaoPesquisar}>🔍 Pesquisar</button>
+            <button
+              className={casosStyles.botaoPesquisar}
+              onClick={() => handleSearch(searchTerm)}
+            >
+              🔍 Pesquisar
+            </button>
           </div>
 
           <div className={casosStyles.section}>
@@ -420,8 +479,8 @@ export default function Casos() {
                 </tr>
               </thead>
               <tbody>
-                {casos.length > 0 ? (
-                  casos.map((caso) => (
+                {filteredCasos.length > 0 ? (
+                  filteredCasos.map((caso) => (
                     <tr key={caso.id}>
                       <td>{caso.id.slice(0, 4)}</td>
                       <td>{caso.title}</td>
@@ -458,23 +517,22 @@ export default function Casos() {
                           </>
                         ) : (
                           <span>
-
-<>
-                            <button
-                              className={casosStyles.acaoBotao}
-                              title="Editar"
-                              onClick={() => handleEdit(caso)}
-                            >
-                              ✏️
-                            </button>
-                            <button
-                              className={casosStyles.acaoBotao}
-                              title="Excluir"
-                              onClick={() => handleDelete(caso.id)}
-                            >
-                              ❌
-                            </button>
-                          </>
+                            <>
+                              <button
+                                className={casosStyles.acaoBotao}
+                                title="Editar"
+                                onClick={() => handleEdit(caso)}
+                              >
+                                ✏️
+                              </button>
+                              <button
+                                className={casosStyles.acaoBotao}
+                                title="Excluir"
+                                onClick={() => handleDelete(caso.id)}
+                              >
+                                ❌
+                              </button>
+                            </>
                           </span>
                         )}
                       </td>
@@ -482,7 +540,7 @@ export default function Casos() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={10}>Nenhum caso disponível</td>
+                    <td colSpan={10}>Nenhum caso encontrado</td>
                   </tr>
                 )}
               </tbody>

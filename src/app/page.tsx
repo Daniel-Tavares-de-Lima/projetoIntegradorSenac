@@ -114,10 +114,10 @@ export default function Home() {
             <FaRegUser className={styles.iconeInterno} />
             <Link href={`/pacientes`} className={styles.link}>Pacientes</Link>
           </div>
-          <div className={styles.icone}>
+          {/* <div className={styles.icone}>
             <LuFileUser className={styles.iconeInterno} />
             <Link href={`/cadastros`} className={styles.link}>Cadastros</Link>
-          </div>
+          </div> */}
           <div className={styles.icone}>
             <SiElectronbuilder className={styles.iconeInterno} />
             <Link href={`/profissionais`} className={styles.link}>Profissionais</Link>

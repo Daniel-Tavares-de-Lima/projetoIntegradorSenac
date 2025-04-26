@@ -191,10 +191,10 @@ export default function Profissionais() {
               <FaRegUser className={casosStyles.iconeInterno} />
               <Link href={`/pacientes`} className={casosStyles.link}>Pacientes</Link>
             </div>
-            <div className={casosStyles.icone}>
+            {/* <div className={casosStyles.icone}>
               <LuFileUser className={casosStyles.iconeInterno} />
               <Link href={`/cadastros`} className={casosStyles.link}>Cadastros</Link>
-            </div>
+            </div> */}
             <div className={casosStyles.icone}>
               <SiElectronbuilder className={casosStyles.iconeInterno} />
               <Link href={`/profissionais`} className={casosStyles.link}>Profissionais</Link>

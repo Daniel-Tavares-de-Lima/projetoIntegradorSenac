@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
   /*-----Icones Side bar-----*/
 }
 import { FaRegUser } from "react-icons/fa6";
-import { LuFileUser } from "react-icons/lu";
+// import { LuFileUser } from "react-icons/lu";
 import { SiElectronbuilder } from "react-icons/si";
 import { BiSolidUserBadge } from "react-icons/bi";
 import { TbFileSearch } from "react-icons/tb";
@@ -60,6 +60,7 @@ export default function Pacientes() {
   const [editPatientId, setEditPatientId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Buscar nome do usuário logado
   const fetchUserData = async () => {
@@ -261,9 +262,19 @@ export default function Pacientes() {
     return caso ? caso.solicitante || "-" : "-";
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <div className={casosStyles.container}>
-      <aside className={casosStyles.sidebar}>
+
+        <button className={casosStyles.hamburger} onClick={toggleSidebar}>
+          {isSidebarOpen ? "✖" : "☰"}
+        </button>
+
+
+      <aside className={`${casosStyles.sidebar} ${isSidebarOpen ? casosStyles.open : ""}`}>
         <div>
           <div className={casosStyles.logo}>
             <Image
@@ -451,11 +462,7 @@ export default function Pacientes() {
                     )}
                   </tbody>
                 </table>
-                <div className={pacientesStyles.verMais}>
-                  <button>
-                    Ver Mais <span>▼</span>
-                  </button>
-                </div>
+                
               </div>
 
               <h3>Casos</h3>
@@ -508,11 +515,7 @@ export default function Pacientes() {
                     )}
                   </tbody>
                 </table>
-                <div className={pacientesStyles.verMais}>
-                  {/* <button>
-                    Ver Mais <span>▼</span>
-                  </button> */}
-                </div>
+              
               </div>
             </>
           ) : (
@@ -673,11 +676,7 @@ export default function Pacientes() {
                     )}
                   </tbody>
                 </table>
-                <div className={pacientesStyles.verMais}>
-                  <button>
-                    Ver Mais <span>▼</span>
-                  </button>
-                </div>
+               
               </div>
             </>
           )}

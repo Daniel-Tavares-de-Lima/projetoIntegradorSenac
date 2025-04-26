@@ -2,18 +2,12 @@
 import Image from "next/image";
 import styles from "./page.module.css";
 import Link from "next/link";
-{/*-----Icones Side bar-----*/}
 import { FaRegUser } from "react-icons/fa6";
-import { LuFileUser } from "react-icons/lu";
 import { SiElectronbuilder } from "react-icons/si";
 import { BiSolidUserBadge } from "react-icons/bi";
 import { TbFileSearch } from "react-icons/tb";
-{/*-----Icones Side bar-----*/}
-// import {useState} from "react";
 import { useEffect, useState } from "react";
 import { fetchPatients, fetchCases } from "../app/services/homeServices";
-
-
 
 interface Patient {
   id: string;
@@ -34,14 +28,12 @@ interface Case {
   statusCase: string;
 }
 
-
-
-
 export default function Home() {
   const [userName, setUserName] = useState("");
   const [patients, setPatients] = useState<Patient[]>([]);
   const [cases, setCases] = useState<Case[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State for sidebar toggle
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -58,7 +50,7 @@ export default function Home() {
             },
           });
           const data = await response.json();
-          console.log("Resposta do GET /auth/me:", data); // Log para depuração
+          console.log("Resposta do GET /auth/me:", data);
           if (response.ok && data.name) {
             setUserName(data.name);
             localStorage.setItem("userName", data.name);
@@ -97,9 +89,16 @@ export default function Home() {
     return caso ? caso.solicitante || "-" : "-";
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <div className={styles.container}>
-      <aside className={styles.sidebar}>
+      <button className={styles.hamburger} onClick={toggleSidebar}>
+        {isSidebarOpen ? "✖" : "☰"}
+      </button>
+      <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.open : ""}`}>
         <div className={styles.logo}>
           <Image src={`/imagens/Logo - Laudo.png`} alt="Logo - Laudo" width={60} height={60} />
           <h1>
@@ -114,10 +113,6 @@ export default function Home() {
             <FaRegUser className={styles.iconeInterno} />
             <Link href={`/pacientes`} className={styles.link}>Pacientes</Link>
           </div>
-          {/* <div className={styles.icone}>
-            <LuFileUser className={styles.iconeInterno} />
-            <Link href={`/cadastros`} className={styles.link}>Cadastros</Link>
-          </div> */}
           <div className={styles.icone}>
             <SiElectronbuilder className={styles.iconeInterno} />
             <Link href={`/profissionais`} className={styles.link}>Profissionais</Link>
@@ -184,38 +179,33 @@ export default function Home() {
                   <th>Últimos Exames</th>
                   <th>Solicitar</th>
                   <th>Status</th>
-                  {/* <th>Ações</th> */}
                 </tr>
               </thead>
               <tbody>
                 {cases.length > 0 ? (
                   cases.map((caso) => (
                     <tr key={caso.id}>
-                      <td>{caso.id.slice(0, 4)}</td>
-                      <td>{caso.classification || "-"}</td>
-                      <td>{caso.dateOpened ? new Date(caso.dateOpened).toLocaleString() : "-"}</td>
-                      <td>-</td> {/* Local não disponível */}
-                      <td>{caso.solicitante || "-"}</td>
-                      <td>{caso.managerId || "-"}</td> {/* Usando managerId como responsável */}
-                      <td>-</td> {/* Data do exame não disponível */}
-                      <td>-</td> {/* Últimos exames não disponível */}
-                      <td>
+                      <td data-label="Código">{caso.id.slice(0, 4)}</td>
+                      <td data-label="Tipo">{caso.classification || "-"}</td>
+                      <td data-label="Data do Fato">{caso.dateOpened ? new Date(caso.dateOpened).toLocaleString() : "-"}</td>
+                      <td data-label="Local">-</td>
+                      <td data-label="Solicitante">{caso.solicitante || "-"}</td>
+                      <td data-label="Responsável">{caso.managerId || "-"}</td>
+                      <td data-label="Data do Exame">-</td>
+                      <td data-label="Últimos Exames">-</td>
+                      <td data-label="Solicitar">
                         <button className={styles.botaoExame}>Solicitar Exame</button>
                       </td>
-                      <td>
+                      <td data-label="Status">
                         <span className={styles[`status${caso.statusCase}`] || styles.statusDefault}>
                           {caso.statusCase || "-"}
                         </span>
                       </td>
-                      {/* <td className={styles.acoes}>
-                        <span>✏️</span>
-                        <span>❌</span>
-                      </td> */}
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={11}>Nenhum caso disponível</td>
+                    <td colSpan={10}>Nenhum caso disponível</td>
                   </tr>
                 )}
               </tbody>
@@ -233,32 +223,27 @@ export default function Home() {
                   <th>Data do Exame</th>
                   <th>Últimos Exames</th>
                   <th>Solicitar</th>
-                  {/* <th>Ações</th> */}
                 </tr>
               </thead>
               <tbody>
                 {patients.length > 0 ? (
                   patients.map((patient) => (
                     <tr key={patient.id}>
-                      <td>{patient.id.slice(0, 4)}</td>
-                      <td>{patient.name || "-"}</td>
-                      <td>{patient.sex || "-"}</td>
-                      <td>{patient.birthDate ? new Date(patient.birthDate).toLocaleDateString() : "-"}</td>
-                      <td>{getCaseSolicitante(patient.caseId)}</td>
-                      <td>-</td> {/* Data do exame não disponível */}
-                      <td>-</td> {/* Últimos exames não disponível */}
-                      <td>
+                      <td data-label="Código">{patient.id.slice(0, 4)}</td>
+                      <td data-label="Nome">{patient.name || "-"}</td>
+                      <td data-label="Sexo">{patient.sex || "-"}</td>
+                      <td data-label="Data de Nascimento">{patient.birthDate ? new Date(patient.birthDate).toLocaleDateString() : "-"}</td>
+                      <td data-label="Solicitante">{getCaseSolicitante(patient.caseId)}</td>
+                      <td data-label="Data do Exame">-</td>
+                      <td data-label="Últimos Exames">-</td>
+                      <td data-label="Solicitar">
                         <button className={styles.botaoExame}>Solicitar Exame</button>
                       </td>
-                      {/* <td className={styles.acoes}>
-                        <span>✏️</span>
-                        <span>❌</span>
-                      </td> */}
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={9}>Nenhum paciente disponível</td>
+                    <td colSpan={8}>Nenhum paciente disponível</td>
                   </tr>
                 )}
               </tbody>

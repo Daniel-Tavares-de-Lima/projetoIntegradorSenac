@@ -1,26 +1,14 @@
 "use client";
 
 import Image from "next/image";
-// import styles from "./page.module.css";
 import casosStyles from "../styles/Home.module.css";
 import Link from "next/link";
-import {createCase, updateCase, deleteCase} from "../services/casosService";
-{
-  /*-----Icones Side bar-----*/
-}
+import { createCase, updateCase, deleteCase } from "../services/casosService";
 import { FaRegUser } from "react-icons/fa6";
-import { LuFileUser } from "react-icons/lu";
 import { SiElectronbuilder } from "react-icons/si";
 import { BiSolidUserBadge } from "react-icons/bi";
 import { TbFileSearch } from "react-icons/tb";
-{
-  /*-----Icones Side bar-----*/
-}
-// import {useState} from "react";
-// import { apiRequest } from "../services/apiServices";
 import { useState, useEffect } from "react";
-
-
 
 interface Caso {
   id: string;
@@ -41,10 +29,10 @@ interface User {
 
 export default function Casos() {
   const [casos, setCasos] = useState<Caso[]>([]);
-  const [filteredCasos, setFilteredCasos] = useState<Caso[]>([]); // Lista filtrada
-  const [searchTerm, setSearchTerm] = useState(""); // Termo de pesquisa
+  const [filteredCasos, setFilteredCasos] = useState<Caso[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [usuarios, setUsuarios] = useState<User[]>([]);
-  const [userName, setUserName] = useState(""); // Nome do usuário logado
+  const [userName, setUserName] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -56,8 +44,8 @@ export default function Casos() {
   const [error, setError] = useState<string | null>(null);
   const [editCaseId, setEditCaseId] = useState<string | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State for sidebar toggle
 
-  // Buscar nome do usuário logado
   const fetchUserData = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -104,7 +92,7 @@ export default function Casos() {
       }
       const casosArray = Array.isArray(data) ? data : data.cases || [];
       setCasos(casosArray);
-      setFilteredCasos(casosArray); // Inicializar lista filtrada
+      setFilteredCasos(casosArray);
     } catch (err) {
       setError(err.message);
       setCasos([]);
@@ -156,11 +144,10 @@ export default function Casos() {
     }
   };
 
-  // Função de pesquisa
   const handleSearch = (term: string) => {
     setSearchTerm(term);
     if (!term.trim()) {
-      setFilteredCasos(casos); // Mostrar todos se o termo estiver vazio
+      setFilteredCasos(casos);
       return;
     }
     const lowerTerm = term.toLowerCase();
@@ -261,9 +248,16 @@ export default function Casos() {
     return user ? user.name : "-";
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <div className={casosStyles.container}>
-      <aside className={casosStyles.sidebar}>
+      <button className={casosStyles.hamburger} onClick={toggleSidebar}>
+        {isSidebarOpen ? "✖" : "☰"}
+      </button>
+      <aside className={`${casosStyles.sidebar} ${isSidebarOpen ? casosStyles.open : ""}`}>
         <div>
           <div className={casosStyles.logo}>
             <Image
@@ -283,10 +277,6 @@ export default function Casos() {
               <FaRegUser className={casosStyles.iconeInterno} />
               <Link href={`/pacientes`} className={casosStyles.link}>Pacientes</Link>
             </div>
-            {/* <div className={casosStyles.icone}>
-              <LuFileUser className={casosStyles.iconeInterno} />
-              <Link href={`/cadastros`} className={casosStyles.link}>Cadastros</Link>
-            </div> */}
             <div className={casosStyles.icone}>
               <SiElectronbuilder className={casosStyles.iconeInterno} />
               <Link href={`/profissionais`} className={casosStyles.link}>Profissionais</Link>
@@ -482,22 +472,22 @@ export default function Casos() {
                 {filteredCasos.length > 0 ? (
                   filteredCasos.map((caso) => (
                     <tr key={caso.id}>
-                      <td>{caso.id.slice(0, 4)}</td>
-                      <td>{caso.title}</td>
-                      <td>{caso.description}</td>
-                      <td>{caso.classification}</td>
-                      <td>{new Date(caso.dateOpened).toLocaleString()}</td>
-                      <td>{caso.solicitante || '-'}</td>
-                      <td>{getManagerName(caso.managerId)}</td>
-                      <td>
+                      <td data-label="Código">{caso.id.slice(0, 4)}</td>
+                      <td data-label="Título">{caso.title}</td>
+                      <td data-label="Descrição">{caso.description}</td>
+                      <td data-label="Tipo">{caso.classification}</td>
+                      <td data-label="Data do Fato">{new Date(caso.dateOpened).toLocaleString()}</td>
+                      <td data-label="Solicitante">{caso.solicitante || '-'}</td>
+                      <td data-label="Responsável">{getManagerName(caso.managerId)}</td>
+                      <td data-label="Status">
                         <span className={casosStyles[`status${caso.statusCase}`]}>
                           {caso.statusCase}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Solicitar Exames">
                         <button className={casosStyles.botaoExame}>Solicitar Exame</button>
                       </td>
-                      <td className={casosStyles.acoes}>
+                      <td data-label="Ações" className={casosStyles.acoes}>
                         {currentUserRole === "ADMIN" || currentUserRole === "PERITO" ? (
                           <>
                             <button
@@ -516,24 +506,22 @@ export default function Casos() {
                             </button>
                           </>
                         ) : (
-                          <span>
-                            <>
-                              <button
-                                className={casosStyles.acaoBotao}
-                                title="Editar"
-                                onClick={() => handleEdit(caso)}
-                              >
-                                ✏️
-                              </button>
-                              <button
-                                className={casosStyles.acaoBotao}
-                                title="Excluir"
-                                onClick={() => handleDelete(caso.id)}
-                              >
-                                ❌
-                              </button>
-                            </>
-                          </span>
+                          <>
+                            <button
+                              className={casosStyles.acaoBotao}
+                              title="Editar"
+                              onClick={() => handleEdit(caso)}
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              className={casosStyles.acaoBotao}
+                              title="Excluir"
+                              onClick={() => handleDelete(caso.id)}
+                            >
+                              ❌
+                            </button>
+                          </>
                         )}
                       </td>
                     </tr>

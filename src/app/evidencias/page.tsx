@@ -47,6 +47,7 @@ export default function Evidencias() {
   const [error, setError] = useState<string | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const fetchEvidencias = async () => {
     try {
@@ -231,9 +232,18 @@ export default function Evidencias() {
     doc.save("relatorio_evidencias.pdf");
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <div className={casosStyles.container}>
-      <aside className={casosStyles.sidebar}>
+
+        <button className={casosStyles.hamburger} onClick={toggleSidebar}>
+          {isSidebarOpen ? "✖" : "☰"}
+        </button>
+
+        <aside className={`${casosStyles.sidebar} ${isSidebarOpen ? casosStyles.open : ""}`}>
         <div>
           <div className={casosStyles.logo}>
             <Image

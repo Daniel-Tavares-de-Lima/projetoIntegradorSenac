@@ -41,6 +41,7 @@ export default function Profissionais() {
   const [editUserId, setEditUserId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Buscar usuários
   const fetchUsuarios = async () => {
@@ -169,9 +170,18 @@ export default function Profissionais() {
     }
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <div className={casosStyles.container}>
-      <aside className={casosStyles.sidebar}>
+
+      <button className={casosStyles.hamburger} onClick={toggleSidebar}>
+        {isSidebarOpen ? "✖" : "☰"}
+      </button>
+
+      <aside className={`${casosStyles.sidebar} ${isSidebarOpen ? casosStyles.open : ""}`}>
         <div>
           <div className={casosStyles.logo}>
             <Image

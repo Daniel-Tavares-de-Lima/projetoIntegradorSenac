@@ -1,34 +1,27 @@
 
-//--Função para salvar casos
-export async function createCase(title, description, classification, managerId, solicitante) {
+//---Função para criar o usuário
+export async function createUser(name, email, password, role) {
     try {
       const token = localStorage.getItem("token");
   
+      // Verificar se o token existe
       if (!token) {
         throw new Error("Usuário não autenticado. Faça login novamente.");
       }
-  
-      const response = await fetch("https://pi3p.onrender.com/cases", {
+
+      const response = await fetch("https://pi3p.onrender.com/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          title,
-          description,
-          classification,
-          managerId,
-          statusCase: "ANDAMENTO",
-          status: "ATIVADO",
-          solicitante
-        }),
+        body: JSON.stringify({ name, email, password, role }),
       });
   
       const data = await response.json();
-  
+      
       if (!response.ok) {
-        throw new Error(data.message || "Erro ao criar caso");
+        throw new Error(data.message || "Erro ao criar usuário");
       }
   
       return data;
@@ -37,22 +30,22 @@ export async function createCase(title, description, classification, managerId, 
     }
 }
 
-//--Função para editar casos
-export async function updateCase(id, title, description, classification, managerId, statusCase, solicitante) {
+
+//--- Função para editar Usuario
+
+export async function updateUser(id, name, email, password, role) {
   try {
     const token = localStorage.getItem("token");
     if (!token) {
       throw new Error("Usuário não autenticado. Faça login novamente.");
     }
     const body = {};
-    if (title) body.title = title;
-    if (description) body.description = description;
-    if (classification) body.classification = classification;
-    if (managerId) body.managerId = managerId;
-    if (statusCase) body.statusCase = statusCase;
-    if (solicitante) body.solicitante = solicitante;
+    if (name) body.name = name;
+    if (email) body.email = email;
+    if (password) body.password = password;
+    if (role) body.role = role;
 
-    const response = await fetch(`https://pi3p.onrender.com/cases/${id}`, {
+    const response = await fetch(`https://pi3p.onrender.com/users/${id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -62,31 +55,35 @@ export async function updateCase(id, title, description, classification, manager
     });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.message || "Erro ao atualizar caso");
+      throw new Error(data.message || "Erro ao atualizar usuário");
     }
     return data;
   } catch (error) {
     throw new Error(error.message || "Erro na requisição");
-  }}
+  }
+}
 
 
-//--Função para excluir casos
-export async function deleteCase(id) {
+
+
+//---- Função para excluir usuário
+
+export async function deleteUser(id) {
   try {
     const token = localStorage.getItem("token");
     if (!token) {
       throw new Error("Usuário não autenticado. Faça login novamente.");
     }
-    const response = await fetch(`https://pi3p.onrender.com/cases/${id}`, {
+    const response = await fetch(`https://pi3p.onrender.com/users/${id}`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${token}`,
+        "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.message || "Erro ao desativar caso");
+      throw new Error(data.message || "Erro ao desativar usuário");
     }
     return data;
   } catch (error) {

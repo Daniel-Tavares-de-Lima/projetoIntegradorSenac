@@ -23,4 +23,5 @@ export async function login(email, password) {
   } catch (error) {
     throw new Error(error.message || 'Erro ao conectar com o servidor');
   }
+
 }

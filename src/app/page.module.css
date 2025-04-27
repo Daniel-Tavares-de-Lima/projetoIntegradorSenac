@@ -1,10 +1,9 @@
-/* :root {
-  --background: #f4f4f4
-   #2d4a78;
-  --corBotoes: #31a248; */
+:root {
+  --background: #f4f4f4;
+  --corBotoes: #31a248;
+}
 
-
-body{
+body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -20,19 +19,19 @@ body{
 /*---------SIDEBAR---------*/
 .sidebar {
   width: 300px;
-  background-color: #2d4a78; /* cor da barra lateral */
+  background-color: #2d4a78;
   padding: 20px;
   color: #fff;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  transition: left 0.3s ease; /* Animation for sliding */
 }
 
-.sidebar .logo{
+.sidebar .logo {
   display: flex;
   align-items: center;
   padding: 5px;
-
 }
 
 .sidebar h1 {
@@ -40,30 +39,28 @@ body{
   margin-bottom: 20px;
 }
 
-.sidebar .titulo{
+.sidebar .titulo {
   color: #fff;
   text-decoration: none;
   margin-left: 5px;
 }
 
-.navi{
+.navi {
   display: flex;
   flex-direction: column;
-  
 }
 
-.navi .icone{
-  
+.navi .icone {
   height: 70px;
   display: flex;
   align-items: center;
 }
 
-.navi .icone .iconeInterno{
+.navi .icone .iconeInterno {
   font-size: 23px;
 }
 
-.navi .link{
+.link {
   margin: 20px 0;
   font-size: 20px;
   cursor: pointer;
@@ -74,8 +71,7 @@ body{
   margin-left: 5px;
 }
 
-
-.navi .icone:hover{
+.navi .icone:hover {
   background-color: #f4f4f4;
   color: #2d4a78;
   border-radius: 5px;
@@ -85,12 +81,12 @@ body{
   cursor: pointer;
 }
 
-.navi .icone .link:hover{
+.navi .icone .link:hover {
   color: #2d4a78;
   transition: all 0.5s;
 }
 
-.sidebar .config{
+.sidebar .config {
   margin: 20px 0;
   font-size: 15px;
   cursor: pointer;
@@ -98,8 +94,7 @@ body{
   transition: all 0.5s;
 }
 
-
-.sidebar .config:hover{
+.sidebar .config:hover {
   background-color: #f4f4f4;
   color: #2d4a78;
   border-radius: 5px;
@@ -118,9 +113,26 @@ body{
   cursor: pointer;
 }
 
+/* Hamburger Button */
+.hamburger {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background-color: #31a248;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 24px;
+  z-index: 1100;
+  transition: transform 0.2s ease; /* Animation for button */
+}
 
-/*---------SIDEBAR---------*/
-
+.hamburger:hover {
+  transform: scale(1.1);
+}
 
 /*---------MAIN---------------------*/
 .main {
@@ -134,7 +146,6 @@ body{
 .header {
   display: flex;
   justify-content: space-around;
-  ;
   align-items: center;
   border-radius: 10px;
   background-color: #2d4a78;
@@ -144,41 +155,42 @@ body{
   color: #fff;
 }
 
-.header .logoApp{
-  font-size: 20px;
-  cursor: pointer;
-}
-.header .user{
+.header .logoApp {
   font-size: 20px;
   cursor: pointer;
 }
 
-.header .pesquisa{
+.header .user {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.header .pesquisa {
   border-radius: 5px;
   border: none;
   height: 30px;
   width: 300px;
   padding: 5px;
 }
+
 /*---------HEADER-----------*/
-.content h1{
+.content h1 {
   font-size: 30px;
 }
 
 /*---------BUSCA POR HORA------*/
 .searchSection {
   margin-bottom: 30px;
-
 }
 
-.searchSection label{
+.searchSection label {
   margin-bottom: 10px;
   color: #333;
   font-size: 16px;
   margin: 0 10px;
 }
 
-.searchSection input[type="date"]{
+.searchSection input[type="date"] {
   margin-top: 5px;
   padding: 8px;
   border: 1px solid #ccc;
@@ -186,7 +198,7 @@ body{
   font-size: 12px;
 }
 
-.searchSection .botaoPesquisar{
+.searchSection .botaoPesquisar {
   width: 120px;
   height: 30px;
   border-radius: 5px;
@@ -197,9 +209,8 @@ body{
   font-size: 16px;
 }
 
-
-.conteudo .botaoPesquisar{
-  width: 170px;
+.conteudo .botaoPesquisar {
+  width: 200px;
   height: 40px;
   border-radius: 5px;
   border: none;
@@ -211,63 +222,37 @@ body{
   font-size: 16px;
 }
 
-.botaoPesquisar:hover{
+.botaoPesquisar:hover {
   background-color: #268038;
   transition: all 0.5s;
 }
 
-
-main .pesquisa{
+main .pesquisa {
   border-radius: 5px;
-  border: black;
+  border: 1px solid black;
   height: 35px;
   width: 350px;
   padding: 9px;
   margin-bottom: 10px;
 }
 
-
-/*---------SIDEBAR---------*/
-.searchInputs {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.searchInputs input {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.searchInputs button {
-  padding: 8px 12px;
-  background-color: #2d4a78;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
 /*---------TABELA------------*/
-
-.section{
+.section {
   padding: 10px;
   max-width: 100%;
   margin: 0 auto;
 }
-.section table{
+
+.section table {
   background-color: #fff;
   height: 150px;
   border-radius: 10px;
   padding: 10px;
-  width: 100%;
-  max-width: 100%;
   text-align: center;
   margin: auto;
 }
 
-.section table th{
+.section table th {
   background-color: #f8f9fa;
   font-weight: bold;
   padding: 10px;
@@ -276,25 +261,25 @@ main .pesquisa{
   min-width: 100px;
 }
 
-.section table td{
+.section table td {
   padding: 10px;
   border-bottom: 1px solid #ddd;
 }
 
 /*-------------*/
-.verTudo{
+.verTudo {
   color: #007bff;
   text-decoration: none;
   margin-left: 5px;
 }
 
-.acoes{
+.acoes {
   display: flex;
   gap: 5px;
   justify-content: center;
 }
 
-.acaoBotao{
+.acaoBotao {
   background: none;
   border: none;
   cursor: pointer;
@@ -302,7 +287,7 @@ main .pesquisa{
   padding: 8px;
 }
 
-.section .botaoExame{
+.section .botaoExame {
   width: 130px;
   height: 30px;
   border-radius: 5px;
@@ -313,18 +298,31 @@ main .pesquisa{
   margin-right: 10px;
 }
 
-
-.section .botaoExame:hover{
+.section .botaoExame:hover {
   background-color: #268038;
   transition: all 0.5s;
 }
 
-.section table .acoes{
+.section table .acoes {
   cursor: pointer;
 }
 
+.section table .statusABERTO {
+  color: #31a248;
+  font-weight: bold;
+}
+
+.section table .statusFECHADO {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.section table .statusDefault {
+  color: #6c757d;
+}
+
 /*------CADASTRAR CASOS-----*/
-.section .cadastroCasos{
+.section .cadastroCasos {
   background-color: #fff;
   height: 400px;
   width: 900px;
@@ -333,24 +331,24 @@ main .pesquisa{
 }
 
 /*------CADASTRAR CASOS LADO ESQUERDO-----*/
-.section .cadastroCasos .cadastroEsquerda{
+.section .cadastroCasos .cadastroEsquerda {
   width: 50%;
   display: flex;
   flex-direction: column;
   padding: 10px;
 }
 
-.section .cadastroCasos .organizacao{
+.section .cadastroCasos .organizacao {
   display: flex;
   flex-direction: column;
   margin: 10px 0px;
 }
 
-.cadastroCasos .organizacao label{
+.cadastroCasos .organizacao label {
   font-size: 18px;
 }
 
-.cadastroCasos .organizacao input{
+.cadastroCasos .organizacao input {
   width: 350px;
   height: 30px;
   border-radius: 5px;
@@ -360,42 +358,40 @@ main .pesquisa{
   font-size: 15px;
 }
 
-.cadastroCasos .organizacao textarea{
+.cadastroCasos .organizacao textarea {
   width: 350px;
   height: 50px;
   padding: 5px;
   border-radius: 5px;
-  border: 2px solid #a2a2a2;
+  border: 2px solid #a2a3a2;
 }
 
-.cadastroCasos .organizacao select{
+.cadastroCasos .organizacao select {
   width: 260px;
   height: 28px;
   border-radius: 5px;
   text-align: center;
   font-size: 14px;
   background-color: #e3e3e3;
-  border: 2px solid #a2a2a2;
+  border: 2px solid #a2a3a2;
 }
 
-.cadastroEsquerda .file{
+.cadastroEsquerda .file {
   padding: 10px;
   border-radius: 5px;
   border: 0.5px solid #a2a3a2;
   margin-top: 5px;
 }
 
-
 /*------CADASTRAR CASOS LADO DIREITO-----*/
-
-.section .cadastroCasos .cadastroDireita{
+.section .cadastroCasos .cadastroDireita {
   width: 50%;
   display: flex;
   flex-direction: column;
   padding: 15px 10px 10px 70px;
 }
 
-.section .cadastroCasos .cadastroDireita button{
+.section .cadastroCasos .cadastroDireita button {
   width: 130px;
   height: 30px;
   font-size: 15px;
@@ -406,11 +402,278 @@ main .pesquisa{
   font-weight: bold;
   margin-top: 30px;
   transition: all 0.5s;
-  
 }
 
-.section .cadastroCasos .cadastroDireita button:hover{
+.section .cadastroCasos .cadastroDireita button:hover {
   background-color: #268038;
   transition: all 0.5s;
   cursor: pointer;
+}
+
+/* Media Queries for Responsiveness */
+@media screen and (max-width: 1540px) {
+  .section table {
+    display: block;
+    overflow-x: auto;
+    height: auto;
+  }
+
+  .section table thead {
+    display: none;
+  }
+
+  .section table tbody,
+  .section table tr,
+  .section table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .section table tbody {
+    background-color: #2d4a78;
+  }
+
+  .section table tbody td {
+    border-bottom: 1px solid #a2a2a260;
+  }
+
+  .section table tr {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    padding: 10px;
+  }
+
+  .section table td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: none;
+    position: relative;
+    padding-left: 50%;
+  }
+
+  .section table td:before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    width: 45%;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #333;
+  }
+
+  .section table tbody tr td:nth-child(1):before { content: "Código"; }
+  .section table tbody tr td:nth-child(2):before { content: "Tipo"; }
+  .section table tbody tr td:nth-child(3):before { content: "Data do Fato"; }
+  .section table tbody tr td:nth-child(4):before { content: "Local"; }
+  .section table tbody tr td:nth-child(5):before { content: "Solicitante"; }
+  .section table tbody tr td:nth-child(6):before { content: "Responsável"; }
+  .section table tbody tr td:nth-child(7):before { content: "Data do Exame"; }
+  .section table tbody tr td:nth-child(8):before { content: "Últimos Exames"; }
+  .section table tbody tr td:nth-child(9):before { content: "Solicitar"; }
+  .section table tbody tr td:nth-child(10):before { content: "Status"; }
+
+  .section table tbody tr td:nth-child(4),
+  .section table tbody tr td:nth-child(7),
+  .section table tbody tr td:nth-child(8) {
+    display: none;
+  }
+
+  .section table:nth-child(4) tbody tr td:nth-child(1):before { content: "Código"; }
+  .section table:nth-child(4) tbody tr td:nth-child(2):before { content: "Nome"; }
+  .section table:nth-child(4) tbody tr td:nth-child(3):before { content: "Sexo"; }
+  .section table:nth-child(4) tbody tr td:nth-child(4):before { content: "Data de Nascimento"; }
+  .section table:nth-child(4) tbody tr td:nth-child(5):before { content: "Solicitante"; }
+  .section table:nth-child(4) tbody tr td:nth-child(6):before { content: "Data do Exame"; }
+  .section table:nth-child(4) tbody tr td:nth-child(7):before { content: "Últimos Exames"; }
+  .section table:nth-child(4) tbody tr td:nth-child(8):before { content: "Solicitar"; }
+
+  .section table:nth-child(4) tbody tr td:nth-child(6),
+  .section table:nth-child(4) tbody tr td:nth-child(7) {
+    display: none;
+  }
+
+  .section .botaoExame {
+    width: 100%;
+    max-width: 150px;
+    height: 35px;
+    font-size: 14px;
+    margin: 5px auto;
+    display: block;
+  }
+
+  .section table .statusABERTO,
+  .section table .statusFECHADO,
+  .section table .statusDefault {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 3px;
+    background-color: #f8f9fa;
+  }
+}
+
+@media screen and (max-width: 950px) {
+  .header .logoApp {
+    font-size: 18px;
+    cursor: pointer;
+  }
+  .header .user {
+    font-size: 18px;
+    cursor: pointer;
+  }
+  .header .pesquisa {
+    border-radius: 5px;
+    border: none;
+    height: 30px;
+    width: 200px;
+    padding: 5px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -340px; /* Hidden off-screen */
+    height: 100vh;
+    z-index: 1000;
+  }
+
+  .sidebar.open {
+    left: 0; /* Slide in */
+  }
+
+  .hamburger {
+    display: block; /* Show hamburger button */
+  }
+
+  .main {
+    width: 100%; /* Full width when sidebar is hidden */
+    padding: 20px;
+  }
+
+  .container {
+    position: relative; /* Ensure hamburger button is positioned correctly */
+  }
+
+  .section table {
+    display: block;
+    overflow-x: auto;
+    height: auto;
+  }
+
+  .section table thead {
+    display: none;
+  }
+
+  .section table tbody,
+  .section table tr,
+  .section table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .section table tr {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    padding: 10px;
+  }
+
+  .section table td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: none;
+    position: relative;
+    padding-left: 50%;
+  }
+
+  .section table td:before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    width: 45%;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #333;
+  }
+
+  .section table tbody tr td:nth-child(1):before { content: "Código"; }
+  .section table tbody tr td:nth-child(2):before { content: "Tipo"; }
+  .section table tbody tr td:nth-child(3):before { content: "Data do Fato"; }
+  .section table tbody tr td:nth-child(4):before { content: "Local"; }
+  .section table tbody tr td:nth-child(5):before { content: "Solicitante"; }
+  .section table tbody tr td:nth-child(6):before { content: "Responsável"; }
+  .section table tbody tr td:nth-child(7):before { content: "Data do Exame"; }
+  .section table tbody tr td:nth-child(8):before { content: "Últimos Exames"; }
+  .section table tbody tr td:nth-child(9):before { content: "Solicitar"; }
+  .section table tbody tr td:nth-child(10):before { content: "Status"; }
+
+  .section table tbody tr td:nth-child(4),
+  .section table tbody tr td:nth-child(7),
+  .section table tbody tr td:nth-child(8) {
+    display: none;
+  }
+
+  .section table:nth-child(4) tbody tr td:nth-child(1):before { content: "Código"; }
+  .section table:nth-child(4) tbody tr td:nth-child(2):before { content: "Nome"; }
+  .section table:nth-child(4) tbody tr td:nth-child(3):before { content: "Sexo"; }
+  .section table:nth-child(4) tbody tr td:nth-child(4):before { content: "Data de Nascimento"; }
+  .section table:nth-child(4) tbody tr td:nth-child(5):before { content: "Solicitante"; }
+  .section table:nth-child(4) tbody tr td:nth-child(6):before { content: "Data do Exame"; }
+  .section table:nth-child(4) tbody tr td:nth-child(7):before { content: "Últimos Exames"; }
+  .section table:nth-child(4) tbody tr td:nth-child(8):before { content: "Solicitar"; }
+
+  .section table:nth-child(4) tbody tr td:nth-child(6),
+  .section table:nth-child(4) tbody tr td:nth-child(7) {
+    display: none;
+  }
+
+  .section .botaoExame {
+    width: 100%;
+    max-width: 150px;
+    height: 35px;
+    font-size: 14px;
+    margin: 5px auto;
+    display: block;
+  }
+
+  .section table .statusABERTO,
+  .section table .statusFECHADO,
+  .section table .statusDefault {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 3px;
+    background-color: #f8f9fa;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .section table td {
+    font-size: 14px;
+    padding-left: 40%;
+  }
+
+  .section table td:before {
+    font-size: 12px;
+  }
+
+  .section .botaoExame {
+    max-width: 120px;
+    height: 30px;
+    font-size: 12px;
+  }
+
+  .section table tr {
+    padding: 8px;
+  }
+
+  .hamburger {
+    font-size: 20px;
+    padding: 8px;
+  }
 }

@@ -1,415 +1,629 @@
-/* :root {
-  --background: #f4f4f4
-   #2d4a78;
-  --corBotoes: #31a248; */
+:root {
+  --background: #f4f4f4;
+  --corBotoes: #31a248;
+}
 
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
 
-  body{
-    margin: 0;
-    padding: 0;
+.container {
+  display: flex;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+/*---------SIDEBAR---------*/
+.sidebar {
+  width: 350px;
+  background-color: #2d4a78;
+  padding: 20px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: left 0.3s ease; /* Animation for sliding */
+}
+
+.sidebar h1 {
+  font-size: 26px;
+  margin-bottom: 20px;
+}
+
+.sidebar .titulo {
+  margin-left: 5px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.sidebar .logo {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+}
+
+.navi {
+  display: flex;
+  flex-direction: column;
+}
+
+.navi .icone {
+  height: 70px;
+  display: flex;
+  align-items: center;
+}
+
+.navi .icone .iconeInterno {
+  font-size: 23px;
+}
+
+.navi .link {
+  margin: 20px 0;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 20px 20px;
+  transition: all 0.5s;
+  color: #fff;
+  text-decoration: none;
+  margin-left: 5px;
+}
+
+.navi .icone:hover {
+  background-color: #f4f4f4;
+  color: #2d4a78;
+  border-radius: 5px;
+  transform: scale(1.02);
+  transition: all 0.5s;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.navi .icone .link:hover {
+  color: #2d4a78;
+  transition: all 0.5s;
+}
+
+.sidebar .config {
+  margin: 20px 0;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 8px;
+  transition: all 0.5s;
+}
+
+.sidebar .config:hover {
+  background-color: #f4f4f4;
+  color: #2d4a78;
+  border-radius: 5px;
+  transform: scale(1.02);
+  transition: all 0.5s;
+  text-decoration: none;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  margin: 15px 0;
+  cursor: pointer;
+}
+
+/* Hamburger Button */
+.hamburger {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background-color: #31a248;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 24px;
+  z-index: 1100;
+  transition: transform 0.2s ease; /* Animation for button */
+}
+
+.hamburger:hover {
+  transform: scale(1.1);
+}
+
+/*---------MAIN---------------------*/
+.main {
+  flex-grow: 1;
+  padding: 30px;
+  background-color: #f4f4f4;
+  overflow-y: auto;
+}
+
+/*---------HEADER------------*/
+.header {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-radius: 10px;
+  background-color: #2d4a78;
+  height: 60px;
+  margin: 0;
+  padding: 10px;
+  color: #fff;
+}
+
+.header .logoApp {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.header .user {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.header .pesquisa {
+  border-radius: 5px;
+  border: none;
+  height: 30px;
+  width: 300px;
+  padding: 5px;
+}
+
+/*---------HEADER-----------*/
+.content h1 {
+  font-size: 30px;
+}
+
+/*---------BUSCA POR HORA------*/
+.searchSection {
+  margin-bottom: 30px;
+}
+
+.searchSection label {
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 16px;
+  margin: 0 10px;
+}
+
+.searchSection input[type="date"] {
+  margin-top: 5px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.searchSection .botaoPesquisar {
+  width: 120px;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+  background-color: #31a248;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.conteudo .botaoPesquisar {
+  width: 170px;
+  height: 40px;
+  border-radius: 5px;
+  border: none;
+  background-color: #31a248;
+  color: #fff;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: all 0.5s;
+  font-size: 16px;
+}
+
+.botaoPesquisar:hover {
+  background-color: #268038;
+  transition: all 0.5s;
+}
+
+main .pesquisa {
+  border-radius: 5px;
+  border: 1px solid black;
+  height: 35px;
+  width: 350px;
+  padding: 9px;
+  margin-bottom: 10px;
+}
+
+/*---------TABELA------------*/
+.section {
+  padding: 10px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.section table {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 10px;
+  width: 100%;
+  max-width: 100%;
+  text-align: center;
+  margin: auto;
+}
+
+.section table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+  padding: 10px;
+  text-align: center;
+  border-bottom: 2px solid #ddd;
+  min-width: 100px;
+}
+
+.section table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+/*-------------*/
+.verTudo {
+  color: #007bff;
+  text-decoration: none;
+  margin-left: 5px;
+}
+
+.acoes {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+.acaoBotao {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 8px;
+}
+
+.section .botaoExame {
+  width: 130px;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+  background-color: #31a248;
+  color: #fff;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.section .botaoExame:hover {
+  background-color: #268038;
+  transition: all 0.5s;
+}
+
+.section table .acoes {
+  cursor: pointer;
+}
+
+.section table .statusANDAMENTO {
+  color: #31a248;
+  font-weight: bold;
+}
+
+.section table .statusFINALIZADO {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.section table .statusARQUIVADO {
+  color: #6c757d;
+  font-weight: bold;
+}
+
+/*------CADASTRAR CASOS-----*/
+.section .cadastroCasos {
+  background-color: #fff;
+  width: 900px;
+  border-radius: 10px;
+  display: flex;
+  padding: 10px;
+}
+
+/*------CADASTRAR CASOS LADO ESQUERDO-----*/
+.section .cadastroCasos .cadastroEsquerda {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.section .cadastroCasos .organizacao {
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0px;
+}
+
+.cadastroCasos .organizacao label {
+  font-size: 18px;
+}
+
+.cadastroCasos .organizacao input {
+  width: 350px;
+  height: 30px;
+  border-radius: 5px;
+  border: 2px solid #a2a3a2;
+  margin-top: 4px;
+  padding: 5px;
+  font-size: 15px;
+}
+
+.cadastroCasos .organizacao textarea {
+  width: 350px;
+  height: 50px;
+  padding: 5px;
+  border-radius: 5px;
+  border: 2px solid #a2a3a2;
+}
+
+.cadastroCasos .organizacao select {
+  width: 260px;
+  height: 28px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 14px;
+  background-color: #e3e3e3;
+  border: 2px solid #a2a3a2;
+}
+
+.cadastroEsquerda .file {
+  padding: 10px;
+  border-radius: 5px;
+  border: 0.5px solid #a2a3a2;
+  margin-top: 5px;
+}
+
+/*------CADASTRAR CASOS LADO DIREITO-----*/
+.section .cadastroCasos .cadastroDireita {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  padding: 15px 10px 10px 70px;
+}
+
+.section .cadastroCasos .cadastroDireita button {
+  width: 130px;
+  height: 30px;
+  font-size: 15px;
+  border-radius: 5px;
+  border: none;
+  background-color: #31a248;
+  color: #fff;
+  font-weight: bold;
+  margin-top: 30px;
+  transition: all 0.5s;
+}
+
+.section .cadastroCasos .cadastroDireita button:hover {
+  background-color: #268038;
+  transition: all 0.5s;
+  cursor: pointer;
+}
+
+/* Media Queries for Responsiveness */
+@media screen and (max-width: 1540px) {
+  .section table {
+    display: block;
+    overflow-x: auto;
+    height: auto;
+  }
+
+  .section table thead {
+    display: none;
+  }
+
+  .section table tbody,
+  .section table tr,
+  .section table td {
+    display: block;
+    width: 100%;
     box-sizing: border-box;
-    font-family: Arial, Helvetica, sans-serif;
-  }
-  
-  .container {
-    display: flex;
-    height: 100vh;
-    font-family: Arial, sans-serif;
-  }
-  
-  /*---------SIDEBAR---------*/
-  .sidebar {
-    width: 350px;
-    background-color: #2d4a78; /* cor da barra lateral */
-    padding: 20px;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  
-  .sidebar h1 {
-    font-size: 26px;
-    margin-bottom: 20px;
   }
 
-  .sidebar .titulo{
-    margin-left: 5px;
-  }
-  .sidebar .logo{
-    display: flex;
-    align-items: center;
-    padding: 5px;
-  
-  }
-  
-  .navi{
-    display: flex;
-    flex-direction: column;
-    
-  }
-  
-  .navi .icone{
-  
-    height: 70px;
-    display: flex;
-    align-items: center;
-  }
-  
-  .navi .icone .iconeInterno{
-    font-size: 23px;
-  }
-  
-  .navi .link{
-    margin: 20px 0;
-    font-size: 20px;
-    cursor: pointer;
-    padding: 20px 20px;
-    transition: all 0.5s;
-    color: #fff;
-    text-decoration: none;
-    margin-left: 5px;
-  }
-  
-  .navi .icone:hover{
-    background-color: #f4f4f4;
-    color: #2d4a78;
-    border-radius: 5px;
-    transform: scale(1.02);
-    transition: all 0.5s;
-    text-decoration: none;
-    cursor: pointer;
-  }
-
-
-  .navi .icone .link:hover{
-    color: #2d4a78;
-    transition: all 0.5s;
-  }
-  
-  .sidebar .config{
-    margin: 20px 0;
-    font-size: 15px;
-    cursor: pointer;
-    padding: 8px;
-    transition: all 0.5s;
-  }
-  
-  .sidebar .titulo{
-    color: #fff;
-    text-decoration: none;
-  }
-  .sidebar .config:hover{
-    background-color: #f4f4f4;
-    color: #2d4a78;
-    border-radius: 5px;
-    transform: scale(1.02);
-    transition: all 0.5s;
-    text-decoration: none;
-  }
-  
-  .sidebar ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .sidebar li {
-    margin: 15px 0;
-    cursor: pointer;
-  }
-  
-  
-  /*---------SIDEBAR---------*/
-  
-  
-  /*---------MAIN---------------------*/
-  .main {
-    flex-grow: 1;
-    padding: 30px;
-    background-color: #f4f4f4;
-    overflow-y: auto;
-  }
-  
-  /*---------HEADER------------*/
-  .header {
-    display: flex;
-    justify-content: space-around;
-    ;
-    align-items: center;
-    border-radius: 10px;
+  .section table tbody {
     background-color: #2d4a78;
-    height: 60px;
-    margin: 0;
-    padding: 10px;
-    color: #fff;
   }
-  
-  .header .logoApp{
-    font-size: 20px;
-    cursor: pointer;
+
+  .section table tbody td {
+    border-bottom: 1px solid #a2a2a260;
   }
-  .header .user{
-    font-size: 20px;
-    cursor: pointer;
-  }
-  
-  .header .pesquisa{
+
+  .section table tr {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
     border-radius: 5px;
-    border: none;
-    height: 30px;
-    width: 300px;
-    padding: 5px;
-  }
-  /*---------HEADER-----------*/
-  .content h1{
-    font-size: 30px;
-  }
-  
-  /*---------BUSCA POR HORA------*/
-  .searchSection {
-    margin-bottom: 30px;
-  
-  }
-  
-  .searchSection label{
-    margin-bottom: 10px;
-    color: #333;
-    font-size: 16px;
-    margin: 0 10px;
-  }
-  
-  .searchSection input[type="date"]{
-    margin-top: 5px;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 12px;
-  }
-  
-  .searchSection .botaoPesquisar{
-    width: 120px;
-    height: 30px;
-    border-radius: 5px;
-    border: none;
-    background-color: #31a248;
-    color: #fff;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  
-  .conteudo .botaoPesquisar{
-    width: 170px;
-    height: 40px;
-    border-radius: 5px;
-    border: none;
-    background-color: #31a248;
-    color: #fff;
-    cursor: pointer;
-    margin-right: 10px;
-    transition: all 0.5s;
-    font-size: 16px;
-  }
-  
-  .botaoPesquisar:hover{
-    background-color: #268038;
-    transition: all 0.5s;
-  }
-  
-  
-  main .pesquisa{
-    border-radius: 5px;
-    border: black;
-    height: 35px;
-    width: 350px;
-    padding: 9px;
-    margin-bottom: 10px;
-  }
-  
-  
-  /*---------SIDEBAR---------*/
-  .searchInputs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  
-  .searchInputs input {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  .searchInputs button {
-    padding: 8px 12px;
-    background-color: #2d4a78;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  /*---------TABELA------------*/
-  
-  .section{
-    padding: 10px;
-    max-width: 100%;
-    margin: 0 auto;
-  }
-  .section table{
     background-color: #fff;
-    height: 150px;
-    border-radius: 10px;
     padding: 10px;
+  }
+
+  .section table td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: none;
+    position: relative;
+    padding-left: 50%;
+  }
+
+  .section table td:before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    width: 45%;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #333;
+  }
+
+  .section table tbody tr td:nth-child(1):before { content: "Código"; }
+  .section table tbody tr td:nth-child(2):before { content: "Título"; }
+  .section table tbody tr td:nth-child(3):before { content: "Descrição"; }
+  .section table tbody tr td:nth-child(4):before { content: "Tipo"; }
+  .section table tbody tr td:nth-child(5):before { content: "Data do Fato"; }
+  .section table tbody tr td:nth-child(6):before { content: "Solicitante"; }
+  .section table tbody tr td:nth-child(7):before { content: "Responsável"; }
+  .section table tbody tr td:nth-child(8):before { content: "Status"; }
+  .section table tbody tr td:nth-child(9):before { content: "Solicitar Exames"; }
+  .section table tbody tr td:nth-child(10):before { content: "Ações"; }
+
+  .section table tbody tr td:nth-child(3),
+  .section table tbody tr td:nth-child(5),
+  .section table tbody tr td:nth-child(6) {
+    display: none;
+  }
+
+  .section .botaoExame {
+    width: 100%;
+    max-width: 150px;
+    height: 35px;
+    font-size: 14px;
+    margin: 5px auto;
+    display: block;
+  }
+
+  .section table .statusANDAMENTO,
+  .section table .statusFINALIZADO,
+  .section table .statusARQUIVADO {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 3px;
+    background-color: #f8f9fa;
+  }
+
+  .section .cadastroCasos {
+    flex-direction: column;
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+  }
+
+  .section .cadastroCasos .cadastroEsquerda,
+  .section .cadastroCasos .cadastroDireita {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .section .cadastroCasos .cadastroDireita {
+    padding-left: 10px;
+  }
+
+  .cadastroCasos .organizacao input,
+  .cadastroCasos .organizacao textarea,
+  .cadastroCasos .organizacao select {
+    width: 90%;
+    max-width: 100%;
+  }
+
+}
+
+@media screen and (max-width: 950px) {
+  .header .logoApp {
+    font-size: 18px;
+    cursor: pointer;
+  }
+  .header .user {
+    font-size: 18px;
+    cursor: pointer;
+  }
+  .header .pesquisa {
+    border-radius: 5px;
+    border: none;
+    height: 30px;
+    width: 200px;
+    padding: 5px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -390px;
+    height: 100vh;
+    z-index: 1000;
+  }
+
+  .sidebar.open {
+    left: 0; /* Slide in */
+  }
+
+  .hamburger {
+    display: block; /* Show hamburger button */
+  }
+
+  .main {
+    width: 100%; /* Full width when sidebar is hidden */
+    padding: 20px;
+  }
+
+  .container {
+    position: relative; /* Ensure hamburger button is positioned correctly */
+  }
+
+  .section .cadastroCasos {
+    flex-direction: column;
     width: 100%;
     max-width: 100%;
-    text-align: center;
-    margin: auto;
+    height: auto;
   }
-  
-  .section table th{
-    background-color: #f8f9fa;
-    font-weight: bold;
+
+  .section .cadastroCasos .cadastroEsquerda,
+  .section .cadastroCasos .cadastroDireita {
+    width: 100%;
     padding: 10px;
-    text-align: center;
-    border-bottom: 2px solid #ddd;
-    min-width: 100px;
   }
-  
-  .section table td{
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
+
+  .cadastroCasos .organizacao input,
+  .cadastroCasos .organizacao textarea,
+  .cadastroCasos .organizacao select {
+    width: 90%;
+    max-width: 100%;
   }
-  
-  /*-------------*/
-  .verTudo{
-    color: #007bff;
-    text-decoration: none;
-    margin-left: 5px;
+}
+
+@media screen and (max-width: 480px) {
+  .section table td {
+    font-size: 14px;
+    padding-left: 40%;
   }
-  
-  .acoes{
-    display: flex;
-    gap: 5px;
-    justify-content: center;
+
+  .section table td:before {
+    font-size: 12px;
   }
-  
-  .acaoBotao{
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
+
+  .section .botaoExame {
+    max-width: 120px;
+    height: 30px;
+    font-size: 12px;
+  }
+
+  .section table tr {
     padding: 8px;
   }
-  
-  .section .botaoExame{
-    width: 130px;
-    height: 30px;
-    border-radius: 5px;
-    border: none;
-    background-color: #31a248;
-    color: #fff;
-    cursor: pointer;
-    margin-right: 10px;
+
+  .hamburger {
+    font-size: 20px;
+    padding: 8px;
   }
-  
-  
-  .section .botaoExame:hover{
-    background-color: #268038;
-    transition: all 0.5s;
+
+  main .pesquisa {
+    width: 100%;
+    max-width: 250px;
   }
-  
-  .section table .acoes{
-    cursor: pointer;
+
+  .section .cadastroCasos .cadastroDireita button {
+    width: 100%;
+    max-width: 120px;
   }
-  
-  /*------CADASTRAR CASOS-----*/
-  .section .cadastroCasos{
-    background-color: #fff;
-    width: 900px;
-    border-radius: 10px;
-    display: flex;
-  }
-  
-  /*------CADASTRAR CASOS LADO ESQUERDO-----*/
-  .section .cadastroCasos .cadastroEsquerda{
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-  }
-  
-  .section .cadastroCasos .organizacao{
-    display: flex;
-    flex-direction: column;
-    margin: 10px 0px;
-  }
-  
-  .cadastroCasos .organizacao label{
-    font-size: 18px;
-  }
-  
-  .cadastroCasos .organizacao input{
-    width: 350px;
-    height: 30px;
-    border-radius: 5px;
-    border: 2px solid #a2a3a2;
-    margin-top: 4px;
-    padding: 5px;
-    font-size: 15px;
-  }
-  
-  .cadastroCasos .organizacao textarea{
-    width: 350px;
-    height: 50px;
-    padding: 5px;
-    border-radius: 5px;
-    border: 2px solid #a2a2a2;
-  }
-  
-  .cadastroCasos .organizacao select{
-    width: 260px;
-    height: 28px;
-    border-radius: 5px;
-    text-align: center;
-    font-size: 14px;
-    background-color: #e3e3e3;
-    border: 2px solid #a2a2a2;
-  }
-  
-  .cadastroEsquerda .file{
-    padding: 10px;
-    border-radius: 5px;
-    border: 0.5px solid #a2a3a2;
-    margin-top: 5px;
-  }
-  
-  
-  /*------CADASTRAR CASOS LADO DIREITO-----*/
-  
-  .section .cadastroCasos .cadastroDireita{
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-    padding: 15px 10px 10px 70px;
-  }
-  
-  .section .cadastroCasos .cadastroDireita button{
-    width: 130px;
-    height: 30px;
-    font-size: 15px;
-    border-radius: 5px;
-    border: none;
-    background-color: #31a248;
-    color: #fff;
-    font-weight: bold;
-    margin-top: 30px;
-    transition: all 0.5s;
-    
-  }
-  
-  .section .cadastroCasos .cadastroDireita button:hover{
-    background-color: #268038;
-    transition: all 0.5s;
-    cursor: pointer;
-  }
+}

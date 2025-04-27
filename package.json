@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "jwt-decode": "^4.0.0",
+    "jspdf": "^3.0.1",
     "next": "15.2.4",
     "projeto-integrador": "file:",
     "react": "^19.0.0",
@@ -18,6 +19,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/jspdf": "^1.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

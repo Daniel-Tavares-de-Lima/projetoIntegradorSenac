@@ -35,3 +35,12 @@ export async function apiRequest(endpoint, method = 'POST', body = null, require
 
   return data;
 }
+
+
+export const fetchPatients = async () => {
+  return await apiRequest("/patients", "GET", null, true);
+};
+
+export const fetchCases = async () => {
+  return await apiRequest("/cases", "GET", null, true);
+};

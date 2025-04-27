@@ -2,108 +2,147 @@
 import Image from "next/image";
 import styles from "./page.module.css";
 import Link from "next/link";
-{/*-----Icones Side bar-----*/}
 import { FaRegUser } from "react-icons/fa6";
-import { LuFileUser } from "react-icons/lu";
 import { SiElectronbuilder } from "react-icons/si";
 import { BiSolidUserBadge } from "react-icons/bi";
 import { TbFileSearch } from "react-icons/tb";
-{/*-----Icones Side bar-----*/}
-// import {useState} from "react";
 import { useEffect, useState } from "react";
+import { fetchPatients, fetchCases } from "../app/services/homeServices";
+
+interface Patient {
+  id: string;
+  name: string;
+  sex: string;
+  birthDate?: string;
+  caseId: string;
+  identified: "YES" | "NO";
+}
+
+interface Case {
+  id: string;
+  title: string;
+  classification: string;
+  dateOpened: string;
+  solicitante?: string;
+  managerId: string;
+  statusCase: string;
+}
 
 export default function Home() {
-
   const [userName, setUserName] = useState("");
-
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [cases, setCases] = useState<Case[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State for sidebar toggle
 
   useEffect(() => {
-    const storedName = localStorage.getItem("userName");
-    if (storedName) {
-      setUserName(storedName);
-    }
+    const fetchUserData = async () => {
+      try {
+        const storedName = localStorage.getItem("userName");
+        if (storedName) {
+          setUserName(storedName);
+        } else {
+          const response = await fetch("https://pi3p.onrender.com/auth/me", {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+              "Content-Type": "application/json",
+            },
+          });
+          const data = await response.json();
+          console.log("Resposta do GET /auth/me:", data);
+          if (response.ok && data.name) {
+            setUserName(data.name);
+            localStorage.setItem("userName", data.name);
+          } else {
+            throw new Error(data.message || "Erro ao buscar usuário");
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao carregar dados do usuário:", error.message);
+        setUserName("Usuário");
+      }
+    };
+
+    const fetchData = async () => {
+      try {
+        const [patientsData, casesData] = await Promise.all([
+          fetchPatients(),
+          fetchCases(),
+        ]);
+        setPatients(patientsData);
+        setCases(casesData);
+        setError(null);
+      } catch (error) {
+        setError(`⚠️ ${error.message}`);
+        setPatients([]);
+        setCases([]);
+      }
+    };
+
+    fetchUserData();
+    fetchData();
   }, []);
 
+  const getCaseSolicitante = (caseId: string) => {
+    const caso = cases.find((c) => c.id === caseId);
+    return caso ? caso.solicitante || "-" : "-";
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   return (
     <div className={styles.container}>
-
-      {/*--------SIDEBAR ESQUERDA--------------------------*/}
-      <aside className={styles.sidebar}>
-        {/* <div className={styles.logo}>Laudos Periciais Odonto-Legal</div> */}
-        <div>
-          <div>  
-          </div>
-
-          <div className={styles.logo}>
-
-            <Image src={`/imagens/Logo - Laudo.png`} alt="Logo - Laudo" width={60} height={60} ></Image>
-            <h1>
-              <Link href={`http://localhost:3000`} className={styles.titulo}>Laudos Periciais Odonto-Legal</Link>
-            </h1>
-          </div>
-
-
-          <nav className={styles.navi}>
-            <div className={styles.icone}>
-              <FaRegUser className={styles.iconeInterno}/>
-              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={35} height={35}></Image> */}
-              <Link href={`/pacientes`} className={styles.link}>Pacientes</Link>
-            </div>
-
-            <div className={styles.icone}>
-              <LuFileUser className={styles.iconeInterno}/>
-              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
-              <Link href={`/cadastros`} className={styles.link}>Cadastros</Link>
-            </div>
-
-            <div className={styles.icone}>
-              <SiElectronbuilder className={styles.iconeInterno}/>
-              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
-              <Link href={`profissionais`} className={styles.link}>Profissionais</Link>
-            </div>
-            
-            <div className={styles.icone}>
-            <BiSolidUserBadge className={styles.iconeInterno}/>
-              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
-              <Link href={`/casos`} className={styles.link}>Casos</Link>
-            </div>
-
-            <div className={styles.icone}>
-            <TbFileSearch className={styles.iconeInterno}/>
-              {/* <Image  src={`/imagens/User.png`} alt="pacientes" width={30} height={30}></Image> */}
-              <Link href={`evidencias`} className={styles.link}>Evidências</Link>
-            </div>
-          </nav>
+      <button className={styles.hamburger} onClick={toggleSidebar}>
+        {isSidebarOpen ? "✖" : "☰"}
+      </button>
+      <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.open : ""}`}>
+        <div className={styles.logo}>
+          <Image src={`/imagens/Logo - Laudo.png`} alt="Logo - Laudo" width={60} height={60} />
+          <h1>
+            <Link href={`http://localhost:3000`} className={styles.titulo}>
+              Laudos Periciais Odonto-Legal
+            </Link>
+          </h1>
         </div>
+
+        <nav className={styles.navi}>
+          <div className={styles.icone}>
+            <FaRegUser className={styles.iconeInterno} />
+            <Link href={`/pacientes`} className={styles.link}>Pacientes</Link>
+          </div>
+          <div className={styles.icone}>
+            <SiElectronbuilder className={styles.iconeInterno} />
+            <Link href={`/profissionais`} className={styles.link}>Profissionais</Link>
+          </div>
+          <div className={styles.icone}>
+            <BiSolidUserBadge className={styles.iconeInterno} />
+            <Link href={`/casos`} className={styles.link}>Casos</Link>
+          </div>
+          <div className={styles.icone}>
+            <TbFileSearch className={styles.iconeInterno} />
+            <Link href={`/evidencias`} className={styles.link}>Evidências</Link>
+          </div>
+        </nav>
         <div className={styles.config}>⚙️ Configurações</div>
       </aside>
 
-      {/*--------SIDEBAR ESQUERDA--------------------------*/}
-
       <main className={styles.main}>
-
-        {/*--------------HEADER-----------------------*/}
         <header className={styles.header}>
           <div className={styles.logoApp}>
             Gest<span>Odo</span>
           </div>
-
-          <input type="search" placeholder="Pesquisar casos ou pacientes" className={styles.pesquisa}/>
-
-          {/*-----O usuário também tem que vim do backend----*/}
+          <input type="search" placeholder="Pesquisar casos ou pacientes" className={styles.pesquisa} />
           <div className={styles.user}>
-
             <FaRegUser /> {userName || "Usuário"}
           </div>
         </header>
-        {/*--------------HEADER-----------------------*/}
 
         <section className={styles.content}>
           <h1>Painel Inicial</h1>
-
-
-          {/*--------BUSCA POR DATA-------------*/}
+          {error && <p className={styles.error}>{error}</p>}
           <div className={styles.searchSection}>
             <label>
               Data inicial <input type="date" />
@@ -113,25 +152,20 @@ export default function Home() {
             </label>
             <button className={styles.botaoPesquisar}>Pesquisar</button>
           </div>
-          {/*--------BUSCA POR DATA-------------*/}
-
-          {/*-------------ADICIONAR PACIENTES---------------*/}
 
           <h2>Mais recentes</h2>
-          <input type="search" placeholder="Pesquisar casos ou pacientes" className={styles.pesquisa}/>
-          
-
+          <input type="search" placeholder="Pesquisar casos ou pacientes" className={styles.pesquisa} />
           <div className={styles.conteudo}>
-            <button className={styles.botaoPesquisar}>➕ Adicionar paciente</button>
-            <button className={styles.botaoPesquisar}>📄 Registrar caso</button>
+            <button className={styles.botaoPesquisar}>
+              <Link href={`/pacientes`} className={styles.link}>Add pacientes</Link>
+            </button>
+            <button className={styles.botaoPesquisar}>
+              <Link href={`/casos`} className={styles.link}>Add Casos</Link>
+            </button>
           </div>
-          {/*-------------ADICIONAR PACIENTES---------------*/}
 
           <div className={styles.section}>
-
-            {/*-------------TABELA DE CASOS---------------*/}
-            {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
-            <h2>Casos - Exemplos</h2>
+            <h2>Casos</h2>
             <table>
               <thead>
                 <tr>
@@ -145,58 +179,39 @@ export default function Home() {
                   <th>Últimos Exames</th>
                   <th>Solicitar</th>
                   <th>Status</th>
-                  <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>#022</td>
-                  <td>Acidente</td>
-                  <td>12/03/25 - 12:43</td>
-                  <td>📍 Recife-PE</td>
-                  <td>Carlos Andrade</td>
-                  <td>Julia Maria</td>
-                  <td>14/02/23 - 12:03hrs</td>
-                  <td>Exame odontolega...</td>
-                  <td>
-                    <button className={styles.botaoExame}>Solicitar Exame</button>
-                  </td>
-                  <td>
-                    <span className={styles.statusEmAndamento}>
-                      Em andamento
-                    </span>
-                  </td>
-                  <td className={styles.acoes}>✏️</td>
-                  <td className={styles.acoes}>❌</td>
-                </tr>
-                <tr>
-                  <td>#021</td>
-                  <td>Acidente</td>
-                  <td>05/03/25 - 10:33</td>
-                  <td>📍 Jaboatão-PE</td>
-                  <td>Marcos Silva</td>
-                  <td>Julia Maria</td>
-                  <td>17/12/22 - 19:14hrs</td>
-                  <td>Análise de arcada de...</td>
-                  <td>
-                    <button className={styles.botaoExame}>Solicitar Exame</button>
-                  </td>
-                  <td>
-                    <span className={styles.statusArquivado}>Arquivado</span>
-                  </td>
-                  <td className={styles.acoes}>✏️</td>
-                  <td className={styles.acoes}>❌</td>
-                </tr>
+                {cases.length > 0 ? (
+                  cases.map((caso) => (
+                    <tr key={caso.id}>
+                      <td data-label="Código">{caso.id.slice(0, 4)}</td>
+                      <td data-label="Tipo">{caso.classification || "-"}</td>
+                      <td data-label="Data do Fato">{caso.dateOpened ? new Date(caso.dateOpened).toLocaleString() : "-"}</td>
+                      <td data-label="Local">-</td>
+                      <td data-label="Solicitante">{caso.solicitante || "-"}</td>
+                      <td data-label="Responsável">{caso.managerId || "-"}</td>
+                      <td data-label="Data do Exame">-</td>
+                      <td data-label="Últimos Exames">-</td>
+                      <td data-label="Solicitar">
+                        <button className={styles.botaoExame}>Solicitar Exame</button>
+                      </td>
+                      <td data-label="Status">
+                        <span className={styles[`status${caso.statusCase}`] || styles.statusDefault}>
+                          {caso.statusCase || "-"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={10}>Nenhum caso disponível</td>
+                  </tr>
+                )}
               </tbody>
             </table>
-          
-          {/*-------------TABELA DE CASOS---------------*/}
-          {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
 
-          {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
-          {/*-------------TABELA DE PACIENTES---------------*/}
-          
-            <h2>Pacientes - Exemplos</h2>
+            <h2>Pacientes</h2>
             <table>
               <thead>
                 <tr>
@@ -208,43 +223,31 @@ export default function Home() {
                   <th>Data do Exame</th>
                   <th>Últimos Exames</th>
                   <th>Solicitar</th>
-                  <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>#022</td>
-                  <td>Ana Maria da Silva</td>
-                  <td>Feminino</td>
-                  <td>12/02/2001</td>
-                  <td>Carlos Andrade</td>
-                  <td>14/02/23 - 12:03hrs</td>
-                  <td>Exame odontolega...</td>
-                  <td>
-                    <button className={styles.botaoExame}>Solicitar Exame</button>
-                  </td>
-                  <td className={styles.acoes}>✏️</td>
-                  <td className={styles.acoes}>❌</td>
-                </tr>
-                <tr>
-                  <td>#021</td>
-                  <td>José Gomes Carvalho</td>
-                  <td>Masculino</td>
-                  <td>30/08/1997</td>
-                  <td>Marcos Silva</td>
-                  <td>10/01/22 - 11:43hrs</td>
-                  <td>Análise de arcada de...</td>
-                  <td>
-                    <button className={styles.botaoExame}>Solicitar Exame</button>
-                  </td>
-                  <td className={styles.acoes}>✏️</td>
-                  <td className={styles.acoes}>❌</td>
-                </tr>
+                {patients.length > 0 ? (
+                  patients.map((patient) => (
+                    <tr key={patient.id}>
+                      <td data-label="Código">{patient.id.slice(0, 4)}</td>
+                      <td data-label="Nome">{patient.name || "-"}</td>
+                      <td data-label="Sexo">{patient.sex || "-"}</td>
+                      <td data-label="Data de Nascimento">{patient.birthDate ? new Date(patient.birthDate).toLocaleDateString() : "-"}</td>
+                      <td data-label="Solicitante">{getCaseSolicitante(patient.caseId)}</td>
+                      <td data-label="Data do Exame">-</td>
+                      <td data-label="Últimos Exames">-</td>
+                      <td data-label="Solicitar">
+                        <button className={styles.botaoExame}>Solicitar Exame</button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={8}>Nenhum paciente disponível</td>
+                  </tr>
+                )}
               </tbody>
             </table>
-            {/*-------------TABELA DE PACIENTES---------------*/}
-            {/*-----------TODOS ESSES DADOS SÃO DE EXEMPLOS, OS VERDADEIROS TERÃO QUE VIM DO BACKEND*/}
-
           </div>
         </section>
       </main>

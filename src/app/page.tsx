@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { login } from './services/authServiceLogin';
 import loginStyles from './styles/login.module.css';
 import Image from 'next/image'; // Importa o componente de imagem do Next.js
-import logo from '/imagens/Logo - Laudo.png'; // Ajuste o caminho conforme onde você colocou a imagem
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');

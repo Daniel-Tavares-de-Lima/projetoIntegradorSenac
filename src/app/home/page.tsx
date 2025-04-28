@@ -83,7 +83,7 @@ export default function Home() {
     // Limpa o token do localStorage (ou qualquer outro dado de autenticação)
     localStorage.removeItem("token");
     // Redireciona para a página de login
-    router.push("/login");
+    router.push("https://projeto-integrador-senac-821q.vercel.app");
   };
 
   const getCaseSolicitante = (caseId: string) => {

@@ -423,12 +423,12 @@ export default function Casos() {
             <table>
               <thead>
                 <tr>
-                  <th>Código</th>
+                  {/* <th>Código</th> */}
                   <th>Título</th>
                   <th>Descrição</th>
                   <th>Tipo</th>
                   <th>Data do Fato</th>
-                  <th>Solicitante da Perícia</th>
+                  {/* <th>Solicitante da Perícia</th> */}
                   <th>Responsável</th>
                   <th>Status</th>
                   <th>Solicitar Exames</th>
@@ -439,12 +439,12 @@ export default function Casos() {
                 {filteredCasos.length > 0 ? (
                   filteredCasos.map((caso) => (
                     <tr key={caso.id}>
-                      <td data-label="Código">{caso.id.slice(0, 4)}</td>
+                      {/* <td data-label="Código">{caso.id.slice(0, 4)}</td> */}
                       <td data-label="Título">{caso.title}</td>
                       <td data-label="Descrição">{caso.description}</td>
                       <td data-label="Tipo">{caso.classification}</td>
                       <td data-label="Data do Fato">{new Date(caso.dateOpened).toLocaleString()}</td>
-                      <td data-label="Solicitante">{caso.solicitante || '-'}</td>
+                      {/* <td data-label="Solicitante">{caso.solicitante || '-'}</td> */}
                       <td data-label="Responsável">{getManagerName(caso.managerId)}</td>
                       <td data-label="Status">
                         <span className={casosStyles[`status${caso.statusCase}`]}>

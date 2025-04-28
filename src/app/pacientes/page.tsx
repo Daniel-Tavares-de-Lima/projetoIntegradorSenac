@@ -339,13 +339,13 @@ export default function Pacientes() {
                 <table>
                   <thead>
                     <tr>
-                      <th>Código</th>
+                      {/* <th>Código</th> */}
                       <th>Nome</th>
                       <th>Sexo</th>
                       <th>Data de Nascimento</th>
-                      <th>Solicitante da perícia</th>
-                      <th>Data do Exame</th>
-                      <th>Últimos Exames</th>
+                      {/* <th>Solicitante da perícia</th> */}
+                      {/* <th>Data do Exame</th> */}
+                      {/* <th>Últimos Exames</th> */}
                       <th>Solicitar Exames</th>
                       <th>Ações</th>
                     </tr>
@@ -354,13 +354,13 @@ export default function Pacientes() {
                     {filteredPacientes.length > 0 ? (
                       filteredPacientes.map((paciente) => (
                         <tr key={paciente.id}>
-                          <td>{paciente.id.slice(0, 4)}</td>
+                          {/* <td>{paciente.id.slice(0, 4)}</td> */}
                           <td>{paciente.name}</td>
                           <td>{paciente.sex}</td>
                           <td>{paciente.birthDate ? new Date(paciente.birthDate).toLocaleDateString() : "-"}</td>
-                          <td>{getCaseSolicitante(paciente.caseId)}</td>
-                          <td>-</td>
-                          <td>-</td>
+                          {/* <td>{getCaseSolicitante(paciente.caseId)}</td> */}
+                          {/* <td>-</td> */}
+                          {/* <td>-</td> */}
                           <td>
                             <button className={casosStyles.botaoExame}>Solicitar Exame</button>
                           </td>
@@ -419,14 +419,14 @@ export default function Pacientes() {
                 <table>
                   <thead>
                     <tr>
-                      <th>Código</th>
+                      {/* <th>Código</th> */}
                       <th>Tipo</th>
                       <th>Data do Fato</th>
-                      <th>Local</th>
-                      <th>Solicitante da Perícia</th>
-                      <th>Responsável</th>
-                      <th>Data do Exame</th>
-                      <th>Últimos Exames</th>
+                      {/* <th>Local</th> */}
+                      {/* <th>Solicitante da Perícia</th> */}
+                      {/* <th>Responsável</th> */}
+                      {/* <th>Data do Exame</th> */}
+                      {/* <th>Últimos Exames</th> */}
                       <th>Solicitar Exames</th>
                       <th>Status</th>
                       <th>Ações</th>
@@ -436,13 +436,13 @@ export default function Pacientes() {
                     {casos.length > 0 ? (
                       casos.map((caso) => (
                         <tr key={caso.id}>
-                          <td>{caso.id.slice(0, 4)}</td>
+                          {/* <td>{caso.id.slice(0, 4)}</td> */}
                           <td>{caso.classification}</td>
                           <td>{new Date(caso.dateOpened).toLocaleString()}</td>
-                          <td>-</td>
-                          <td>{caso.solicitante || "-"}</td>
-                          <td>-</td>
-                          <td>-</td>
+                          {/* <td>-</td> */}
+                          {/* <td>{caso.solicitante || "-"}</td> */}
+                          {/* <td>-</td> */}
+                          {/* <td>-</td> */}
                           <td>
                             <button className={casosStyles.botaoExame}>Solicitar Exame</button>
                           </td>

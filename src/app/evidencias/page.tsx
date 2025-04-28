@@ -55,6 +55,12 @@ export default function Evidencias() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+
+  function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) return error.message;
+    return "Erro desconhecido";
+  }
+
   // Função para buscar usuários
   const fetchUsers = async () => {
     const token = localStorage.getItem("token");
@@ -76,7 +82,7 @@ export default function Evidencias() {
       }
       setUsers(data);
     } catch (error) {
-      setError(error.message);
+      setError(getErrorMessage(error));
     }
   };
 
@@ -86,7 +92,7 @@ export default function Evidencias() {
       const data = await fetchEvidences();
       setEvidencias(Array.isArray(data) ? data : []);
     } catch (error) {
-      setError(error.message);
+      setError(getErrorMessage(error));
       setEvidencias([]);
     }
   };
@@ -97,7 +103,7 @@ export default function Evidencias() {
       const data = await fetchCases();
       setCasos(Array.isArray(data) ? data : []);
     } catch (error) {
-      setError(error.message);
+      setError(getErrorMessage(error));
       setCasos([]);
     }
   };
@@ -204,7 +210,7 @@ export default function Evidencias() {
       setError(null);
       fetchEvidencias();
     } catch (error) {
-      setError(`❌ Erro: ${error.message}`);
+      setError(getErrorMessage(error));
     }
   };
 
@@ -227,7 +233,7 @@ export default function Evidencias() {
       alert("✅ Evidência desativada com sucesso!");
       fetchEvidencias();
     } catch (error) {
-      setError(`❌ Erro: ${error.message}`);
+      setError(getErrorMessage(error));
     }
   };
 

@@ -10,6 +10,12 @@ export default function LoginPage() {
   const [erro, setErro] = useState('');
   const router = useRouter();
 
+  
+  function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) return error.message;
+    return "Erro desconhecido";
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErro('');
@@ -19,7 +25,7 @@ export default function LoginPage() {
       console.log("Dados do usuário após login:", userData);
       router.push('http://localhost:3000/home'); // Redireciona para a página de profissionais
     } catch (err) {
-      setErro(err.message);
+      setErro(getErrorMessage(err));
     }
   };
 

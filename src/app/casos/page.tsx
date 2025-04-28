@@ -47,6 +47,12 @@ export default function Casos() {
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) return error.message;
+    return "Erro desconhecido";
+  }
+
+  
   const fetchCasos = async () => {
     try {
       const response = await fetch("https://pi3p.onrender.com/cases", {
@@ -64,7 +70,7 @@ export default function Casos() {
       setCasos(casosArray);
       setFilteredCasos(casosArray);
     } catch (error) {
-      setError(error.message);
+      setError(getErrorMessage(error));
       setCasos([]);
       setFilteredCasos([]);
     }
@@ -90,7 +96,7 @@ export default function Casos() {
       }
       setUsuarios(data);
     } catch (error) {
-      setError(error.message);
+      setError(getErrorMessage(error));
     }
   };
 
@@ -200,7 +206,7 @@ export default function Casos() {
       alert("✅ Caso desativado com sucesso!");
       fetchCasos();
     } catch (error) {
-      setError(`❌ Erro: ${error.message}`);
+      setError(getErrorMessage(error));
     }
   };
 

@@ -41,6 +41,11 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) return error.message;
+    return "Erro desconhecido";
+  }
+
   useEffect(() => {
     const userInfo = getUserInfo();
     console.log("Informações do usuário:", userInfo);
@@ -62,7 +67,7 @@ export default function Home() {
         setCases(casesData);
         setError(null);
       } catch (error) {
-        setError(`⚠️ ${error.message}`);
+        setError(getErrorMessage(error));
         setPatients([]);
         setCases([]);
       } finally {

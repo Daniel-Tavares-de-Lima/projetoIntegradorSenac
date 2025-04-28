@@ -53,6 +53,12 @@ export default function Pacientes() {
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+
+  function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) return error.message;
+    return "Erro desconhecido";
+  }
+
   // Função de pesquisa
   const handleSearch = (term: string) => {
     setSearchTerm(term);
@@ -78,7 +84,7 @@ export default function Pacientes() {
       setPacientes(pacientesArray);
       setFilteredPacientes(pacientesArray);
     } catch (error) {
-      setError(error.message);
+      setError(getErrorMessage(error));
       setPacientes([]);
       setFilteredPacientes([]);
     }
@@ -89,7 +95,7 @@ export default function Pacientes() {
       const data = await fetchCases();
       setCasos(Array.isArray(data) ? data : []);
     } catch (error) {
-      setError(error.message);
+      setError(getErrorMessage(error));
       setCasos([]);
     }
   };
@@ -180,7 +186,7 @@ export default function Pacientes() {
       setMostrarCadastro(false);
       fetchPacientes();
     } catch (error) {
-      setError(`❌ Erro: ${error.message}`);
+      setError(getErrorMessage(error));
     }
   };
 
@@ -203,7 +209,7 @@ export default function Pacientes() {
       alert("✅ Paciente desativado com sucesso!");
       fetchPacientes();
     } catch (error) {
-      setError(`❌ Erro: ${error.message}`);
+      setError(getErrorMessage(error));
     }
   };
 

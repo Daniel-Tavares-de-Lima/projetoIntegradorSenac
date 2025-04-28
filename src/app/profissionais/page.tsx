@@ -33,6 +33,12 @@ export default function Profissionais() {
   const [currentUserName, setCurrentUserName] = useState<string>("Usuário");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+
+  function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) return error.message;
+    return "Erro desconhecido";
+  }
+
   // Buscar usuários
   const fetchUsuarios = async () => {
     const token = localStorage.getItem("token");
@@ -69,8 +75,8 @@ export default function Profissionais() {
       setUsuarios(data);
       setFilteredUsuarios(data);
     } catch (error) {
-      console.error("Erro ao buscar usuários:", error.message);
-      setError(`⚠️ ${error.message}`);
+      console.error("Erro ao buscar usuários:", getErrorMessage(error));
+      setError(getErrorMessage(error));
     }
   };
 
@@ -139,7 +145,7 @@ export default function Profissionais() {
       setError(null);
       fetchUsuarios();
     } catch (error) {
-      setError(`❌ Erro: ${error.message}`);
+      setError(getErrorMessage(error));
     }
   };
 
@@ -161,7 +167,7 @@ export default function Profissionais() {
       alert("✅ Usuário desativado com sucesso!");
       fetchUsuarios();
     } catch (error) {
-      setError(`❌ Erro: ${error.message}`);
+      setError(getErrorMessage(error));
     }
   };
 

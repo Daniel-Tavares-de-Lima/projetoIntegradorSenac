@@ -63,8 +63,8 @@ export default function Casos() {
       const casosArray = Array.isArray(data) ? data : data.cases || [];
       setCasos(casosArray);
       setFilteredCasos(casosArray);
-    } catch (err) {
-      setError(err.message);
+    } catch (error) {
+      setError(error.message);
       setCasos([]);
       setFilteredCasos([]);
     }

@@ -182,8 +182,8 @@ export default function Casos() {
       setError(null);
       fetchCasos();
     } catch (err) {
-      setError(err.message);
-      alert(`❌ Erro: ${err.message}`);
+      setError(getErrorMessage(err));
+      alert(`❌ Erro: ${err}`);
     }
   };
 

@@ -194,7 +194,7 @@ export default function Casos() {
       description: caso.description,
       classification: caso.classification,
       peritoResponsavel: caso.managerId,
-      statusCase: caso.statusCase,
+      statusCase: caso.statusCase as "ANDAMENTO" | "FINALIZADO" | "ARQUIVADO",
       solicitante: caso.solicitante || "",
     });
   };

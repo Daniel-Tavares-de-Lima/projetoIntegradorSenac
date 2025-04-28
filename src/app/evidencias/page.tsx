@@ -284,7 +284,7 @@ export default function Evidencias() {
               height={60}
             />
             <h1>
-              <Link href={`http://localhost:3000`} className={casosStyles.titulo}>
+              <Link href={`http://localhost:3000/home`} className={casosStyles.titulo}>
                 Laudos Periciais Odonto-Legal
               </Link>
             </h1>

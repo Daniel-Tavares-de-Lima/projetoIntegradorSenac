@@ -209,6 +209,21 @@ body {
   font-size: 16px;
 }
 
+/* Estilo para o botão de logout */
+.logoutButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 10px;
+  color: #fff; /* Cor que combina com o tema do sistema */
+  transition: color 0.3s ease;
+}
+
+.logoutButton:hover {
+  color: #ff4444; /* Cor vermelha suave para indicar ação de sair */
+}
+
 .conteudo .botaoPesquisar {
   width: 200px;
   height: 40px;

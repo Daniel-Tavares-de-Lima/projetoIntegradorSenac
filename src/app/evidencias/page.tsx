@@ -252,7 +252,7 @@ export default function Evidencias() {
         try {
           doc.addImage(evidence.imageEvidence.imageURL, "JPEG", 10, yOffset + 60, 50, 50);
           yOffset += 120;
-        } catch (error) {
+        } catch {
           doc.text("Imagem não pôde ser carregada", 10, yOffset + 60);
           yOffset += 80;
         }

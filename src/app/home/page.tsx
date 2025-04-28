@@ -108,7 +108,7 @@ export default function Home() {
         <div className={styles.logo}>
           <Image src={`/imagens/Logo - Laudo.png`} alt="Logo - Laudo" width={60} height={60} />
           <h1>
-            <Link href={`http://localhost:3000`} className={styles.titulo}>
+            <Link href={`/home`} className={styles.titulo}>
               Laudos Periciais Odonto-Legal
             </Link>
           </h1>

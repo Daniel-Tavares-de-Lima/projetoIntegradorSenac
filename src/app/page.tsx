@@ -23,7 +23,7 @@ export default function LoginPage() {
     try {
       const userData = await login(email, password);
       console.log("Dados do usuário após login:", userData);
-      router.push('http://localhost:3000/home'); // Redireciona para a página de profissionais
+      router.push('/home'); // Redireciona para a página de profissionais
     } catch (err) {
       setErro(getErrorMessage(err));
     }

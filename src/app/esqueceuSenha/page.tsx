@@ -3,9 +3,6 @@ import redefinirSenha from "../styles/redefinirSenha.module.css";
 
 export default function RecuperaSenha(){
 
-    
-    
-
     return (
         <div className={redefinirSenha.container}>
           <h1>Esqueceu a senha</h1>

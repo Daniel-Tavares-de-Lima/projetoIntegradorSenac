@@ -29,14 +29,22 @@ interface Case {
   title: string;
 }
 
+interface User {
+  id: string;
+  name: string;
+  role: string;
+  email: string;
+}
+
 export default function Evidencias() {
   const [file, setFile] = useState<File | null>(null);
   const [evidencias, setEvidencias] = useState<Evidence[]>([]);
   const [casos, setCasos] = useState<Case[]>([]);
+  const [users, setUsers] = useState<User[]>([]); // Novo estado para armazenar usuários
   const [formData, setFormData] = useState({
     type: "IMAGE" as "IMAGE" | "TEXT",
     dateCollection: "",
-    collectedBy: "",
+    collectedById: "", // Alterado para collectedById
     caseId: "",
     content: "",
   });
@@ -47,6 +55,32 @@ export default function Evidencias() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Função para buscar usuários
+  const fetchUsers = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("⚠️ Usuário não autenticado. Faça login novamente.");
+      return;
+    }
+    try {
+      const response = await fetch("https://pi3p.onrender.com/users", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Erro ao buscar usuários");
+      }
+      setUsers(data);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  // Função para buscar evidências
   const fetchEvidencias = async () => {
     try {
       const data = await fetchEvidences();
@@ -57,6 +91,7 @@ export default function Evidencias() {
     }
   };
 
+  // Função para buscar casos
   const fetchCasos = async () => {
     try {
       const data = await fetchCases();
@@ -83,7 +118,14 @@ export default function Evidencias() {
 
     fetchEvidencias();
     fetchCasos();
+    fetchUsers(); // Buscar usuários ao carregar a página
   }, []);
+
+  // Função para mapear collectedById para o nome do usuário
+  const getCollectorName = (collectedById: string) => {
+    const user = users.find((u) => u.id === collectedById);
+    return user ? user.name : "-";
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -100,7 +142,7 @@ export default function Evidencias() {
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.type || !formData.dateCollection || !formData.collectedBy || !formData.caseId) {
+    if (!formData.type || !formData.dateCollection || !formData.collectedById || !formData.caseId) {
       setError("⚠️ Preencha todos os campos obrigatórios");
       return;
     }
@@ -153,7 +195,7 @@ export default function Evidencias() {
       setFormData({
         type: "IMAGE",
         dateCollection: "",
-        collectedBy: "",
+        collectedById: "",
         caseId: "",
         content: "",
       });
@@ -171,7 +213,7 @@ export default function Evidencias() {
     setFormData({
       type: evidence.type,
       dateCollection: new Date(evidence.dateCollection).toISOString().split("T")[0],
-      collectedBy: evidence.collectedById,
+      collectedById: evidence.collectedById,
       caseId: evidence.caseId,
       content: evidence.textEvidence?.content || "",
     });
@@ -200,7 +242,7 @@ export default function Evidencias() {
       doc.text(`Tipo: ${evidence.type}`, 10, yOffset + 10);
       doc.text(`Data de Coleta: ${new Date(evidence.dateCollection).toLocaleString()}`, 10, yOffset + 20);
       doc.text(`Status: ${evidence.status}`, 10, yOffset + 30);
-      doc.text(`Coletado Por: ${evidence.collectedById}`, 10, yOffset + 40);
+      doc.text(`Coletado Por: ${getCollectorName(evidence.collectedById)}`, 10, yOffset + 40);
       doc.text(`Caso: ${casos.find((c) => c.id === evidence.caseId)?.title || "-"}`, 10, yOffset + 50);
 
       if (evidence.type === "TEXT" && evidence.textEvidence?.content) {
@@ -316,14 +358,19 @@ export default function Evidencias() {
                 <div className={casosStyles.organizacao}>
                   <label>
                     Coletado por: <br />
-                    <input
-                      type="text"
-                      name="collectedBy"
-                      placeholder="Nome do coletor"
-                      value={formData.collectedBy}
+                    <select
+                      name="collectedById"
+                      value={formData.collectedById}
                       onChange={handleInputChange}
                       required
-                    />
+                    >
+                      <option value="">Selecione</option>
+                      {users.map((user) => (
+                        <option key={user.id} value={user.id}>
+                          {user.name}
+                        </option>
+                      ))}
+                    </select>
                   </label>
                 </div>
               </div>
@@ -379,7 +426,7 @@ export default function Evidencias() {
                       setFormData({
                         type: "IMAGE",
                         dateCollection: "",
-                        collectedBy: "",
+                        collectedById: "",
                         caseId: "",
                         content: "",
                       });
@@ -397,7 +444,7 @@ export default function Evidencias() {
 
           <h2>Evidências Cadastradas</h2>
           <div className={casosStyles.section}>
-            <table>
+            <table className={evidenciasStyles.evidenciasTable}>
               <thead>
                 <tr>
                   <th>Tipo</th>
@@ -411,11 +458,11 @@ export default function Evidencias() {
                 {evidencias.length > 0 ? (
                   evidencias.map((evidence) => (
                     <tr key={evidence.id}>
-                      <td>{evidence.type}</td>
-                      <td>{new Date(evidence.dateCollection).toLocaleDateString()}</td>
-                      <td>{evidence.status}</td>
-                      <td>{evidence.collectedById}</td>
-                      <td className={casosStyles.acoes}>
+                      <td data-label="Tipo">{evidence.type}</td>
+                      <td data-label="Data de Coleta">{new Date(evidence.dateCollection).toLocaleDateString()}</td>
+                      <td data-label="Status">{evidence.status}</td>
+                      <td data-label="Coletado Por">{getCollectorName(evidence.collectedById)}</td>
+                      <td data-label="Ações" className={casosStyles.acoes}>
                         {currentUserRole === "ADMIN" || currentUserRole === "PERITO" ? (
                           <>
                             <button

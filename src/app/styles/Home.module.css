@@ -478,11 +478,6 @@ main .pesquisa {
   .section table tbody tr td:nth-child(9):before { content: "Solicitar Exames"; }
   .section table tbody tr td:nth-child(10):before { content: "Ações"; }
 
-  /* .section table tbody tr td:nth-child(3),
-  .section table tbody tr td:nth-child(5),
-  .section table tbody tr td:nth-child(6) {
-    display: none;
-  } */
 
   .section table tbody tr td:nth-child(1):before { content: "Nome"; }
   .section table tbody tr td:nth-child(2):before { content: "Nível de Acesso"; }

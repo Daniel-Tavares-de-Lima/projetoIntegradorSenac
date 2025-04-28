@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { login } from './services/authServiceLogin';
 import loginStyles from './styles/login.module.css';
@@ -16,7 +16,7 @@ export default function LoginPage() {
     return "Erro desconhecido";
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setErro('');
 

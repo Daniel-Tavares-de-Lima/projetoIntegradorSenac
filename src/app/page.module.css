@@ -1,14 +1,16 @@
-/* :root {
-  --background: #f4f4f4;
-  --corBotoes: #31a248;
-} */
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 
-body {
+}
+
+/* body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: Arial, Helvetica, sans-serif;
-}
+} */
 
 .container {
   display: flex;

@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { fetchPatients, fetchCases } from "../services/homeServices";
 import { getUserInfo } from "../services/infoUserServices"; 
 
+
 interface Patient {
   id: string;
   name: string;

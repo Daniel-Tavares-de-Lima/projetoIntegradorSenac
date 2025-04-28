@@ -11,6 +11,16 @@
     background-color: #f4f4f4;
   }
   
+
+  .logoContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  
+  
   .form {
     background-color: white;
     padding: 40px;

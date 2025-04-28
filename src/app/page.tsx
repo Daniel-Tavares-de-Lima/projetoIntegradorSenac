@@ -3,13 +3,14 @@ import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { login } from './services/authServiceLogin';
 import loginStyles from './styles/login.module.css';
+import Image from 'next/image'; // Importa o componente de imagem do Next.js
+import logo from '/imagens/Logo - Laudo.png'; // Ajuste o caminho conforme onde você colocou a imagem
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [erro, setErro] = useState('');
   const router = useRouter();
-
   
   function getErrorMessage(error: unknown): string {
     if (error instanceof Error) return error.message;
@@ -23,7 +24,7 @@ export default function LoginPage() {
     try {
       const userData = await login(email, password);
       console.log("Dados do usuário após login:", userData);
-      router.push('/home'); // Redireciona para a página de profissionais
+      router.push('/home');
     } catch (err) {
       setErro(getErrorMessage(err));
     }
@@ -32,6 +33,13 @@ export default function LoginPage() {
   return (
     <div className={loginStyles.container}>
       <form onSubmit={handleSubmit} className={loginStyles.form}>
+        {/* Aqui colocamos a logo centralizada */}
+        <div className={loginStyles.logoContainer}>
+          <Image src={`/imagens/logo12.png`} alt="Logo do Projeto" width={80} height={100} />
+
+          
+        </div>
+
         <h1>Entrar</h1>
 
         <label>

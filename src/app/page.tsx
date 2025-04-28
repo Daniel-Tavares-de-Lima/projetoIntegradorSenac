@@ -1,4 +1,5 @@
 "use client";
+
 import Image from "next/image";
 import styles from "./page.module.css";
 import Link from "next/link";
@@ -8,6 +9,7 @@ import { BiSolidUserBadge } from "react-icons/bi";
 import { TbFileSearch } from "react-icons/tb";
 import { useEffect, useState } from "react";
 import { fetchPatients, fetchCases } from "../app/services/homeServices";
+import { getUserInfo } from "../app/services/infoUserServices"; 
 
 interface Patient {
   id: string;
@@ -29,40 +31,24 @@ interface Case {
 }
 
 export default function Home() {
-  const [userName, setUserName] = useState("");
+  const [userName, setUserName] = useState<string>("Usuário");
   const [patients, setPatients] = useState<Patient[]>([]);
   const [cases, setCases] = useState<Case[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State for sidebar toggle
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const storedName = localStorage.getItem("userName");
-        if (storedName) {
-          setUserName(storedName);
-        } else {
-          const response = await fetch("https://pi3p.onrender.com/auth/me", {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-              "Content-Type": "application/json",
-            },
-          });
-          const data = await response.json();
-          console.log("Resposta do GET /auth/me:", data);
-          if (response.ok && data.name) {
-            setUserName(data.name);
-            localStorage.setItem("userName", data.name);
-          } else {
-            throw new Error(data.message || "Erro ao buscar usuário");
-          }
-        }
-      } catch (error) {
-        console.error("Erro ao carregar dados do usuário:", error.message);
-        setUserName("Usuário");
-      }
-    };
+    // Obtém as informações do usuário usando getUserInfo
+    const userInfo = getUserInfo();
+    console.log("Informações do usuário:", userInfo);
+    if (!userInfo) {
+      setError("⚠️ Não foi possível obter informações do usuário. Faça login novamente.");
+      window.location.href = "/login";
+      return;
+    }
+
+    // Define o nome do usuário
+    setUserName(userInfo.name || "Usuário Desconhecido");
 
     const fetchData = async () => {
       try {
@@ -80,7 +66,6 @@ export default function Home() {
       }
     };
 
-    fetchUserData();
     fetchData();
   }, []);
 
@@ -136,7 +121,7 @@ export default function Home() {
           </div>
           <input type="search" placeholder="Pesquisar casos ou pacientes" className={styles.pesquisa} />
           <div className={styles.user}>
-            <FaRegUser /> {userName || "Usuário"}
+            <FaRegUser /> {userName}
           </div>
         </header>
 

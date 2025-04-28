@@ -9,6 +9,7 @@ import { SiElectronbuilder } from "react-icons/si";
 import { BiSolidUserBadge } from "react-icons/bi";
 import { TbFileSearch } from "react-icons/tb";
 import { useState, useEffect } from "react";
+import { getUserInfo } from "../services/infoUserServices"; 
 
 interface Caso {
   id: string;
@@ -32,50 +33,19 @@ export default function Casos() {
   const [filteredCasos, setFilteredCasos] = useState<Caso[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [usuarios, setUsuarios] = useState<User[]>([]);
-  const [userName, setUserName] = useState("");
+  const [userName, setUserName] = useState<string>("Usuário");
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     classification: "",
     peritoResponsavel: "",
-    statusCase: "ANDAMENTO",
+    statusCase: "ANDAMENTO" as "ANDAMENTO" | "FINALIZADO" | "ARQUIVADO",
     solicitante: "",
   });
   const [error, setError] = useState<string | null>(null);
   const [editCaseId, setEditCaseId] = useState<string | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State for sidebar toggle
-
-  const fetchUserData = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("Usuário não autenticado");
-      }
-      const storedName = localStorage.getItem("userName");
-      if (storedName) {
-        setUserName(storedName);
-        return;
-      }
-      const response = await fetch("https://pi3p.onrender.com/users/me", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Erro ao buscar usuário");
-      }
-      const name = data.name || data.username || data.fullName || "Usuário";
-      setUserName(name);
-      localStorage.setItem("userName", name);
-    } catch (error) {
-      console.error("Erro ao buscar usuário:", error.message);
-      setUserName("Usuário");
-    }
-  };
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const fetchCasos = async () => {
     try {
@@ -124,26 +94,6 @@ export default function Casos() {
     }
   };
 
-  const fetchCurrentUser = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    try {
-      const response = await fetch("https://pi3p.onrender.com/users/me", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setCurrentUserRole(data.role);
-      }
-    } catch (error) {
-      console.error("Erro ao buscar usuário logado:", error);
-    }
-  };
-
   const handleSearch = (term: string) => {
     setSearchTerm(term);
     if (!term.trim()) {
@@ -161,10 +111,21 @@ export default function Casos() {
   };
 
   useEffect(() => {
-    fetchUserData();
+    // Obtém as informações do usuário usando getUserInfo
+    const userInfo = getUserInfo();
+    console.log("Informações do usuário:", userInfo);
+    if (!userInfo) {
+      setError("⚠️ Não foi possível obter informações do usuário. Faça login novamente.");
+      window.location.href = "/login";
+      return;
+    }
+
+    // Define o nome e o role do usuário
+    setUserName(userInfo.name || "Usuário Desconhecido");
+    setCurrentUserRole(userInfo.role || "UNKNOWN");
+
     fetchCasos();
     fetchUsuarios();
-    fetchCurrentUser();
   }, []);
 
   const handleInputChange = (
@@ -506,22 +467,7 @@ export default function Casos() {
                             </button>
                           </>
                         ) : (
-                          <>
-                            <button
-                              className={casosStyles.acaoBotao}
-                              title="Editar"
-                              onClick={() => handleEdit(caso)}
-                            >
-                              ✏️
-                            </button>
-                            <button
-                              className={casosStyles.acaoBotao}
-                              title="Excluir"
-                              onClick={() => handleDelete(caso.id)}
-                            >
-                              ❌
-                            </button>
-                          </>
+                          <span>Sem permissões</span>
                         )}
                       </td>
                     </tr>

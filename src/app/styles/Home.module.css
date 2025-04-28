@@ -466,6 +466,7 @@ main .pesquisa {
     color: #333;
   }
 
+
   .section table tbody tr td:nth-child(1):before { content: "Código"; }
   .section table tbody tr td:nth-child(2):before { content: "Título"; }
   .section table tbody tr td:nth-child(3):before { content: "Descrição"; }
@@ -477,12 +478,17 @@ main .pesquisa {
   .section table tbody tr td:nth-child(9):before { content: "Solicitar Exames"; }
   .section table tbody tr td:nth-child(10):before { content: "Ações"; }
 
-  .section table tbody tr td:nth-child(3),
+  /* .section table tbody tr td:nth-child(3),
   .section table tbody tr td:nth-child(5),
   .section table tbody tr td:nth-child(6) {
     display: none;
-  }
+  } */
 
+  .section table tbody tr td:nth-child(1):before { content: "Nome"; }
+  .section table tbody tr td:nth-child(2):before { content: "Nível de Acesso"; }
+  .section table tbody tr td:nth-child(3):before { content: "Ações"; }
+
+  
   .section .botaoExame {
     width: 100%;
     max-width: 150px;

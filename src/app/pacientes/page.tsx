@@ -6,20 +6,12 @@ import pacientesStyles from "../styles/Pacientes.module.css";
 import evidenciasStyles from "../styles/Evidencias.module.css";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-{
-  /*-----Icones Side bar-----*/
-}
 import { FaRegUser } from "react-icons/fa6";
-// import { LuFileUser } from "react-icons/lu";
 import { SiElectronbuilder } from "react-icons/si";
 import { BiSolidUserBadge } from "react-icons/bi";
 import { TbFileSearch } from "react-icons/tb";
-
-{
-  /*-----Icones Side bar-----*/
-}
-
 import { createPatient, updatePatient, deletePatient, fetchPatients, fetchCases } from "../services/patientServices";
+import { getUserInfo } from "../services/infoUserServices"; 
 
 interface Patient {
   id: string;
@@ -42,56 +34,41 @@ interface Case {
   dateOpened: string;
 }
 
-
 export default function Pacientes() {
   const [mostrarCadastro, setMostrarCadastro] = useState(false);
   const [pacientes, setPacientes] = useState<Patient[]>([]);
-  const [filteredPacientes, setFilteredPacientes] = useState<Patient[]>([]); // Lista filtrada
-  const [searchTerm, setSearchTerm] = useState(""); // Termo de pesquisa
+  const [filteredPacientes, setFilteredPacientes] = useState<Patient[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [casos, setCasos] = useState<Case[]>([]);
-  const [userName, setUserName] = useState(""); // Nome do usuário logado
+  const [userName, setUserName] = useState<string>("Usuário");
   const [formData, setFormData] = useState({
     name: "",
     sex: "",
     birthDate: "",
     caseId: "",
-    identified: "YES",
+    identified: "YES" as "YES" | "NO",
   });
   const [editPatientId, setEditPatientId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Buscar nome do usuário logado
-  const fetchUserData = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("Usuário não autenticado");
-      }
-      const storedName = localStorage.getItem("userName");
-      if (storedName) {
-        setUserName(storedName);
-        return;
-      }
-      const response = await fetch("https://pi3p.onrender.com/users/me", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Erro ao buscar usuário");
-      }
-      const name = data.name || data.username || data.fullName || "Usuário";
-      setUserName(name);
-      localStorage.setItem("userName", name);
-    } catch (error) {
-      console.error("Erro ao buscar usuário:", error.message);
-      setUserName("Usuário");
+  // Função de pesquisa
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    if (!term.trim()) {
+      setFilteredPacientes(pacientes);
+      return;
     }
+    const lowerTerm = term.toLowerCase();
+    const filtered = pacientes.filter((paciente) => {
+      const solicitante = getCaseSolicitante(paciente.caseId);
+      return (
+        paciente.name.toLowerCase().includes(lowerTerm) ||
+        (solicitante !== "-" && solicitante.toLowerCase().includes(lowerTerm))
+      );
+    });
+    setFilteredPacientes(filtered);
   };
 
   const fetchPacientes = async () => {
@@ -99,7 +76,7 @@ export default function Pacientes() {
       const data = await fetchPatients();
       const pacientesArray = Array.isArray(data) ? data : [];
       setPacientes(pacientesArray);
-      setFilteredPacientes(pacientesArray); // Inicializar lista filtrada
+      setFilteredPacientes(pacientesArray);
     } catch (error) {
       setError(error.message);
       setPacientes([]);
@@ -117,49 +94,22 @@ export default function Pacientes() {
     }
   };
 
-  const fetchCurrentUser = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    try {
-      const response = await fetch("https://pi3p.onrender.com/users/me", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setCurrentUserRole(data.role);
-      }
-    } catch (error) {
-      console.error("Erro ao buscar usuário logado:", error);
-    }
-  };
-
-  // Função de pesquisa
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
-    if (!term.trim()) {
-      setFilteredPacientes(pacientes); // Mostrar todos se o termo estiver vazio
+  useEffect(() => {
+    // Obtém as informações do usuário usando getUserInfo
+    const userInfo = getUserInfo();
+    console.log("Informações do usuário:", userInfo);
+    if (!userInfo) {
+      setError("⚠️ Não foi possível obter informações do usuário. Faça login novamente.");
+      window.location.href = "/login";
       return;
     }
-    const lowerTerm = term.toLowerCase();
-    const filtered = pacientes.filter((paciente) => {
-      const solicitante = getCaseSolicitante(paciente.caseId);
-      return (
-        paciente.name.toLowerCase().includes(lowerTerm) ||
-        (solicitante !== "-" && solicitante.toLowerCase().includes(lowerTerm))
-      );
-    });
-    setFilteredPacientes(filtered);
-  };
 
-  useEffect(() => {
-    fetchUserData();
+    // Define o nome e o role do usuário
+    setUserName(userInfo.name || "Usuário Desconhecido");
+    setCurrentUserRole(userInfo.role || "UNKNOWN");
+
     fetchPacientes();
     fetchCasos();
-    fetchCurrentUser();
   }, []);
 
   const handleAdicionarPaciente = () => {
@@ -268,11 +218,9 @@ export default function Pacientes() {
 
   return (
     <div className={casosStyles.container}>
-
-        <button className={casosStyles.hamburger} onClick={toggleSidebar}>
-          {isSidebarOpen ? "✖" : "☰"}
-        </button>
-
+      <button className={casosStyles.hamburger} onClick={toggleSidebar}>
+        {isSidebarOpen ? "✖" : "☰"}
+      </button>
 
       <aside className={`${casosStyles.sidebar} ${isSidebarOpen ? casosStyles.open : ""}`}>
         <div>
@@ -294,10 +242,6 @@ export default function Pacientes() {
               <FaRegUser className={casosStyles.iconeInterno} />
               <Link href={`/pacientes`} className={casosStyles.link}>Pacientes</Link>
             </div>
-            {/* <div className={casosStyles.icone}>
-              <LuFileUser className={casosStyles.iconeInterno} />
-              <Link href={`/cadastros`} className={casosStyles.link}>Cadastros</Link>
-            </div> */}
             <div className={casosStyles.icone}>
               <SiElectronbuilder className={casosStyles.iconeInterno} />
               <Link href={`/profissionais`} className={casosStyles.link}>Profissionais</Link>
@@ -462,7 +406,6 @@ export default function Pacientes() {
                     )}
                   </tbody>
                 </table>
-                
               </div>
 
               <h3>Casos</h3>
@@ -515,7 +458,6 @@ export default function Pacientes() {
                     )}
                   </tbody>
                 </table>
-              
               </div>
             </>
           ) : (
@@ -676,7 +618,6 @@ export default function Pacientes() {
                     )}
                   </tbody>
                 </table>
-               
               </div>
             </>
           )}

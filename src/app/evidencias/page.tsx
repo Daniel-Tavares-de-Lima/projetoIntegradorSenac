@@ -5,15 +5,13 @@ import evidenciasStyles from "../styles/Evidencias.module.css";
 import Link from "next/link";
 import Image from "next/image";
 import { FaRegUser } from "react-icons/fa6";
-import { LuFileUser } from "react-icons/lu";
 import { SiElectronbuilder } from "react-icons/si";
 import { BiSolidUserBadge } from "react-icons/bi";
 import { TbFileSearch } from "react-icons/tb";
 import { useState, useRef, useEffect } from "react";
 import jsPDF from "jspdf";
-import React from "react";
 import { createEvidence, updateEvidence, deleteEvidence, fetchEvidences, fetchCases } from "../services/evidenceServices";
-
+import { getUserInfo } from "../services/infoUserServices";
 
 interface Evidence {
   id: string;
@@ -31,13 +29,12 @@ interface Case {
   title: string;
 }
 
-
 export default function Evidencias() {
   const [file, setFile] = useState<File | null>(null);
   const [evidencias, setEvidencias] = useState<Evidence[]>([]);
   const [casos, setCasos] = useState<Case[]>([]);
   const [formData, setFormData] = useState({
-    type: "IMAGE",
+    type: "IMAGE" as "IMAGE" | "TEXT",
     dateCollection: "",
     collectedBy: "",
     caseId: "",
@@ -46,8 +43,9 @@ export default function Evidencias() {
   const [editEvidenceId, setEditEvidenceId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [userName, setUserName] = useState<string>("Usuário");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchEvidencias = async () => {
     try {
@@ -69,30 +67,22 @@ export default function Evidencias() {
     }
   };
 
-  const fetchCurrentUser = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    try {
-      const response = await fetch("https://pi3p.onrender.com/users/me", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setCurrentUserRole(data.role);
-      }
-    } catch (error) {
-      console.error("Erro ao buscar usuário logado:", error);
-    }
-  };
-
   useEffect(() => {
+    // Obtém as informações do usuário usando getUserInfo
+    const userInfo = getUserInfo();
+    console.log("Informações do usuário:", userInfo);
+    if (!userInfo) {
+      setError("⚠️ Não foi possível obter informações do usuário. Faça login novamente.");
+      window.location.href = "/login";
+      return;
+    }
+
+    // Define o nome e o role do usuário
+    setUserName(userInfo.name || "Usuário Desconhecido");
+    setCurrentUserRole(userInfo.role || "UNKNOWN");
+
     fetchEvidencias();
     fetchCasos();
-    fetchCurrentUser();
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -181,7 +171,7 @@ export default function Evidencias() {
     setFormData({
       type: evidence.type,
       dateCollection: new Date(evidence.dateCollection).toISOString().split("T")[0],
-      collectedBy: evidence.collectedById, // Assumindo collectedById como nome temporário
+      collectedBy: evidence.collectedById,
       caseId: evidence.caseId,
       content: evidence.textEvidence?.content || "",
     });
@@ -238,12 +228,11 @@ export default function Evidencias() {
 
   return (
     <div className={casosStyles.container}>
+      <button className={casosStyles.hamburger} onClick={toggleSidebar}>
+        {isSidebarOpen ? "✖" : "☰"}
+      </button>
 
-        <button className={casosStyles.hamburger} onClick={toggleSidebar}>
-          {isSidebarOpen ? "✖" : "☰"}
-        </button>
-
-        <aside className={`${casosStyles.sidebar} ${isSidebarOpen ? casosStyles.open : ""}`}>
+      <aside className={`${casosStyles.sidebar} ${isSidebarOpen ? casosStyles.open : ""}`}>
         <div>
           <div className={casosStyles.logo}>
             <Image
@@ -263,13 +252,9 @@ export default function Evidencias() {
               <FaRegUser className={casosStyles.iconeInterno} />
               <Link href={`/pacientes`} className={casosStyles.link}>Pacientes</Link>
             </div>
-            {/* <div className={casosStyles.icone}>
-              <LuFileUser className={casosStyles.iconeInterno} />
-              <Link href={`/cadastros`} className={casosStyles.link}>Cadastros</Link>
-            </div> */}
             <div className={casosStyles.icone}>
               <SiElectronbuilder className={casosStyles.iconeInterno} />
-              <Link href={`profissionais`} className={casosStyles.link}>Profissionais</Link>
+              <Link href={`/profissionais`} className={casosStyles.link}>Profissionais</Link>
             </div>
             <div className={casosStyles.icone}>
               <BiSolidUserBadge className={casosStyles.iconeInterno} />
@@ -277,7 +262,7 @@ export default function Evidencias() {
             </div>
             <div className={casosStyles.icone}>
               <TbFileSearch className={casosStyles.iconeInterno} />
-              <Link href={`evidencias`} className={casosStyles.link}>Evidências</Link>
+              <Link href={`/evidencias`} className={casosStyles.link}>Evidências</Link>
             </div>
           </nav>
         </div>
@@ -288,7 +273,9 @@ export default function Evidencias() {
         <header className={casosStyles.header}>
           <div className={casosStyles.logoApp}>Gest<span>Odo</span></div>
           <input type="search" placeholder="Pesquisar casos ou pacientes" className={casosStyles.pesquisa} />
-          <div className={casosStyles.user}><FaRegUser /> Julia</div>
+          <div className={casosStyles.user}>
+            <FaRegUser /> {userName}
+          </div>
         </header>
 
         <section className={casosStyles.content}>
@@ -454,31 +441,7 @@ export default function Evidencias() {
                             </button>
                           </>
                         ) : (
-                          <span>
-                             <>
-                            <button
-                              className={casosStyles.acaoBotao}
-                              title="Visualizar"
-                              onClick={() => alert("Funcionalidade de visualização não implementada")}
-                            >
-                              👁️
-                            </button>
-                            <button
-                              className={casosStyles.acaoBotao}
-                              title="Editar"
-                              onClick={() => handleEdit(evidence)}
-                            >
-                              ✏️
-                            </button>
-                            <button
-                              className={casosStyles.acaoBotao}
-                              title="Excluir"
-                              onClick={() => handleDelete(evidence.id)}
-                            >
-                              ❌
-                            </button>
-                          </>
-                          </span>
+                          <span>Sem permissões</span>
                         )}
                       </td>
                     </tr>

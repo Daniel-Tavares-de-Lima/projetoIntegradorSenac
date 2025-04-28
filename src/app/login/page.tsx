@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { login } from '../services/authServiceLogin'; // importa a função
+import { login } from '../services/authServiceLogin';
 import loginStyles from '../styles/login.module.css';
 
 export default function LoginPage() {
@@ -15,8 +15,9 @@ export default function LoginPage() {
     setErro('');
 
     try {
-      await login(email, password); // utiliza a função importada
-      router.push('/'); // redireciona após login
+      const userData = await login(email, password);
+      console.log("Dados do usuário após login:", userData);
+      router.push('http://localhost:3000'); // Redireciona para a página de profissionais
     } catch (err) {
       setErro(err.message);
     }

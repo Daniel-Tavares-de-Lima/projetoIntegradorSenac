@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import redefinirSenha from "../styles/redefinirSenha.module.css";
 
 export default function RecuperaSenha(){
@@ -8,7 +8,7 @@ export default function RecuperaSenha(){
     const [confirmarSenha, setConfirmarSenha] = useState("");
     const [erro, setErro] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
     if (senha !== confirmarSenha) {

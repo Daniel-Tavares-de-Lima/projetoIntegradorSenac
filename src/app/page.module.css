@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* *{
   margin: 0;
   padding: 0;
@@ -6,10 +7,20 @@
 } */
 
 /* body {
+=======
+/* :root {
+  --background: #f4f4f4
+   #2d4a78;
+  --corBotoes: #31a248; */
+
+
+body{
+>>>>>>> origin/roni-branch
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: Arial, Helvetica, sans-serif;
+<<<<<<< HEAD
 } */
 
 
@@ -19,6 +30,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+=======
+}
+
+.container {
+>>>>>>> origin/roni-branch
   display: flex;
   height: 100vh;
   font-family: Arial, sans-serif;
@@ -26,13 +42,19 @@
 
 /*---------SIDEBAR---------*/
 .sidebar {
+<<<<<<< HEAD
   width: 300px;
   background-color: #2d4a78;
+=======
+  width: 220px;
+  background-color: #2d4a78; /* cor da barra lateral */
+>>>>>>> origin/roni-branch
   padding: 20px;
   color: #fff;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+<<<<<<< HEAD
   transition: left 0.3s ease; /* Animation for sliding */
 }
 
@@ -40,6 +62,8 @@
   display: flex;
   align-items: center;
   padding: 5px;
+=======
+>>>>>>> origin/roni-branch
 }
 
 .sidebar h1 {
@@ -47,6 +71,7 @@
   margin-bottom: 20px;
 }
 
+<<<<<<< HEAD
 .sidebar .titulo {
   color: #fff;
   text-decoration: none;
@@ -80,12 +105,32 @@
 }
 
 .navi .icone:hover {
+=======
+.navi{
+  display: flex;
+  flex-direction: column;
+  
+}
+
+.navi .link{
+  margin: 20px 0;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 8px;
+  transition: all 0.5s;
+  color: #fff;
+  text-decoration: none;
+}
+
+.navi .link:hover{
+>>>>>>> origin/roni-branch
   background-color: #f4f4f4;
   color: #2d4a78;
   border-radius: 5px;
   transform: scale(1.02);
   transition: all 0.5s;
   text-decoration: none;
+<<<<<<< HEAD
   cursor: pointer;
 }
 
@@ -95,6 +140,11 @@
 }
 
 .sidebar .config {
+=======
+}
+
+.sidebar .config{
+>>>>>>> origin/roni-branch
   margin: 20px 0;
   font-size: 15px;
   cursor: pointer;
@@ -102,7 +152,12 @@
   transition: all 0.5s;
 }
 
+<<<<<<< HEAD
 .sidebar .config:hover {
+=======
+
+.sidebar .config:hover{
+>>>>>>> origin/roni-branch
   background-color: #f4f4f4;
   color: #2d4a78;
   border-radius: 5px;
@@ -121,6 +176,7 @@
   cursor: pointer;
 }
 
+<<<<<<< HEAD
 /* Hamburger Button */
 .hamburger {
   display: none; /* Hidden by default */
@@ -141,6 +197,11 @@
 .hamburger:hover {
   transform: scale(1.1);
 }
+=======
+
+/*---------SIDEBAR---------*/
+
+>>>>>>> origin/roni-branch
 
 /*---------MAIN---------------------*/
 .main {
@@ -154,6 +215,10 @@
 .header {
   display: flex;
   justify-content: space-around;
+<<<<<<< HEAD
+=======
+  ;
+>>>>>>> origin/roni-branch
   align-items: center;
   border-radius: 10px;
   background-color: #2d4a78;
@@ -163,42 +228,70 @@
   color: #fff;
 }
 
+<<<<<<< HEAD
 .header .logoApp {
+=======
+.header .logoApp{
+  font-size: 20px;
+  cursor: pointer;
+}
+.header .user{
+>>>>>>> origin/roni-branch
   font-size: 20px;
   cursor: pointer;
 }
 
+<<<<<<< HEAD
 .header .user {
   font-size: 20px;
   cursor: pointer;
 }
 
 .header .pesquisa {
+=======
+.header .pesquisa{
+>>>>>>> origin/roni-branch
   border-radius: 5px;
   border: none;
   height: 30px;
   width: 300px;
   padding: 5px;
 }
+<<<<<<< HEAD
 
 /*---------HEADER-----------*/
 .content h1 {
+=======
+/*---------HEADER-----------*/
+.content h1{
+>>>>>>> origin/roni-branch
   font-size: 30px;
 }
 
 /*---------BUSCA POR HORA------*/
 .searchSection {
   margin-bottom: 30px;
+<<<<<<< HEAD
 }
 
 .searchSection label {
+=======
+
+}
+
+.searchSection label{
+>>>>>>> origin/roni-branch
   margin-bottom: 10px;
   color: #333;
   font-size: 16px;
   margin: 0 10px;
 }
 
+<<<<<<< HEAD
 .searchSection input[type="date"] {
+=======
+.searchSection input[type="date"]{
+>>>>>>> origin/roni-branch
   margin-top: 5px;
   padding: 8px;
   border: 1px solid #ccc;
@@ -206,7 +299,11 @@
   font-size: 12px;
 }
 
+<<<<<<< HEAD
 .searchSection .botaoPesquisar {
+=======
+.searchSection .botaoPesquisar{
+>>>>>>> origin/roni-branch
   width: 120px;
   height: 30px;
   border-radius: 5px;
@@ -217,6 +314,7 @@
   font-size: 16px;
 }
 
+<<<<<<< HEAD
 /* Estilo para o botão de logout */
 .logoutButton {
   background: none;
@@ -234,6 +332,11 @@
 
 .conteudo .botaoPesquisar {
   width: 200px;
+=======
+
+.conteudo .botaoPesquisar{
+  width: 170px;
+>>>>>>> origin/roni-branch
   height: 40px;
   border-radius: 5px;
   border: none;
@@ -245,37 +348,90 @@
   font-size: 16px;
 }
 
+<<<<<<< HEAD
 .botaoPesquisar:hover {
+=======
+.botaoPesquisar:hover{
+>>>>>>> origin/roni-branch
   background-color: #268038;
   transition: all 0.5s;
 }
 
+<<<<<<< HEAD
 main .pesquisa {
   border-radius: 5px;
   border: 1px solid black;
+=======
+
+main .pesquisa{
+  border-radius: 5px;
+  border: black;
+>>>>>>> origin/roni-branch
   height: 35px;
   width: 350px;
   padding: 9px;
   margin-bottom: 10px;
 }
 
+<<<<<<< HEAD
 /*---------TABELA------------*/
 .section {
+=======
+
+/*---------SIDEBAR---------*/
+.searchInputs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.searchInputs input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.searchInputs button {
+  padding: 8px 12px;
+  background-color: #2d4a78;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/*---------TABELA------------*/
+
+.section{
+>>>>>>> origin/roni-branch
   padding: 10px;
   max-width: 100%;
   margin: 0 auto;
 }
+<<<<<<< HEAD
 
 .section table {
+=======
+.section table{
+>>>>>>> origin/roni-branch
   background-color: #fff;
   height: 150px;
   border-radius: 10px;
   padding: 10px;
+<<<<<<< HEAD
+=======
+  width: 100%;
+  max-width: 100%;
+>>>>>>> origin/roni-branch
   text-align: center;
   margin: auto;
 }
 
+<<<<<<< HEAD
 .section table th {
+=======
+.section table th{
+>>>>>>> origin/roni-branch
   background-color: #f8f9fa;
   font-weight: bold;
   padding: 10px;
@@ -284,25 +440,41 @@ main .pesquisa {
   min-width: 100px;
 }
 
+<<<<<<< HEAD
 .section table td {
+=======
+.section table td{
+>>>>>>> origin/roni-branch
   padding: 10px;
   border-bottom: 1px solid #ddd;
 }
 
 /*-------------*/
+<<<<<<< HEAD
 .verTudo {
+=======
+.verTudo{
+>>>>>>> origin/roni-branch
   color: #007bff;
   text-decoration: none;
   margin-left: 5px;
 }
 
+<<<<<<< HEAD
 .acoes {
+=======
+.acoes{
+>>>>>>> origin/roni-branch
   display: flex;
   gap: 5px;
   justify-content: center;
 }
 
+<<<<<<< HEAD
 .acaoBotao {
+=======
+.acaoBotao{
+>>>>>>> origin/roni-branch
   background: none;
   border: none;
   cursor: pointer;
@@ -310,7 +482,11 @@ main .pesquisa {
   padding: 8px;
 }
 
+<<<<<<< HEAD
 .section .botaoExame {
+=======
+.section .botaoExame{
+>>>>>>> origin/roni-branch
   width: 130px;
   height: 30px;
   border-radius: 5px;
@@ -321,11 +497,17 @@ main .pesquisa {
   margin-right: 10px;
 }
 
+<<<<<<< HEAD
 .section .botaoExame:hover {
+=======
+
+.section .botaoExame:hover{
+>>>>>>> origin/roni-branch
   background-color: #268038;
   transition: all 0.5s;
 }
 
+<<<<<<< HEAD
 .section table .acoes {
   cursor: pointer;
 }
@@ -346,6 +528,14 @@ main .pesquisa {
 
 /*------CADASTRAR CASOS-----*/
 .section .cadastroCasos {
+=======
+.section table .acoes{
+  cursor: pointer;
+}
+
+/*------CADASTRAR CASOS-----*/
+.section .cadastroCasos{
+>>>>>>> origin/roni-branch
   background-color: #fff;
   height: 400px;
   width: 900px;
@@ -354,24 +544,40 @@ main .pesquisa {
 }
 
 /*------CADASTRAR CASOS LADO ESQUERDO-----*/
+<<<<<<< HEAD
 .section .cadastroCasos .cadastroEsquerda {
+=======
+.section .cadastroCasos .cadastroEsquerda{
+>>>>>>> origin/roni-branch
   width: 50%;
   display: flex;
   flex-direction: column;
   padding: 10px;
 }
 
+<<<<<<< HEAD
 .section .cadastroCasos .organizacao {
+=======
+.section .cadastroCasos .organizacao{
+>>>>>>> origin/roni-branch
   display: flex;
   flex-direction: column;
   margin: 10px 0px;
 }
 
+<<<<<<< HEAD
 .cadastroCasos .organizacao label {
   font-size: 18px;
 }
 
 .cadastroCasos .organizacao input {
+=======
+.cadastroCasos .organizacao label{
+  font-size: 18px;
+}
+
+.cadastroCasos .organizacao input{
+>>>>>>> origin/roni-branch
   width: 350px;
   height: 30px;
   border-radius: 5px;
@@ -381,40 +587,69 @@ main .pesquisa {
   font-size: 15px;
 }
 
+<<<<<<< HEAD
 .cadastroCasos .organizacao textarea {
+=======
+.cadastroCasos .organizacao textarea{
+>>>>>>> origin/roni-branch
   width: 350px;
   height: 50px;
   padding: 5px;
   border-radius: 5px;
+<<<<<<< HEAD
   border: 2px solid #a2a3a2;
 }
 
 .cadastroCasos .organizacao select {
+=======
+  border: 2px solid #a2a2a2;
+}
+
+.cadastroCasos .organizacao select{
+>>>>>>> origin/roni-branch
   width: 260px;
   height: 28px;
   border-radius: 5px;
   text-align: center;
   font-size: 14px;
   background-color: #e3e3e3;
+<<<<<<< HEAD
   border: 2px solid #a2a3a2;
 }
 
 .cadastroEsquerda .file {
+=======
+  border: 2px solid #a2a2a2;
+}
+
+.cadastroEsquerda .file{
+>>>>>>> origin/roni-branch
   padding: 10px;
   border-radius: 5px;
   border: 0.5px solid #a2a3a2;
   margin-top: 5px;
 }
 
+<<<<<<< HEAD
 /*------CADASTRAR CASOS LADO DIREITO-----*/
 .section .cadastroCasos .cadastroDireita {
+=======
+
+/*------CADASTRAR CASOS LADO DIREITO-----*/
+
+.section .cadastroCasos .cadastroDireita{
+>>>>>>> origin/roni-branch
   width: 50%;
   display: flex;
   flex-direction: column;
   padding: 15px 10px 10px 70px;
 }
 
+<<<<<<< HEAD
 .section .cadastroCasos .cadastroDireita button {
+=======
+.section .cadastroCasos .cadastroDireita button{
+>>>>>>> origin/roni-branch
   width: 130px;
   height: 30px;
   font-size: 15px;
@@ -425,6 +660,7 @@ main .pesquisa {
   font-weight: bold;
   margin-top: 30px;
   transition: all 0.5s;
+<<<<<<< HEAD
 }
 
 .section .cadastroCasos .cadastroDireita button:hover {
@@ -699,4 +935,13 @@ main .pesquisa {
     font-size: 20px;
     padding: 8px;
   }
+=======
+  
+}
+
+.section .cadastroCasos .cadastroDireita button:hover{
+  background-color: #268038;
+  transition: all 0.5s;
+  cursor: pointer;
+>>>>>>> origin/roni-branch
 }

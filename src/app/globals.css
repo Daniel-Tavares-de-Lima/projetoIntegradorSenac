@@ -1,10 +1,15 @@
 /* @import url(//src/styles/home.css); */
 
+<<<<<<< HEAD
 /* :root {
+=======
+:root {
+>>>>>>> origin/roni-branch
   --background: #f4f4f4
   --segundoBackground #2d4a78;
   --corBotoes: #31a248;
 
+<<<<<<< HEAD
 } */
 
 /* body{
@@ -18,3 +23,7 @@ div{
   padding: 0;
   box-sizing: border-box;
 } */
+=======
+}
+
+>>>>>>> origin/roni-branch

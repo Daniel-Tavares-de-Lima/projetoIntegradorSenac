@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*---------SIDEBAR---------*/
 .sidebar {
   width: 350px;
@@ -29,6 +30,8 @@
 
 
 
+=======
+>>>>>>> origin/roni-branch
 .acessoADM{
   display: flex;
   justify-content: center;
@@ -42,6 +45,7 @@
 }
 
 .acessoADM p{
+<<<<<<< HEAD
   display: inline-block;
     padding: 10px 30px;
     background-color: #E68B35;
@@ -49,11 +53,19 @@
     border-radius: 5px;
     font-size: 12px;
     cursor: pointer;
+=======
+  width: 150px;
+  height: 20px;
+  background-color: #0071ac;
+  border-radius: 10px;
+  color: #fff;
+>>>>>>> origin/roni-branch
 
 }
 
 
 .acessoPERITO p{
+<<<<<<< HEAD
     display: inline-block;
     padding: 10px 30px;
     background-color: #2D4A78;
@@ -62,3 +74,12 @@
     font-size: 12px;
     cursor: pointer;
 }
+=======
+  width: 150px;
+  height: 20px;
+  background-color: #a19a25;
+  border-radius: 10px;
+  color: #fff;
+
+}
+>>>>>>> origin/roni-branch

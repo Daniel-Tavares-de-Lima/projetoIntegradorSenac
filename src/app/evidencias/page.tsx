@@ -4,7 +4,7 @@ import casosStyles from "../styles/Home.module.css";
 import evidenciasStyles from "../styles/Evidencias.module.css";
 import Link from "next/link";
 import Image from "next/image";
-import { FaRegUser } from "react-icons/fa6";
+import { FaRegUser, FaChartBar } from "react-icons/fa6";
 import { SiElectronbuilder } from "react-icons/si";
 import { BiSolidUserBadge } from "react-icons/bi";
 import { TbFileSearch } from "react-icons/tb";
@@ -311,6 +311,10 @@ export default function Evidencias() {
             <div className={casosStyles.icone}>
               <TbFileSearch className={casosStyles.iconeInterno} />
               <Link href={`/evidencias`} className={casosStyles.link}>Evidências</Link>
+            </div>
+            <div className={casosStyles.icone}>
+              <FaChartBar className={casosStyles.iconeInterno} />
+              <Link href={`/dashboard`} className={casosStyles.link}>Dashboard</Link>
             </div>
           </nav>
         </div>

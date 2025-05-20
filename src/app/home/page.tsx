@@ -3,7 +3,7 @@
 import Image from "next/image";
 import styles from "../page.module.css";
 import Link from "next/link";
-import { FaRegUser, FaSignOutAlt } from "react-icons/fa"; // Adicionado FaSignOutAlt para o ícone de logout
+import { FaRegUser, FaSignOutAlt, FaChartBar } from "react-icons/fa"; // Adicionado FaSignOutAlt para o ícone de logout
 import { SiElectronbuilder } from "react-icons/si";
 import { BiSolidUserBadge } from "react-icons/bi";
 import { TbFileSearch } from "react-icons/tb";
@@ -130,6 +130,10 @@ export default function Home() {
           <div className={styles.icone}>
             <TbFileSearch className={styles.iconeInterno} />
             <Link href={`/evidencias`} className={styles.link}>Evidências</Link>
+          </div>
+          <div className={styles.icone}>
+            <FaChartBar className={styles.iconeInterno} />
+            <Link href={`/dashboard`} className={styles.link}>Dashboard</Link>
           </div>
         </nav>
         <div className={styles.config}>⚙️ Configurações</div>

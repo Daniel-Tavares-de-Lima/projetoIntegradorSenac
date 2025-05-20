@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@sgratzl/chartjs-chart-boxplot": "^4.4.4",
+    "chart.js": "^4.4.9",
+    "chartjs-chart-box-and-violin-plot": "^4.0.0",
     "jspdf": "^3.0.1",
     "jwt-decode": "^4.0.0",
     "next": "15.2.4",

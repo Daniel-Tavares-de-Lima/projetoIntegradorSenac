@@ -1,7 +1,15 @@
 import type { NextConfig } from "next";
+import withPWA from "next-pwa";
 
-const nextConfig: NextConfig = {
-  /* config options here */
-};
+// Tipando corretamente o config com PWA
+const nextConfig: NextConfig = withPWA({
+  reactStrictMode: true,
+  swcMinify: true,
+  pwa: {
+    dest: "public",
+    register: true,
+    skipWaiting: true,
+  },
+});
 
 export default nextConfig;

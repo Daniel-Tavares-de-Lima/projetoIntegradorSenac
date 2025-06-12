@@ -63,7 +63,20 @@ export default function Casos() {
   const [reportContent, setReportContent] = useState("");
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
-  const [reports, setReports] = useState<any[]>([]);
+  type Report = {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: Date; 
+};
+
+type Exam = {
+  exam: string;
+  date: string;
+};
+
+  const [reports, setReports] = useState<Report[]>([]);
+
 
   function getErrorMessage(error: unknown): string {
     if (error instanceof Error) return error.message;
@@ -368,11 +381,11 @@ export default function Casos() {
     alert("✅ Relatório copiado para a área de transferência!");
   };
 
-  const handleViewReport = (report) => {
-    setReportTitle(report.title);
-    setReportContent(report.content);
-    setReportModalVisible(true);
-  };
+  const handleViewReport = (report: Report) => {
+  setReportTitle(report.title);
+  setReportContent(report.content);
+  setReportModalVisible(true);
+};
 
   const getManagerName = (managerId: string) => {
     const user = usuarios.find((u) => u.id === managerId);
@@ -762,7 +775,7 @@ export default function Casos() {
                       if (!selectedCase.content) return <p>Nenhum exame solicitado</p>;
                       const parsedContent = JSON.parse(selectedCase.content);
                       if (Array.isArray(parsedContent.requestedExams) && parsedContent.requestedExams.length > 0) {
-                        return parsedContent.requestedExams.map((exam: any, index: number) => (
+                        return parsedContent.requestedExams.map((exam: Exam, index: number) => (
                           <p key={index}>
                             {exam.exam} (Solicitado em: {new Date(exam.date).toLocaleDateString("pt-BR")})
                           </p>

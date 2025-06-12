@@ -10,6 +10,8 @@ import { BiSolidUserBadge } from "react-icons/bi";
 import { TbFileSearch } from "react-icons/tb";
 import { useState, useEffect } from "react";
 import { getUserInfo } from "../services/infoUserServices";
+import {generateReport} from "../services/serverServicesIA";
+import ReactMarkdown from "react-markdown";
 
 interface Caso {
   id: string;
@@ -21,13 +23,16 @@ interface Caso {
   solicitante?: string;
   dateOpened: string;
   dateFact: string;
-  victims: string[]; // Novo campo
+  victims: string[];
+  content?: string;
+  fileName?: string;
 }
 
 interface User {
   id: string;
   name: string;
   role: string;
+  gender?: string;
 }
 
 export default function Casos() {
@@ -35,7 +40,7 @@ export default function Casos() {
   const [filteredCasos, setFilteredCasos] = useState<Caso[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [usuarios, setUsuarios] = useState<User[]>([]);
-  const [victims, setVictims] = useState<User[]>([]); // Novo estado para vítimas
+  const [victims, setVictims] = useState<User[]>([]);
   const [userName, setUserName] = useState<string>("Usuário");
   const [formData, setFormData] = useState({
     title: "",
@@ -45,12 +50,20 @@ export default function Casos() {
     statusCase: "" as "" | "ANDAMENTO" | "FINALIZADO" | "ARQUIVADO",
     solicitante: "",
     dateFact: "",
-    victims: [] as string[], // Novo campo
+    victims: [] as string[],
   });
   const [error, setError] = useState<string | null>(null);
   const [editCaseId, setEditCaseId] = useState<string | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [selectedCase, setSelectedCase] = useState<Caso | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [reportModalVisible, setReportModalVisible] = useState(false);
+  const [reportTitle, setReportTitle] = useState("");
+  const [reportContent, setReportContent] = useState("");
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
+  const [reports, setReports] = useState<any[]>([]);
 
   function getErrorMessage(error: unknown): string {
     if (error instanceof Error) return error.message;
@@ -127,6 +140,30 @@ export default function Casos() {
     }
   };
 
+  const fetchReports = async (caseId: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Usuário não autenticado.");
+      const response = await fetch("https://pi3p.onrender.com/reports", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Erro ao buscar relatórios");
+      const caseReports = Array.isArray(data)
+        ? data.filter((report) => report.caseId === caseId)
+        : [];
+      setReports(caseReports);
+      console.log("Relatórios encontrados:", caseReports);
+    } catch (error) {
+      console.error("Erro ao buscar relatórios:", getErrorMessage(error));
+      setReports([]);
+    }
+  };
+
   const handleSearch = (term: string) => {
     setSearchTerm(term);
     if (!term.trim()) {
@@ -138,7 +175,11 @@ export default function Casos() {
       (caso) =>
         caso.title.toLowerCase().includes(lowerTerm) ||
         caso.description.toLowerCase().includes(lowerTerm) ||
-        (caso.solicitante && caso.solicitante.toLowerCase().includes(lowerTerm))
+        (caso.solicitante && caso.solicitante.toLowerCase().includes(lowerTerm)) ||
+        caso.victims?.some((victimId) => {
+          const victim = victims.find((v) => v.id === victimId);
+          return victim && victim.name.toLowerCase().includes(lowerTerm);
+        })
     );
     setFilteredCasos(filtered);
   };
@@ -162,6 +203,11 @@ export default function Casos() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleVictimChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedVictims = Array.from(e.target.selectedOptions, (option) => option.value);
+    setFormData((prev) => ({ ...prev, victims: selectedVictims }));
   };
 
   const saveCase = async (e: React.FormEvent) => {
@@ -213,20 +259,20 @@ export default function Casos() {
         alert("✅ Caso salvo com sucesso!");
       }
       setFormData({
-        title: "",
-        description: "",
-        classification: "",
-        peritoResponsavel: "",
-        statusCase: "",
-        solicitante: "",
-        dateFact: "",
-        victims: [],
-      });
+          title: "",
+          description: "",
+          classification: "",
+          peritoResponsavel: "",
+          statusCase: "",
+          solicitante: "",
+          dateFact: "",
+          victims: [],
+        });
       setError(null);
       fetchCasos();
-    } catch (err) {
-      setError(getErrorMessage(err));
-      alert(`❌ Erro: ${err}`);
+    } catch (error) {
+      setError(getErrorMessage(error));
+      alert(`❌ Erro: ${getErrorMessage(error)}`);
     }
   };
 
@@ -252,7 +298,80 @@ export default function Casos() {
       fetchCasos();
     } catch (error) {
       setError(getErrorMessage(error));
+      alert(`❌ Erro: ${getErrorMessage(error)}`);
     }
+  };
+
+  const handleViewCase = async (caso: Caso) => {
+    setSelectedCase(caso);
+    setModalVisible(true);
+    await fetchReports(caso.id);
+  };
+
+  const handleGenerateReport = async () => {
+    if (!selectedCase) return;
+    setIsGeneratingReport(true);
+    setReportError(null);
+    try {
+      const victimDetails = victims.filter((v) =>
+        selectedCase.victims?.includes(v.id)
+      );
+      const report = await generateReport(selectedCase, victimDetails, usuarios.filter((u) => u.role === "PERITO"));
+      setReportTitle(report.title);
+      setReportContent(report.content);
+      setReportModalVisible(true);
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      setReportError(errorMessage);
+      alert(`❌ Erro: ${errorMessage}`);
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
+  const handleSaveReport = async () => {
+    if (!selectedCase || !reportTitle || !reportContent) {
+      alert("❌ Título ou conteúdo do relatório inválido.");
+      return;
+    }
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Usuário não autenticado.");
+      const response = await fetch("https://pi3p.onrender.com/reports", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: reportTitle,
+          content: reportContent,
+          caseId: selectedCase.id,
+        }),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Erro ao salvar relatório");
+      }
+      alert("✅ Relatório salvo com sucesso!");
+      setReportModalVisible(false);
+      await fetchReports(selectedCase.id);
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      alert(`❌ Erro: ${errorMessage}`);
+      setReportError(errorMessage);
+    }
+  };
+
+  const handleCopyReport = () => {
+    navigator.clipboard.writeText(reportContent);
+    alert("✅ Relatório copiado para a área de transferência!");
+  };
+
+  const handleViewReport = (report) => {
+    setReportTitle(report.title);
+    setReportContent(report.content);
+    setReportModalVisible(true);
   };
 
   const getManagerName = (managerId: string) => {
@@ -317,7 +436,7 @@ export default function Casos() {
           </div>
           <input
             type="search"
-            placeholder="Pesquisar por caso"
+            placeholder="Pesquisar por caso ou vítima"
             className={casosStyles.pesquisa}
             value={searchTerm}
             onChange={(e) => handleSearch(e.target.value)}
@@ -334,7 +453,7 @@ export default function Casos() {
           <h2>Pesquisar</h2>
           <input
             type="search"
-            placeholder="Pesquisar por caso"
+            placeholder="Pesquisar por caso ou vítima"
             className={casosStyles.pesquisa}
             value={searchTerm}
             onChange={(e) => handleSearch(e.target.value)}
@@ -463,12 +582,7 @@ export default function Casos() {
                       name="victims"
                       multiple
                       value={formData.victims}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          victims: Array.from(e.target.selectedOptions, (option) => option.value),
-                        }))
-                      }
+                      onChange={handleVictimChange}
                       required
                     >
                       <option value="">Selecione as vítimas</option>
@@ -534,7 +648,14 @@ export default function Casos() {
                       </td>
                       <td data-label="Responsável">{getManagerName(caso.managerId)}</td>
                       <td data-label="Vítimas">
-                        {caso.victims?.map((victimId) => getManagerName(victimId)).join(", ") || "-"}
+                        {Array.isArray(caso.victims) && caso.victims.length > 0
+                          ? caso.victims
+                              .map((victimId) => {
+                                const victim = victims.find((v) => v.id === victimId);
+                                return victim ? victim.name : "-";
+                              })
+                              .join(", ")
+                          : "-"}
                       </td>
                       <td data-label="Status">
                         <span className={casosStyles[`status${caso.statusCase}`]}>
@@ -545,7 +666,14 @@ export default function Casos() {
                         <button className={casosStyles.botaoExame}>Solicitar Exame</button>
                       </td>
                       <td data-label="Ações" className={casosStyles.acoes}>
-                        {currentUserRole === "ADMIN" || currentUserRole === "PERITO" ? (
+                        <button
+                          className={casosStyles.acaoBotao}
+                          title="Visualizar"
+                          onClick={() => handleViewCase(caso)}
+                        >
+                          👁️
+                        </button>
+                        {(currentUserRole === "ADMIN" || currentUserRole === "PERITO") && (
                           <>
                             <button
                               className={casosStyles.acaoBotao}
@@ -562,8 +690,6 @@ export default function Casos() {
                               ❌
                             </button>
                           </>
-                        ) : (
-                          <span>Sem permissões</span>
                         )}
                       </td>
                     </tr>
@@ -577,6 +703,170 @@ export default function Casos() {
             </table>
           </div>
         </section>
+
+        {/* Modal de Detalhes do Caso */}
+        {modalVisible && selectedCase && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <h2 className="text-2xl font-bold mb-4">Detalhes do Caso</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="font-semibold">ID:</label>
+                  <p>{selectedCase.id}</p>
+                </div>
+                <div>
+                  <label className="font-semibold">Título:</label>
+                  <p>{selectedCase.title}</p>
+                </div>
+                <div>
+                  <label className="font-semibold">Descrição:</label>
+                  <p>{selectedCase.description}</p>
+                </div>
+                <div>
+                  <label className="font-semibold">Data do Fato:</label>
+                  <p>{new Date(selectedCase.dateFact).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <label className="font-semibold">Classificação:</label>
+                  <p>{selectedCase.classification}</p>
+                </div>
+                <div>
+                  <label className="font-semibold">Responsável:</label>
+                  <p>{getManagerName(selectedCase.managerId)}</p>
+                </div>
+                <div>
+                  <label className="font-semibold">Solicitante:</label>
+                  <p>{selectedCase.solicitante || "-"}</p>
+                </div>
+                <div>
+                  <label className="font-semibold">Status:</label>
+                  <p>{selectedCase.statusCase}</p>
+                </div>
+                <div>
+                  <label className="font-semibold">Vítimas:</label>
+                  <p>
+                    {Array.isArray(selectedCase.victims) && selectedCase.victims.length > 0
+                      ? selectedCase.victims
+                          .map((victimId) => {
+                            const victim = victims.find((v) => v.id === victimId);
+                            return victim ? victim.name : "-";
+                          })
+                          .join(", ")
+                      : "-"}
+                  </p>
+                </div>
+                <div>
+                  <label className="font-semibold">Exames Solicitados:</label>
+                  {(() => {
+                    try {
+                      if (!selectedCase.content) return <p>Nenhum exame solicitado</p>;
+                      const parsedContent = JSON.parse(selectedCase.content);
+                      if (Array.isArray(parsedContent.requestedExams) && parsedContent.requestedExams.length > 0) {
+                        return parsedContent.requestedExams.map((exam: any, index: number) => (
+                          <p key={index}>
+                            {exam.exam} (Solicitado em: {new Date(exam.date).toLocaleDateString("pt-BR")})
+                          </p>
+                        ));
+                      }
+                      return <p>Nenhum exame solicitado</p>;
+                    } catch (e) {
+                      console.error("Erro ao parsear content:", e);
+                      return <p>Erro ao carregar exames solicitados</p>;
+                    }
+                  })()}
+                </div>
+                <div>
+                  <label className="font-semibold">Relatórios Gerados:</label>
+                  {Array.isArray(reports) && reports.length > 0 ? (
+                    reports.map((report) => (
+                      <div key={report.id} className="flex items-center mt-2">
+                        <p>
+                          {report.title} (Gerado em: {new Date(report.createdAt).toLocaleDateString("pt-BR")})
+                        </p>
+                        <button
+                          className="ml-4 px-2 py-1 bg-blue-500 text-white rounded"
+                          onClick={() => handleViewReport(report)}
+                        >
+                          Ver
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p>Nenhum relatório gerado</p>
+                  )}
+                </div>
+              </div>
+              <div className="mt-6 flex space-x-2">
+                <button
+                  className="px-4 py-2 bg-purple-600 text-white rounded disabled:bg-gray-400"
+                  onClick={handleGenerateReport}
+                  disabled={isGeneratingReport}
+                >
+                  {isGeneratingReport ? "Gerando Laudo..." : "Gerar Laudo"}
+                </button>
+                <button
+                  className="px-4 py-2 bg-gray-600 text-white rounded"
+                  onClick={() => setModalVisible(false)}
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de Relatório */}
+        {reportModalVisible && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <h2 className="text-2xl font-bold mb-4">Laudo Pericial</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="font-semibold">Título:</label>
+                  <input
+                    type="text"
+                    value={reportTitle}
+                    onChange={(e) => setReportTitle(e.target.value)}
+                    className="w-full border border-gray-300 rounded px-2 py-1 mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="font-semibold">Conteúdo:</label>
+                  <div className="bg-gray-50 p-4 rounded border border-gray-200 mt-1">
+                    {reportContent ? (
+                      <ReactMarkdown>{reportContent}</ReactMarkdown>
+                    ) : (
+                      <p className="text-gray-500">Nenhum conteúdo disponível</p>
+                    )}
+                  </div>
+                </div>
+                {reportError && (
+                  <p className="text-red-500">{reportError}</p>
+                )}
+              </div>
+              <div className="mt-6 flex space-x-2">
+                <button
+                  className="px-4 py-2 bg-green-600 text-white rounded"
+                  onClick={handleSaveReport}
+                >
+                  Salvar Laudo
+                </button>
+                <button
+                  className="px-4 py-2 bg-blue-600 text-white rounded"
+                  onClick={handleCopyReport}
+                >
+                  Copiar Laudo
+                </button>
+                <button
+                  className="px-4 py-2 bg-gray-600 text-white rounded"
+                  onClick={() => setReportModalVisible(false)}
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

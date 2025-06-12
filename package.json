@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@sgratzl/chartjs-chart-boxplot": "^4.4.4",
+    "axios": "^1.9.0",
     "chart.js": "^4.4.9",
     "chartjs-chart-box-and-violin-plot": "^4.0.0",
     "expo-document-picker": "~13.1.5",
@@ -21,6 +22,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
+    "react-markdown": "^10.1.0",
     "react-native-document-picker": "^9.3.1"
   },
   "devDependencies": {

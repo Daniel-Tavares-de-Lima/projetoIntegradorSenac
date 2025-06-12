@@ -66,16 +66,16 @@ export default function Dashboard() {
   }>({}); // Objeto para gerenciar instâncias de gráficos
 
   // Função para calcular a idade a partir da data de nascimento
-  const calculateAge = (birthDate: string) => {
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
-    return age; // Retorna a idade calculada
-  };
+  // const calculateAge = (birthDate: string) => {
+  //   const today = new Date();
+  //   const birth = new Date(birthDate);
+  //   let age = today.getFullYear() - birth.getFullYear();
+  //   const monthDiff = today.getMonth() - birth.getMonth();
+  //   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+  //     age--;
+  //   }
+  //   return age; // Retorna a idade calculada
+  // };
 
   // Função auxiliar para formatar mensagens de erro
   function getErrorMessage(error: unknown): string {
@@ -105,8 +105,10 @@ export default function Dashboard() {
     }
 
     setUserName(userInfo.name || "Usuário Desconhecido"); // Define o nome do usuário
-    setCurrentUserRole(userInfo.role || "UNKNOWN"); // Define o papel do usuário
+    setCurrentUserRole(userInfo.role || "UNKNOWN");// Define o papel do usuário
 
+    console.log(currentUserRole);
+    
     fetchData(); // Carrega casos e pacientes
   }, []); // Executa apenas na montagem do componente
 

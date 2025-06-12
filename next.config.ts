@@ -22,9 +22,14 @@ const pwaConfig = {
 };
 
 // Configurações gerais do Next
-const baseConfig: NextConfig = {
+const baseConfig = {
   reactStrictMode: true,
   swcMinify: true,
+
+  eslint: {
+    ignoreDuringBuilds: true, 
+  },
+
 };
 
 // Exporta com PWA

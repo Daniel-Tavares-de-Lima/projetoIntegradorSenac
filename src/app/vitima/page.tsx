@@ -10,7 +10,7 @@ import { FaRegUser, FaChartBar } from "react-icons/fa6"; // Ícones de usuário 
 import { SiElectronbuilder } from "react-icons/si"; // Ícone para profissionais
 import { BiSolidUserBadge } from "react-icons/bi"; // Ícone para casos
 import { TbFileSearch } from "react-icons/tb"; // Ícone para evidências
-import { createVitima, updateVitima, deleteVitima, fetchVitimas, fetchCases } from "../services/vitimaServices"; // Serviços renomeados para vítimas
+import { createVitima, updateVitima, deleteVitima, fetchCases } from "../services/vitimaServices"; // Serviços renomeados para vítimas
 import { getUserInfo } from "../services/infoUserServices"; // Serviço para obter informações do usuário logado
 
 // Interface para a entidade Vítima

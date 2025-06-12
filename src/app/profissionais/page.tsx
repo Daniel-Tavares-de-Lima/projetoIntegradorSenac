@@ -202,7 +202,7 @@ export default function Profissionais() {
           <nav className={casosStyles.navi}>
             <div className={casosStyles.icone}>
               <FaRegUser className={casosStyles.iconeInterno} />
-              <Link href={`/pacientes`} className={casosStyles.link}>Pacientes</Link>
+              <Link href={`/vitima`} className={casosStyles.link}>Vítima</Link>
             </div>
             <div className={casosStyles.icone}>
               <SiElectronbuilder className={casosStyles.iconeInterno} />

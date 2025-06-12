@@ -1,17 +1,16 @@
-"use client"; // Indica que este componente é executado no lado do cliente (Next.js)
+"use client";
 
-import Image from "next/image"; // Componente do Next.js para renderização otimizada de imagens
-import casosStyles from "../styles/Home.module.css"; // Importa estilos CSS modulares para o componente
-import Link from "next/link"; // Componente do Next.js para navegação entre páginas
-import { createCase, updateCase, deleteCase } from "../services/casosService"; // Funções de serviço para gerenciar casos (criar, atualizar, excluir)
-import { FaRegUser, FaChartBar } from "react-icons/fa6"; // Ícones de usuário e dashboard
-import { SiElectronbuilder } from "react-icons/si"; // Ícone para profissionais
-import { BiSolidUserBadge } from "react-icons/bi"; // Ícone para casos
-import { TbFileSearch } from "react-icons/tb"; // Ícone para evidências
-import { useState, useEffect } from "react"; // Hooks do React para gerenciamento de estado e efeitos colaterais
-import { getUserInfo } from "../services/infoUserServices"; // Serviço para obter informações do usuário logado
+import Image from "next/image";
+import casosStyles from "../styles/Home.module.css";
+import Link from "next/link";
+import { createCase, updateCase, deleteCase } from "../services/casosService";
+import { FaRegUser, FaChartBar } from "react-icons/fa6";
+import { SiElectronbuilder } from "react-icons/si";
+import { BiSolidUserBadge } from "react-icons/bi";
+import { TbFileSearch } from "react-icons/tb";
+import { useState, useEffect } from "react";
+import { getUserInfo } from "../services/infoUserServices";
 
-// Define a interface Caso para tipagem dos dados de casos periciais
 interface Caso {
   id: string;
   title: string;
@@ -22,24 +21,23 @@ interface Caso {
   solicitante?: string;
   dateOpened: string;
   dateFact: string;
+  victims: string[]; // Novo campo
 }
 
-// Define a interface User para tipagem dos dados de usuários
 interface User {
   id: string;
   name: string;
   role: string;
 }
 
-// Componente principal Casos
 export default function Casos() {
-  // Estados para gerenciar dados do componente
-  const [casos, setCasos] = useState<Caso[]>([]); // Armazena a lista de casos periciais
-  const [filteredCasos, setFilteredCasos] = useState<Caso[]>([]); // Armazena a lista filtrada de casos
-  const [searchTerm, setSearchTerm] = useState(""); // Controla o termo de busca
-  const [usuarios, setUsuarios] = useState<User[]>([]); // Armazena a lista de usuários (peritos)
-  const [userName, setUserName] = useState<string>("Usuário"); // Nome do usuário logado
-  const [formData, setFormData] = useState({ // Dados do formulário para criar/editar casos
+  const [casos, setCasos] = useState<Caso[]>([]);
+  const [filteredCasos, setFilteredCasos] = useState<Caso[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [usuarios, setUsuarios] = useState<User[]>([]);
+  const [victims, setVictims] = useState<User[]>([]); // Novo estado para vítimas
+  const [userName, setUserName] = useState<string>("Usuário");
+  const [formData, setFormData] = useState({
     title: "",
     description: "",
     classification: "",
@@ -47,25 +45,24 @@ export default function Casos() {
     statusCase: "" as "" | "ANDAMENTO" | "FINALIZADO" | "ARQUIVADO",
     solicitante: "",
     dateFact: "",
+    victims: [] as string[], // Novo campo
   });
-  const [error, setError] = useState<string | null>(null); // Armazena mensagens de erro
-  const [editCaseId, setEditCaseId] = useState<string | null>(null); // ID do caso em edição
-  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null); // Papel do usuário logado
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Controla a visibilidade da barra lateral
+  const [error, setError] = useState<string | null>(null);
+  const [editCaseId, setEditCaseId] = useState<string | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Função auxiliar para formatar mensagens de erro
   function getErrorMessage(error: unknown): string {
     if (error instanceof Error) return error.message;
     return "Erro desconhecido";
   }
 
-  // Função para buscar casos da API
   const fetchCasos = async () => {
     try {
-      const response = await fetch("https://pi3p.onrender.com/cases", { // Requisição GET para obter casos
+      const response = await fetch("https://pi3p.onrender.com/cases", {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Autenticação via token JWT
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "application/json",
         },
       });
@@ -73,25 +70,24 @@ export default function Casos() {
       if (!response.ok) {
         throw new Error(data.message || "Erro ao buscar casos");
       }
-      const casosArray = Array.isArray(data) ? data : data.cases || []; // Normaliza a resposta da API
-      setCasos(casosArray); // Atualiza o estado com a lista de casos
-      setFilteredCasos(casosArray); // Inicializa a lista filtrada
+      const casosArray = Array.isArray(data) ? data : data.cases || [];
+      setCasos(casosArray);
+      setFilteredCasos(casosArray);
     } catch (error) {
-      setError(getErrorMessage(error)); // Define mensagem de erro
-      setCasos([]); // Limpa a lista de casos
-      setFilteredCasos([]); // Limpa a lista filtrada
+      setError(getErrorMessage(error));
+      setCasos([]);
+      setFilteredCasos([]);
     }
   };
 
-  // Função para buscar usuários da API
   const fetchUsuarios = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setError("⚠️ Usuário não autenticado. Faça login novamente."); // Verifica se há token
+      setError("⚠️ Usuário não autenticado. Faça login novamente.");
       return;
     }
     try {
-      const response = await fetch("https://pi3p.onrender.com/users", { // Requisição GET para obter usuários
+      const response = await fetch("https://pi3p.onrender.com/users", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -102,17 +98,39 @@ export default function Casos() {
       if (!response.ok) {
         throw new Error(data.message || "Erro ao buscar usuários");
       }
-      setUsuarios(data); // Atualiza o estado com a lista de usuários
+      setUsuarios(data);
     } catch (error) {
-      setError(getErrorMessage(error)); // Define mensagem de erro
+      setError(getErrorMessage(error));
     }
   };
 
-  // Função para filtrar casos com base no termo de busca
+  const fetchVictims = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Usuário não autenticado. Faça login novamente.");
+      }
+      const response = await fetch("https://pi3p.onrender.com/victims", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Erro ao buscar vítimas");
+      }
+      setVictims(data);
+    } catch (error) {
+      setError(getErrorMessage(error));
+    }
+  };
+
   const handleSearch = (term: string) => {
-    setSearchTerm(term); // Atualiza o termo de busca
+    setSearchTerm(term);
     if (!term.trim()) {
-      setFilteredCasos(casos); // Se não houver termo, exibe todos os casos
+      setFilteredCasos(casos);
       return;
     }
     const lowerTerm = term.toLowerCase();
@@ -121,48 +139,53 @@ export default function Casos() {
         caso.title.toLowerCase().includes(lowerTerm) ||
         caso.description.toLowerCase().includes(lowerTerm) ||
         (caso.solicitante && caso.solicitante.toLowerCase().includes(lowerTerm))
-    ); // Filtra casos por título, descrição ou solicitante
-    setFilteredCasos(filtered); // Atualiza a lista filtrada
+    );
+    setFilteredCasos(filtered);
   };
 
-  // Hook useEffect para carregar dados iniciais
   useEffect(() => {
-    const userInfo = getUserInfo(); // Obtém informações do usuário logado
+    const userInfo = getUserInfo();
     if (!userInfo) {
       setError("⚠️ Não foi possível obter informações do usuário. Faça login novamente.");
-      window.location.href = "/login"; // Redireciona se não houver informações
+      window.location.href = "/login";
       return;
     }
+    setUserName(userInfo.name || "Usuário Desconhecido");
+    setCurrentUserRole(userInfo.role || "UNKNOWN");
+    fetchCasos();
+    fetchUsuarios();
+    fetchVictims();
+  }, []);
 
-    setUserName(userInfo.name || "Usuário Desconhecido"); // Define o nome do usuário
-    setCurrentUserRole(userInfo.role || "UNKNOWN"); // Define o papel do usuário
-
-    fetchCasos(); // Carrega os casos
-    fetchUsuarios(); // Carrega os usuários
-  }, []); // Executa apenas na montagem do componente
-
-  // Função para atualizar o estado do formulário
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value })); // Atualiza o campo correspondente
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Função para salvar ou atualizar um caso
   const saveCase = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.description || !formData.classification || !formData.peritoResponsavel || !formData.dateFact) {
-      setError("⚠️ Preencha todos os campos obrigatórios: título, descrição, tipo, perito responsável e data do fato");
-      return; // Valida campos obrigatórios
+    if (
+      !formData.title ||
+      !formData.description ||
+      !formData.classification ||
+      !formData.peritoResponsavel ||
+      !formData.dateFact ||
+      formData.victims.length === 0
+    ) {
+      setError(
+        "⚠️ Preencha todos os campos obrigatórios: título, descrição, tipo, perito responsável, data do fato e pelo menos uma vítima"
+      );
+      return;
     }
     if (!["ANDAMENTO", "FINALIZADO", "ARQUIVADO"].includes(formData.statusCase)) {
       setError("⚠️ Selecione um status válido: Em andamento, Finalizado ou Arquivado");
-      return; // Valida o status
+      return;
     }
     try {
       if (editCaseId) {
-        await updateCase( // Atualiza um caso existente
+        await updateCase(
           editCaseId,
           formData.title,
           formData.description,
@@ -170,24 +193,26 @@ export default function Casos() {
           formData.peritoResponsavel,
           formData.statusCase,
           formData.solicitante,
-          formData.dateFact
+          formData.dateFact,
+          formData.victims
         );
         alert("✅ Caso atualizado com sucesso!");
-        setEditCaseId(null); // Limpa o modo de edição
+        setEditCaseId(null);
       } else {
-        const novoCaso = await createCase( // Cria um novo caso
+        const novoCaso = await createCase(
           formData.title,
           formData.description,
           formData.classification,
           formData.peritoResponsavel,
           formData.solicitante,
           formData.dateFact,
-          formData.statusCase
+          formData.statusCase,
+          formData.victims
         );
-        setCasos((prev) => [...prev, novoCaso]); // Adiciona o novo caso à lista
+        setCasos((prev) => [...prev, novoCaso]);
         alert("✅ Caso salvo com sucesso!");
       }
-      setFormData({ // Reseta o formulário
+      setFormData({
         title: "",
         description: "",
         classification: "",
@@ -195,18 +220,18 @@ export default function Casos() {
         statusCase: "",
         solicitante: "",
         dateFact: "",
+        victims: [],
       });
-      setError(null); // Limpa erros
-      fetchCasos(); // Atualiza a lista de casos
+      setError(null);
+      fetchCasos();
     } catch (err) {
-      setError(getErrorMessage(err)); // Define mensagem de erro
+      setError(getErrorMessage(err));
       alert(`❌ Erro: ${err}`);
     }
   };
 
-  // Função para preencher o formulário com dados de um caso existente
   const handleEdit = (caso: Caso) => {
-    setEditCaseId(caso.id); // Define o ID do caso em edição
+    setEditCaseId(caso.id);
     setFormData({
       title: caso.title,
       description: caso.description,
@@ -215,57 +240,54 @@ export default function Casos() {
       statusCase: caso.statusCase as "ANDAMENTO" | "FINALIZADO" | "ARQUIVADO",
       solicitante: caso.solicitante || "",
       dateFact: caso.dateFact || "",
-    }); // Preenche o formulário
+      victims: caso.victims || [],
+    });
   };
 
-  // Função para excluir um caso
   const handleDelete = async (id: string) => {
-    if (!confirm("Tem certeza que deseja desativar este caso?")) return; // Confirmação do usuário
+    if (!confirm("Tem certeza que deseja desativar este caso?")) return;
     try {
-      await deleteCase(id); // Chama a função de exclusão
+      await deleteCase(id);
       alert("✅ Caso desativado com sucesso!");
-      fetchCasos(); // Atualiza a lista de casos
+      fetchCasos();
     } catch (error) {
-      setError(getErrorMessage(error)); // Define mensagem de erro
+      setError(getErrorMessage(error));
     }
   };
 
-  // Função para obter o nome do perito responsável
   const getManagerName = (managerId: string) => {
     const user = usuarios.find((u) => u.id === managerId);
-    return user ? user.name : "-"; // Retorna o nome ou "-" se não encontrado
+    return user ? user.name : "-";
   };
 
-  // Função para alternar a visibilidade da barra lateral
   const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen); // Inverte o estado da barra lateral
+    setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // Estrutura do componente (JSX)
   return (
-    <div className={casosStyles.container}> {/* Contêiner principal */}
+    <div className={casosStyles.container}>
       <button className={casosStyles.hamburger} onClick={toggleSidebar}>
-        {isSidebarOpen ? "✖" : "☰"} {/* Botão para abrir/fechar a barra lateral */}
+        {isSidebarOpen ? "✖" : "☰"}
       </button>
       <aside className={`${casosStyles.sidebar} ${isSidebarOpen ? casosStyles.open : ""}`}>
         <div>
-          <div className={casosStyles.logo}> {/* Seção do logo */}
+          <div className={casosStyles.logo}>
             <Image
-              src={`/imagens/Logo - Laudo.png`} // Placeholder para o logo
+              src={`/imagens/Logo - Laudo.png`}
               alt="Logo - Laudo"
               width={60}
               height={60}
             />
             <h1>
               <Link href={`/home`} className={casosStyles.titulo}>
-                Laudos Periciais Odonto-Legal {/* Título do sistema */}
+                Laudos Periciais Odonto-Legal
               </Link>
             </h1>
           </div>
-          <nav className={casosStyles.navi}> {/* Menu de navegação */}
+          <nav className={casosStyles.navi}>
             <div className={casosStyles.icone}>
               <FaRegUser className={casosStyles.iconeInterno} />
-              <Link href={`/pacientes`} className={casosStyles.link}>Pacientes</Link>
+              <Link href={`/vitima`} className={casosStyles.link}>Vítima</Link>
             </div>
             <div className={casosStyles.icone}>
               <SiElectronbuilder className={casosStyles.iconeInterno} />
@@ -285,29 +307,29 @@ export default function Casos() {
             </div>
           </nav>
         </div>
-        <div className={casosStyles.config}>⚙️ Configurações</div> {/* Link para configurações */}
+        <div className={casosStyles.config}>⚙️ Configurações</div>
       </aside>
 
-      <main className={casosStyles.main}> {/* Seção principal */}
-        <header className={casosStyles.header}> {/* Cabeçalho */}
+      <main className={casosStyles.main}>
+        <header className={casosStyles.header}>
           <div className={casosStyles.logoApp}>
-            Gest<span>Odo</span> {/* Nome estilizado do app */}
+            Gest<span>Odo</span>
           </div>
           <input
             type="search"
             placeholder="Pesquisar por caso"
             className={casosStyles.pesquisa}
             value={searchTerm}
-            onChange={(e) => handleSearch(e.target.value)} // Campo de busca
+            onChange={(e) => handleSearch(e.target.value)}
           />
           <div className={casosStyles.user}>
-            <FaRegUser /> {userName} {/* Exibe o nome do usuário logado */}
+            <FaRegUser /> {userName}
           </div>
         </header>
 
-        <section className={casosStyles.content}> {/* Conteúdo principal */}
+        <section className={casosStyles.content}>
           <h1>Casos</h1>
-          {error && <p className={casosStyles.error}>{error}</p>} {/* Exibe erros, se houver */}
+          {error && <p className={casosStyles.error}>{error}</p>}
 
           <h2>Pesquisar</h2>
           <input
@@ -315,20 +337,20 @@ export default function Casos() {
             placeholder="Pesquisar por caso"
             className={casosStyles.pesquisa}
             value={searchTerm}
-            onChange={(e) => handleSearch(e.target.value)} // Campo de busca redundante
+            onChange={(e) => handleSearch(e.target.value)}
           />
           <div className={casosStyles.conteudo}>
             <button
               className={casosStyles.botaoPesquisar}
-              onClick={() => handleSearch(searchTerm)} // Botão para confirmar busca
+              onClick={() => handleSearch(searchTerm)}
             >
               🔍 Pesquisar
             </button>
           </div>
 
-          <div className={casosStyles.section}> {/* Formulário e tabela */}
-            <h2>{editCaseId ? "Editar Caso" : "Cadastrar Caso"}</h2> {/* Título dinâmico */}
-            <form onSubmit={saveCase} className={casosStyles.cadastroCasos}> {/* Formulário de cadastro/edição */}
+          <div className={casosStyles.section}>
+            <h2>{editCaseId ? "Editar Caso" : "Cadastrar Caso"}</h2>
+            <form onSubmit={saveCase} className={casosStyles.cadastroCasos}>
               <div className={casosStyles.cadastroEsquerda}>
                 <div className={casosStyles.organizacao}>
                   <label>
@@ -409,7 +431,7 @@ export default function Casos() {
                     >
                       <option value="">Selecione</option>
                       {usuarios
-                        .filter((user) => user.role === "PERITO") // Filtra apenas peritos
+                        .filter((user) => user.role === "PERITO")
                         .map((user) => (
                           <option key={user.id} value={user.id}>
                             {user.name}
@@ -434,15 +456,39 @@ export default function Casos() {
                     </select>
                   </label>
                 </div>
+                <div className={casosStyles.organizacao}>
+                  <label>
+                    Vítimas* <br />
+                    <select
+                      name="victims"
+                      multiple
+                      value={formData.victims}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          victims: Array.from(e.target.selectedOptions, (option) => option.value),
+                        }))
+                      }
+                      required
+                    >
+                      <option value="">Selecione as vítimas</option>
+                      {victims.map((victim) => (
+                        <option key={victim.id} value={victim.id}>
+                          {victim.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
                 <button type="submit" className={casosStyles.botaoSalvar}>
-                  {editCaseId ? "Salvar Alterações" : "Salvar"} {/* Botão dinâmico para salvar */}
+                  {editCaseId ? "Salvar Alterações" : "Salvar"}
                 </button>
                 {editCaseId && (
                   <button
                     type="button"
                     onClick={() => {
                       setEditCaseId(null);
-                      setFormData({ // Reseta o formulário ao cancelar
+                      setFormData({
                         title: "",
                         description: "",
                         classification: "",
@@ -450,6 +496,7 @@ export default function Casos() {
                         statusCase: "",
                         solicitante: "",
                         dateFact: "",
+                        victims: [],
                       });
                       setError(null);
                     }}
@@ -461,7 +508,7 @@ export default function Casos() {
             </form>
 
             <h2>Todos os Casos</h2>
-            <table> {/* Tabela para exibir casos */}
+            <table>
               <thead>
                 <tr>
                   <th>Título</th>
@@ -469,6 +516,7 @@ export default function Casos() {
                   <th>Tipo</th>
                   <th>Data do Fato</th>
                   <th>Responsável</th>
+                  <th>Vítimas</th>
                   <th>Status</th>
                   <th>Solicitar Exames</th>
                   <th>Ações</th>
@@ -482,12 +530,15 @@ export default function Casos() {
                       <td data-label="Descrição">{caso.description}</td>
                       <td data-label="Tipo">{caso.classification}</td>
                       <td data-label="Data do Fato">
-                        {new Date(caso.dateFact).toLocaleDateString()} {/* Formata a data */}
+                        {new Date(caso.dateFact).toLocaleDateString()}
                       </td>
                       <td data-label="Responsável">{getManagerName(caso.managerId)}</td>
+                      <td data-label="Vítimas">
+                        {caso.victims?.map((victimId) => getManagerName(victimId)).join(", ") || "-"}
+                      </td>
                       <td data-label="Status">
                         <span className={casosStyles[`status${caso.statusCase}`]}>
-                          {caso.statusCase} {/* Estiliza o status */}
+                          {caso.statusCase}
                         </span>
                       </td>
                       <td data-label="Solicitar Exames">
@@ -499,27 +550,27 @@ export default function Casos() {
                             <button
                               className={casosStyles.acaoBotao}
                               title="Editar"
-                              onClick={() => handleEdit(caso)} // Botão para editar caso
+                              onClick={() => handleEdit(caso)}
                             >
                               ✏️
                             </button>
                             <button
                               className={casosStyles.acaoBotao}
                               title="Excluir"
-                              onClick={() => handleDelete(caso.id)} // Botão para excluir caso
+                              onClick={() => handleDelete(caso.id)}
                             >
                               ❌
                             </button>
                           </>
                         ) : (
-                          <span>Sem permissões</span> // Exibe mensagem se o usuário não tem permissão
+                          <span>Sem permissões</span>
                         )}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={8}>Nenhum caso encontrado</td> {/* Mensagem para lista vazia */}
+                    <td colSpan={9}>Nenhum caso encontrado</td>
                   </tr>
                 )}
               </tbody>

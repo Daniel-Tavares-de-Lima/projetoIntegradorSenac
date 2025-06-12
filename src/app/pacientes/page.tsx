@@ -246,7 +246,7 @@ export default function Pacientes() {
           <nav className={casosStyles.navi}>
             <div className={casosStyles.icone}>
               <FaRegUser className={casosStyles.iconeInterno} />
-              <Link href={`/pacientes`} className={casosStyles.link}>Pacientes</Link>
+              <Link href={`/pacientes`} className={casosStyles.link}>Vítima</Link>
             </div>
             <div className={casosStyles.icone}>
               <SiElectronbuilder className={casosStyles.iconeInterno} />
@@ -338,7 +338,7 @@ export default function Pacientes() {
                 </Link>
               </div>
 
-              <h3>Pacientes</h3>
+              <h3>Vítimas</h3>
               <div className={casosStyles.section}>
                 <table>
                   <thead>

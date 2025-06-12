@@ -1,3 +1,5 @@
+
+
 "use client";
 
 import Image from "next/image";
@@ -51,7 +53,7 @@ export default function Home() {
     console.log("Informações do usuário:", userInfo);
     
     if (!userInfo) {
-      router.push("/login");
+      router.push("/");
       return;
     }
 
@@ -117,7 +119,7 @@ export default function Home() {
         <nav className={styles.navi}>
           <div className={styles.icone}>
             <FaRegUser className={styles.iconeInterno} />
-            <Link href={`/pacientes`} className={styles.link}>Pacientes</Link>
+            <Link href={`/vitima`} className={styles.link}>Vitima</Link>
           </div>
           <div className={styles.icone}>
             <SiElectronbuilder className={styles.iconeInterno} />
@@ -224,7 +226,7 @@ export default function Home() {
               </tbody>
             </table>
 
-            <h2>Pacientes</h2>
+            <h2>Vítimas</h2>
             <table>
               <thead>
                 <tr>

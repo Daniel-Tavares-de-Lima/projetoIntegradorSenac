@@ -1,6 +1,6 @@
 
 //--Função para salvar casos
-export async function createCase(title, description, classification, managerId, solicitante, dateFact, statusCase) {
+export async function createCase(title, description, classification, managerId, solicitante, dateFact, statusCase, vitimas) {
   try {
     const token = localStorage.getItem("token");
 
@@ -11,6 +11,10 @@ export async function createCase(title, description, classification, managerId, 
     // Validar statusCase
     if (statusCase && !["ANDAMENTO", "FINALIZADO", "ARQUIVADO"].includes(statusCase)) {
       throw new Error("O status do caso deve ser ANDAMENTO, FINALIZADO ou ARQUIVADO.");
+    }
+
+    if (!victims || !Array.isArray(victims) || victims.length === 0) {
+      throw new Error("Pelo menos uma vítima deve ser associada ao caso.");
     }
 
     const response = await fetch("https://pi3p.onrender.com/cases", {
@@ -27,7 +31,8 @@ export async function createCase(title, description, classification, managerId, 
         statusCase: statusCase || undefined, // Enviar undefined se statusCase for vazio
         status: "ATIVADO",
         solicitante,
-        dateFact
+        dateFact,
+        vitimas
       }),
     });
 
@@ -44,12 +49,19 @@ export async function createCase(title, description, classification, managerId, 
 }
 
 //--Função para editar casos
-export async function updateCase(id, title, description, classification, managerId, statusCase, solicitante, dateFact) {
+export async function updateCase(id, title, description, classification, managerId, statusCase, solicitante, dateFact, vitimas) {
   try {
     const token = localStorage.getItem("token");
     if (!token) {
       throw new Error("Usuário não autenticado. Faça login novamente.");
     }
+
+    // Validar victims
+    if (!victims || !Array.isArray(victims) || victims.length === 0) {
+      throw new Error("Pelo menos uma vítima deve ser associada ao caso.");
+    }
+
+
     const body = {};
     if (title) body.title = title;
     if (description) body.description = description;
@@ -58,6 +70,7 @@ export async function updateCase(id, title, description, classification, manager
     if (statusCase) body.statusCase = statusCase;
     if (solicitante) body.solicitante = solicitante;
     if(dateFact) body.dateFact = dateFact;
+    if (vitimas) body.victims = vitimas;
 
     const response = await fetch(`https://pi3p.onrender.com/cases/${id}`, {
       method: "PATCH",
